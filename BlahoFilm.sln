@@ -20,41 +20,49 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IdentityServer", "IdentityS
 		IdentityServer\txt.txt = IdentityServer\txt.txt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeServiceAPI", "AnimeService\AnimeServiceAPI\AnimeServiceAPI.csproj", "{ACF58820-4304-4A42-9AC3-2A280ECA1638}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeServiceAPI", "AnimeService\AnimeServiceAPI\AnimeServiceAPI.csproj", "{ACF58820-4304-4A42-9AC3-2A280ECA1638}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer", "AnimeService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{A6F778D5-A212-44D6-8C4E-85C8ACA44350}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogicLayer", "AnimeService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{A6F778D5-A212-44D6-8C4E-85C8ACA44350}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "AnimeService\DataAccessLayer\DataAccessLayer.csproj", "{EEA42E51-5966-4740-863E-7425C39C0E37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "AnimeService\DataAccessLayer\DataAccessLayer.csproj", "{EEA42E51-5966-4740-863E-7425C39C0E37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartoonServiceAPI", "CartoonService\CartoonServiceAPI\CartoonServiceAPI.csproj", "{68088458-8F34-4AF9-A76F-77B13FC87665}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CartoonServiceAPI", "CartoonService\CartoonServiceAPI\CartoonServiceAPI.csproj", "{68088458-8F34-4AF9-A76F-77B13FC87665}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "CartoonService\DataAccessLayer\DataAccessLayer.csproj", "{025AC2C4-0286-4DF5-8864-D37CBD91F3E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "CartoonService\DataAccessLayer\DataAccessLayer.csproj", "{025AC2C4-0286-4DF5-8864-D37CBD91F3E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer", "CartoonService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{80E97385-2890-4243-9001-9F10553F3743}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogicLayer", "CartoonService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{80E97385-2890-4243-9001-9F10553F3743}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilmServiceAPI", "FilmService\FilmServiceAPI\FilmServiceAPI.csproj", "{710D1DEC-53DA-417C-9A6B-7F7F4F25666D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FilmServiceAPI", "FilmService\FilmServiceAPI\FilmServiceAPI.csproj", "{710D1DEC-53DA-417C-9A6B-7F7F4F25666D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "FilmService\DataAccessLayer\DataAccessLayer.csproj", "{3B927514-54B5-41B3-9BE6-EA2E984F4F24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "FilmService\DataAccessLayer\DataAccessLayer.csproj", "{3B927514-54B5-41B3-9BE6-EA2E984F4F24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer", "FilmService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{CDD2B928-1F8F-43E2-B17E-8660E4B9B022}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogicLayer", "FilmService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{CDD2B928-1F8F-43E2-B17E-8660E4B9B022}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeriesServiceAPI", "SeriesService\SeriesServiceAPI\SeriesServiceAPI.csproj", "{2DD69E5B-0241-467F-A9D1-4E4F17CAD013}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SeriesServiceAPI", "SeriesService\SeriesServiceAPI\SeriesServiceAPI.csproj", "{2DD69E5B-0241-467F-A9D1-4E4F17CAD013}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "SeriesService\DataAccessLayer\DataAccessLayer.csproj", "{D0F1F1E3-9493-46C5-A1ED-858E0D468B3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "SeriesService\DataAccessLayer\DataAccessLayer.csproj", "{D0F1F1E3-9493-46C5-A1ED-858E0D468B3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer", "SeriesService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{D527B35A-E5E7-4BBD-9B44-8E8A2899A448}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogicLayer", "SeriesService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{D527B35A-E5E7-4BBD-9B44-8E8A2899A448}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactionServiceAPI", "TransactionService\TransactionServiceAPI\TransactionServiceAPI.csproj", "{3D27590F-89D5-4F10-8661-1C4EA079CE81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransactionServiceAPI", "TransactionService\TransactionServiceAPI\TransactionServiceAPI.csproj", "{3D27590F-89D5-4F10-8661-1C4EA079CE81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer", "TransactionService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{1CC7EE8F-D0F0-400C-B55B-B20D96AC0855}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogicLayer", "TransactionService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{1CC7EE8F-D0F0-400C-B55B-B20D96AC0855}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "TransactionService\DataAccessLayer\DataAccessLayer.csproj", "{1FEF67BB-0F1E-4F00-9071-00DB3DCB3534}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "TransactionService\DataAccessLayer\DataAccessLayer.csproj", "{1FEF67BB-0F1E-4F00-9071-00DB3DCB3534}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserServiceAPI", "UserService\UserServiceAPI\UserServiceAPI.csproj", "{05260786-011D-46DC-88E5-AD29736FBE33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserServiceAPI", "UserService\UserServiceAPI\UserServiceAPI.csproj", "{05260786-011D-46DC-88E5-AD29736FBE33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "UserService\DataAccessLayer\DataAccessLayer.csproj", "{856B0A34-1A61-482F-9FA5-856D5E2DA212}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "UserService\DataAccessLayer\DataAccessLayer.csproj", "{856B0A34-1A61-482F-9FA5-856D5E2DA212}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer", "UserService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{B8C74B30-19EC-4FF0-95CE-76655DCA6368}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogicLayer", "UserService\BusinessLogicLayer\BusinessLogicLayer.csproj", "{B8C74B30-19EC-4FF0-95CE-76655DCA6368}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiGateWay", "ApiGateWay", "{FD9A3418-1DD4-4849-82CE-AE0430F9E82F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGateWay", "ApiGateWay\ApiGateWay\ApiGateWay.csproj", "{79788824-FF4C-47FE-A5D8-212DE820B3D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UploadService", "UploadService", "{DF6BCB3B-8D0D-4BF7-9E44-6311BA7CC30F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UploadServiceAPI", "UploadService\UploadServiceAPI\UploadServiceAPI.csproj", "{6DA4B517-A3FB-4CDA-B190-DEB551C47C9D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -134,6 +142,14 @@ Global
 		{B8C74B30-19EC-4FF0-95CE-76655DCA6368}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8C74B30-19EC-4FF0-95CE-76655DCA6368}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8C74B30-19EC-4FF0-95CE-76655DCA6368}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79788824-FF4C-47FE-A5D8-212DE820B3D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79788824-FF4C-47FE-A5D8-212DE820B3D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79788824-FF4C-47FE-A5D8-212DE820B3D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79788824-FF4C-47FE-A5D8-212DE820B3D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DA4B517-A3FB-4CDA-B190-DEB551C47C9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DA4B517-A3FB-4CDA-B190-DEB551C47C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DA4B517-A3FB-4CDA-B190-DEB551C47C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DA4B517-A3FB-4CDA-B190-DEB551C47C9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -157,6 +173,8 @@ Global
 		{05260786-011D-46DC-88E5-AD29736FBE33} = {5F3E659A-BF88-4B3B-99FD-E0F27D53982C}
 		{856B0A34-1A61-482F-9FA5-856D5E2DA212} = {5F3E659A-BF88-4B3B-99FD-E0F27D53982C}
 		{B8C74B30-19EC-4FF0-95CE-76655DCA6368} = {5F3E659A-BF88-4B3B-99FD-E0F27D53982C}
+		{79788824-FF4C-47FE-A5D8-212DE820B3D5} = {FD9A3418-1DD4-4849-82CE-AE0430F9E82F}
+		{6DA4B517-A3FB-4CDA-B190-DEB551C47C9D} = {DF6BCB3B-8D0D-4BF7-9E44-6311BA7CC30F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {00C9E4CA-260F-4CB4-865F-92B48E275042}
