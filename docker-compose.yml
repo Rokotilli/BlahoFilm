@@ -1,0 +1,27 @@
+version: '3.6'
+
+services:
+    mssql-server:
+        image: mcr.microsoft.com/mssql/server
+        environment:
+          SA_PASSWORD: YourPassword123
+          ACCEPT_EULA: Y
+          MSSQL_PID: Express
+        ports:
+          - "1433:1433"
+
+    rabbitmq:
+        container_name: rabbitmq
+        image: rabbitmq:3.11-management
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+
+    apigateway:
+        container_name: apigateway
+        image: apigateway
+        build:
+            context: .
+            dockerfile: ApiGateWay/ApiGateWay/Dockerfile
+        ports:
+            - 7171:8081    
