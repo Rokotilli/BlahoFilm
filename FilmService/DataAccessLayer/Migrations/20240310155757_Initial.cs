@@ -27,7 +27,7 @@ namespace DataAccessLayer.Migrations
                     Actors = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StudioName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

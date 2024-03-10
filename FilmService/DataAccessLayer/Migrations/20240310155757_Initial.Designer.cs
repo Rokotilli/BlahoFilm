@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(FilmServiceDbContext))]
-    [Migration("20240307140319_Initial")]
+    [Migration("20240310155757_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -87,7 +87,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("time");
 
                     b.Property<string>("FileUri")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("Poster")

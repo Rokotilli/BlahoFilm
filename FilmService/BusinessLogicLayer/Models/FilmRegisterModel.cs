@@ -1,9 +1,10 @@
-﻿namespace DataAccessLayer.Entities
+﻿using Microsoft.AspNetCore.Http;
+
+namespace BusinessLogicLayer.Models
 {
-    public class Film
+    public class FilmRegisterModel
     {
-        public int Id { get; set; }
-        public byte[] Poster { get; set; }
+        public IFormFile Poster { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public TimeOnly Duration { get; set; }
@@ -13,9 +14,7 @@
         public string Actors { get; set; }
         public string StudioName { get; set; }
         public string TrailerUri { get; set; }
-        public string? FileUri { get; set; }
-
-        public ICollection<GenresFilm> GenresFilms { get; set; }
-        public ICollection<TagsFilm> TagsFilms { get; set; }
+        public string Genres { get; set; }
+        public string Tags { get; set; }
     }
 }

@@ -84,7 +84,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("time");
 
                     b.Property<string>("FileUri")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("Poster")
