@@ -11,11 +11,12 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IGetSaSService, GetSaSService>();
 builder.Services.AddScoped<IRegisterFilmService, RegisterFilmService>();
 builder.Services.AddScoped<IUploadedFilmService, UploadedFilmService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 builder.Services.AddDbContext<FilmServiceDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("FilmServiceSqlServer"));
-});
+}, ServiceLifetime.Scoped);
 
 builder.Services.AddMassTransit(x =>
 {

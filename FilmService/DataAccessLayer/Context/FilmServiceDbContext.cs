@@ -14,6 +14,8 @@ namespace DataAccessLayer.Context
         public DbSet<GenresFilm> GenresFilms { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<TagsFilm> TagsFilms { get; set; }
+        public DbSet<CommentLike> CommentLikes { get; set; }
+        public DbSet<CommentDislike> CommentDislikes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
