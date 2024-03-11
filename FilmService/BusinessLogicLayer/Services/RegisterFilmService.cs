@@ -4,6 +4,7 @@ using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 using MassTransit;
 using MassTransit.Initializers;
+using MessageBus.Enums;
 using MessageBus.Messages;
 using Microsoft.EntityFrameworkCore;
 
@@ -54,7 +55,6 @@ namespace BusinessLogicLayer.Services
                                     && f.Duration == model.Duration
                                     && f.Year == model.Year
                                     && f.Director == model.Director
-                                    && f.Rating == model.Rating
                                     && f.Actors == model.Actors
                                     && f.StudioName == model.StudioName);
 
@@ -101,7 +101,6 @@ namespace BusinessLogicLayer.Services
                         && f.Duration == model.Duration
                         && f.Year == model.Year
                         && f.Director == model.Director
-                        && f.Rating == model.Rating
                         && f.Actors == model.Actors
                         && f.StudioName == model.StudioName)
                     .Select(f => f.Id)
@@ -129,7 +128,7 @@ namespace BusinessLogicLayer.Services
 
                 await _dbContext.SaveChangesAsync();
 
-                await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = filmid, MediaTypeId = 1 });
+                await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = filmid, MediaType = MediaTypes.Film });
 
                 return null;
             }
