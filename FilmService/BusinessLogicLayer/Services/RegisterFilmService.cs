@@ -2,17 +2,22 @@
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
-using Microsoft.EntityFrameworkCore.Internal;
+using MassTransit;
+using MassTransit.Initializers;
+using MessageBus.Messages;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLogicLayer.Services
 {
     public class RegisterFilmService : IRegisterFilmService
     {
         private readonly FilmServiceDbContext _dbContext;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public RegisterFilmService(FilmServiceDbContext filmServiceDbContext)
+        public RegisterFilmService(FilmServiceDbContext filmServiceDbContext, IPublishEndpoint publishEndpoint)
         {
             _dbContext = filmServiceDbContext;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<string> RegisterFilm(FilmRegisterModel filmRegisterModel)
@@ -28,6 +33,35 @@ namespace BusinessLogicLayer.Services
                     await filmRegisterModel.Poster.CopyToAsync(stream);
                     posterBytes = stream.ToArray();
                 }
+
+                var model = new Film()
+                {
+                    Poster = posterBytes,
+                    Title = filmRegisterModel.Title,
+                    Description = filmRegisterModel.Description,
+                    Duration = filmRegisterModel.Duration,
+                    Year = filmRegisterModel.Year,
+                    Director = filmRegisterModel.Director,
+                    Rating = filmRegisterModel.Rating,
+                    Actors = filmRegisterModel.Actors,
+                    StudioName = filmRegisterModel.StudioName,
+                    TrailerUri = filmRegisterModel.TrailerUri,
+                };
+
+                var film = await _dbContext.Films
+                    .FirstOrDefaultAsync(f => f.Title == model.Title
+                                    && f.Description == model.Description
+                                    && f.Duration == model.Duration
+                                    && f.Year == model.Year
+                                    && f.Director == model.Director
+                                    && f.Rating == model.Rating
+                                    && f.Actors == model.Actors
+                                    && f.StudioName == model.StudioName);
+
+                if (film != null)
+                {
+                    return "This film is already exist!";
+                }                
 
                 var existingGenres = _dbContext.Genres
                     .Select(g => g.Name)
@@ -55,49 +89,47 @@ namespace BusinessLogicLayer.Services
                 {
                     var newTag = new Tag { Name = item };
                     _dbContext.Tags.Add(newTag);
-                }
-
-                var model = new Film()
-                {
-                    Poster = posterBytes,
-                    Title = filmRegisterModel.Title,
-                    Description = filmRegisterModel.Description,
-                    Duration = filmRegisterModel.Duration,
-                    Year = filmRegisterModel.Year,
-                    Director = filmRegisterModel.Director,
-                    Rating = filmRegisterModel.Rating,
-                    Actors = filmRegisterModel.Actors,
-                    StudioName = filmRegisterModel.StudioName,
-                    TrailerUri = filmRegisterModel.TrailerUri,
-                };
+                }                
 
                 _dbContext.Films.Add(model);
+
                 await _dbContext.SaveChangesAsync();
 
-                var filmId = _dbContext.Films
-                    .Where(f => f.Title == filmRegisterModel.Title)
+                var filmid = _dbContext.Films
+                    .Where(f => f.Title == model.Title
+                        && f.Description == model.Description
+                        && f.Duration == model.Duration
+                        && f.Year == model.Year
+                        && f.Director == model.Director
+                        && f.Rating == model.Rating
+                        && f.Actors == model.Actors
+                        && f.StudioName == model.StudioName)
                     .Select(f => f.Id)
-                    .ToArray().First();
+                    .First();
 
                 foreach (var item in genres)
                 {
                     var genre = _dbContext.Genres
                         .Where(g => g.Name == item)
-                        .ToArray().First();
+                        .ToArray()
+                        .First();
 
-                    _dbContext.GenresFilms.Add(new GenresFilm() { FilmId = filmId, GenreId = genre.Id});
+                    _dbContext.GenresFilms.Add(new GenresFilm() { FilmId = filmid, GenreId = genre.Id});
                 }
 
                 foreach (var item in tags)
                 {
                     var tag = _dbContext.Tags
                         .Where(t => t.Name == item)
-                        .ToArray().First();
+                        .ToArray()
+                        .First();
 
-                    _dbContext.TagsFilms.Add(new TagsFilm() { FilmId = filmId, TagId = tag.Id });
+                    _dbContext.TagsFilms.Add(new TagsFilm() { FilmId = filmid, TagId = tag.Id });
                 }
 
                 await _dbContext.SaveChangesAsync();
+
+                await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = filmid, MediaTypeId = 1 });
 
                 return null;
             }

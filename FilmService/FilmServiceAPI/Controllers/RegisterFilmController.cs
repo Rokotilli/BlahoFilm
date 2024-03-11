@@ -1,21 +1,19 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
-using DataAccessLayer.Context;
-using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FilmServiceAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FilmController : ControllerBase
+    public class RegisterFilmController : ControllerBase
     {
         private readonly IGetSaSService _getSaSService;
         private readonly IRegisterFilmService _registerFilmService;
         private readonly IUploadedFilmService _uploadedFilmService;
         private readonly IConfiguration _configuration;
 
-        public FilmController(
+        public RegisterFilmController(
             IGetSaSService getSaSService,
             IConfiguration configuration,
             IRegisterFilmService registerFilmService,
@@ -40,7 +38,7 @@ namespace FilmServiceAPI.Controllers
             return BadRequest("Can't get a SaS");
         }
 
-        [HttpPost("registerfilm")]
+        [HttpPost("register")]
         public async Task<IActionResult> RegisterFilm(FilmRegisterModel filmRegisterModel)
         {
             var result = await _registerFilmService.RegisterFilm(filmRegisterModel);
