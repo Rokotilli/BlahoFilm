@@ -79,9 +79,7 @@ namespace FilmServiceAPI.Controllers
             var model = _dbContext.Films
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(f => f.GenresFilms
-                .Any(gf => genres
-                .Contains(gf.Genre.Name)))
+                .Where(f => genres.All(g => f.GenresFilms.Any(gf => gf.Genre.Name == g)))
                 .ToArray();
 
             if (!model.Any())
@@ -93,14 +91,12 @@ namespace FilmServiceAPI.Controllers
         }
 
         [HttpGet("bytags")]
-        public async Task<IActionResult> GetFilmsByTags([FromBody] string[] tags, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<IActionResult> GetPaggedFilmsByTags([FromBody] string[] tags, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var model = _dbContext.Films
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(f => f.TagsFilms
-                .Any(tf => tags
-                .Contains(tf.Tag.Name)))
+                .Where(f => tags.All(g => f.TagsFilms.Any(gf => gf.Tag.Name == g)))
                 .ToArray();
 
             if (!model.Any())
