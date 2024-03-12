@@ -45,6 +45,40 @@ namespace FilmServiceAPI.Controllers
             return Ok(countPages);
         }
 
+        [HttpGet("countpagesbygenres")]
+        public async Task<IActionResult> GetCountPagesFilmsByGenres([FromQuery] int pageSize, [FromBody] string[] genres)
+        {
+            var model = _dbContext.Films
+                .Where(f => genres.All(g => f.GenresFilms.Any(gf => gf.Genre.Name == g)))
+                .Count();
+
+            if (model == 0)
+            {
+                return NotFound();
+            }
+
+            var countPages = Math.Ceiling((double)model / pageSize);
+
+            return Ok(countPages);
+        }
+
+        [HttpGet("countpagesbytags")]
+        public async Task<IActionResult> GetCountPagesFilmsByTags([FromQuery] int pageSize, [FromBody] string[] tags)
+        {
+            var model = _dbContext.Films
+                .Where(f => tags.All(g => f.TagsFilms.Any(gf => gf.Tag.Name == g)))
+                .Count();
+
+            if (model == 0)
+            {
+                return NotFound();
+            }
+
+            var countPages = Math.Ceiling((double)model / pageSize);
+
+            return Ok(countPages);
+        }
+
         [HttpGet("byid")]
         public async Task<IActionResult> GetFilmById([FromQuery] int id)
         {
