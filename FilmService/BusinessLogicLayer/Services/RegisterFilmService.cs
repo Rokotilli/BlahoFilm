@@ -43,7 +43,6 @@ namespace BusinessLogicLayer.Services
                     Duration = filmRegisterModel.Duration,
                     Year = filmRegisterModel.Year,
                     Director = filmRegisterModel.Director,
-                    Rating = filmRegisterModel.Rating,
                     Actors = filmRegisterModel.Actors,
                     StudioName = filmRegisterModel.StudioName,
                     TrailerUri = filmRegisterModel.TrailerUri,
