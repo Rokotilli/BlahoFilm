@@ -31,6 +31,8 @@ namespace DataAccessLayer.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Avatar = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     TotalTime = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -42,8 +44,7 @@ namespace DataAccessLayer.Migrations
                 name: "MediaWithTypes",
                 columns: table => new
                 {
-                    MediaId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MediaId = table.Column<int>(type: "int", nullable: false),
                     MediaTypeId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -142,6 +143,12 @@ namespace DataAccessLayer.Migrations
                 name: "IX_Histories_UserId",
                 table: "Histories",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaWithTypes_MediaId_MediaTypeId",
+                table: "MediaWithTypes",
+                columns: new[] { "MediaId", "MediaTypeId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_MediaWithTypes_MediaTypeId",

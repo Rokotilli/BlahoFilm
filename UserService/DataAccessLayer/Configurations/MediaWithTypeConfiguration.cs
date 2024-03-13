@@ -9,6 +9,10 @@ namespace DataAccessLayer.Configurations
         public void Configure(EntityTypeBuilder<MediaWithType> builder)
         {
             builder.HasKey(mwt => mwt.MediaId);
+
+            builder.Property(mwt => mwt.MediaId).ValueGeneratedNever();
+
+            builder.HasIndex(mwt => new { mwt.MediaId, mwt.MediaTypeId }).IsUnique();
         }
     }
 }

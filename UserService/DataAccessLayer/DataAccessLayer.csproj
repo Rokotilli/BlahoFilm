@@ -15,6 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\MessageBus\MessageBus.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Context\DataSet1.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

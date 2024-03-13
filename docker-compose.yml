@@ -1,7 +1,7 @@
 version: '3.6'
 
 services:
-    mssql-server:
+    mssql-server-blahofilm:
         image: mcr.microsoft.com/mssql/server
         environment:
           SA_PASSWORD: YourPassword123
@@ -17,11 +17,24 @@ services:
             - "5672:5672"
             - "15672:15672"
 
-    apigateway:
-        container_name: apigateway
-        image: apigateway
+    userservice:
+        container_name: userservice
+        image: userservice
         build:
             context: .
-            dockerfile: ApiGateWay/ApiGateWay/Dockerfile
+            dockerfile: UserService/UserServiceAPI/Dockerfile
         ports:
-            - 7171:8081    
+            - 7173:8080
+        depends_on:
+            - mssql-server-blahofilm
+
+    filmservice:
+        container_name: filmservice
+        image: filmservice
+        build:
+            context: .
+            dockerfile: FilmService/FilmServiceAPI/Dockerfile
+        ports:
+            - 7174:8080
+        depends_on:
+            - mssql-server-blahofilm

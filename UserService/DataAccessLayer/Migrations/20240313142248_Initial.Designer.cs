@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(UserServiceDbContext))]
-    [Migration("20240307135211_Initial")]
+    [Migration("20240313142248_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -124,10 +124,7 @@ namespace DataAccessLayer.Migrations
             modelBuilder.Entity("DataAccessLayer.Entities.MediaWithType", b =>
                 {
                     b.Property<int>("MediaId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MediaId"));
 
                     b.Property<int>("MediaTypeId")
                         .HasColumnType("int");
@@ -135,6 +132,9 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("MediaId");
 
                     b.HasIndex("MediaTypeId");
+
+                    b.HasIndex("MediaId", "MediaTypeId")
+                        .IsUnique();
 
                     b.ToTable("MediaWithTypes");
                 });
@@ -144,7 +144,14 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<byte[]>("Avatar")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("TotalTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

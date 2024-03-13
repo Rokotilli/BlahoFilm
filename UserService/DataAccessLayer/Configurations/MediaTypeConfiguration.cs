@@ -1,6 +1,7 @@
 ﻿using DataAccessLayer.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
+using MessageBus.Enums;
 
 namespace DataAccessLayer.Configurations
 {
@@ -9,10 +10,10 @@ namespace DataAccessLayer.Configurations
         public void Configure(EntityTypeBuilder<MediaType> builder)
         {
             builder.HasData(
-                new MediaType { Id = 1, Name = "Film" },
-                new MediaType { Id = 2, Name = "Series" },
-                new MediaType { Id = 3, Name = "Cartoon" },
-                new MediaType { Id = 4, Name = "Anime" }
+                new MediaType { Id = 1, Name = MediaTypes.Film.ToString() },
+                new MediaType { Id = 2, Name = MediaTypes.Series.ToString() },
+                new MediaType { Id = 3, Name = MediaTypes.Cartoon.ToString() },
+                new MediaType { Id = 4, Name = MediaTypes.Anime.ToString() }
                 );
         }
     }
