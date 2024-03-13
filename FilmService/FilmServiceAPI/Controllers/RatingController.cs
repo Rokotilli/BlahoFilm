@@ -20,14 +20,20 @@ namespace FilmServiceAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRating([FromQuery] int filmId)
         {
-            var result = await _ratingService.GetRating(filmId);
+            var result = _dbContext.Films.FirstOrDefault(f => f.Id == filmId);
 
-            return Ok(result);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result.Rating);
         }
 
         [HttpPost]
         public async Task<IActionResult> Rate([FromQuery] int filmId, [FromQuery] int rate)
         {
+            //UserId must be from jwt
             var result = await _ratingService.Rate(filmId, rate, "user1");
             
             if (result != null)

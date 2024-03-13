@@ -118,6 +118,9 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<double>("Rating")
+                        .HasColumnType("float");
+
                     b.Property<string>("StudioName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

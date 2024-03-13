@@ -1,4 +1,5 @@
 using DataAccessLayer.Context;
+using FilmServiceAPI.Consumers;
 using FilmServiceAPI.Services;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ builder.Services.AddDbContext<FilmServiceDbContext>(options =>
 
 builder.Services.AddMassTransit(x =>
 {
+    x.AddConsumer<UserReceivedConsumer>();
     x.UsingRabbitMq((cxt, cfg) =>
     {
         cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
@@ -28,6 +30,11 @@ builder.Services.AddMassTransit(x =>
 });
 
 var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.Services.GetRequiredService<FilmServiceDbContext>().Database.Migrate();
+}
 
 app.MapControllers();
 

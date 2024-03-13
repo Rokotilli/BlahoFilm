@@ -34,6 +34,7 @@ namespace FilmServiceAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCommentForFilm(CommentAddModel commentAddModel)
         {
+            //UserId must be from jwt
             var result = await _commentService.AddComment(commentAddModel, "user1");
 
             if (result != null)
@@ -47,6 +48,7 @@ namespace FilmServiceAPI.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteComment([FromQuery] int commentId)
         {
+            //UserId must be from jwt
             var result = await _commentService.DeleteComment(commentId, "user1");
 
             if (result != null)
@@ -60,6 +62,7 @@ namespace FilmServiceAPI.Controllers
         [HttpPut]
         public async Task<IActionResult> ChangeComment(ChangeCommentModel changeCommentModel)
         {
+            //UserId must be from jwt
             var result = await _commentService.ChangeComment(changeCommentModel.Id, "user1", changeCommentModel.Text);
 
             if (result != null)
@@ -73,6 +76,7 @@ namespace FilmServiceAPI.Controllers
         [HttpPost("like")]
         public async Task<IActionResult> Like([FromQuery] int commentId)
         {
+            //UserId must be from jwt
             var result = await _commentService.Like(commentId, "user1");
 
             if (result != null)
@@ -86,6 +90,7 @@ namespace FilmServiceAPI.Controllers
         [HttpPost("dislike")]
         public async Task<IActionResult> Dislike([FromQuery] int commentId)
         {
+            //UserId must be from jwt
             var result = await _commentService.Dislike(commentId, "user1");
 
             if (result != null)
