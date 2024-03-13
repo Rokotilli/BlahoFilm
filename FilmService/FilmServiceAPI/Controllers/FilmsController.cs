@@ -28,7 +28,7 @@ namespace FilmServiceAPI.Controllers
             }
 
             return Ok(model);
-        }        
+        } 
 
         [HttpGet("countpages")]
         public async Task<IActionResult> GetCountPagesFilms([FromQuery] int pageSize)
@@ -85,6 +85,22 @@ namespace FilmServiceAPI.Controllers
             var model = _dbContext.Films.FirstOrDefault(f => f.Id == id);
 
             if (model == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+
+        [HttpGet("byids")]
+        public async Task<IActionResult> GetFilmsByIds([FromBody] int[] ids)
+        {
+            var model = _dbContext.Films
+                .Where(f => ids
+                .Contains(f.Id))
+                .ToArray();
+
+            if (!model.Any())
             {
                 return NotFound();
             }
