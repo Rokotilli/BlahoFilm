@@ -23,6 +23,7 @@ namespace DataAccessLayer.Migrations
                     Duration = table.Column<TimeOnly>(type: "time", nullable: false),
                     Year = table.Column<int>(type: "int", nullable: false),
                     Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rating = table.Column<double>(type: "float", nullable: false),
                     Actors = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StudioName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),

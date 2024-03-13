@@ -13,34 +13,12 @@ namespace BusinessLogicLayer.Services
             _dbContext = filmServiceDbContext;
         }
 
-        public async Task<double> GetRating(int filmId)
-        {
-            var model = _dbContext.Rating.Where(r => r.FilmId == filmId).ToArray();
-
-            if (!model.Any())
-            {
-                return 0;
-            }
-
-            var sum = model
-                .Where(r => r.FilmId == filmId)
-                .Select(r => r.Rate)
-                .Sum();
-
-            var count = model
-                .Where(r => r.FilmId == filmId)
-                .Count();
-
-            var result = Math.Round((double)sum / count, 1);
-
-            return result;
-        }
-
         public async Task<string> Rate(int filmId, int rate, string userid)
         {
             try
             {
                 var model = _dbContext.Rating.FirstOrDefault(r => r.FilmId == filmId && r.UserId == userid);
+                var film = _dbContext.Films.FirstOrDefault(f => f.Id == filmId);
 
                 if (model == null)
                 {
@@ -53,13 +31,24 @@ namespace BusinessLogicLayer.Services
 
                     _dbContext.Rating.Add(rating);
                     await _dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    model.Rate = rate;
 
-                    return null;
+                    _dbContext.Rating.Update(model);
+                    await _dbContext.SaveChangesAsync();
                 }
 
-                model.Rate = rate;
+                var averageRating = _dbContext.Rating
+                    .Where(r => r.FilmId == filmId)
+                    .Average(r => r.Rate);
 
-                _dbContext.Rating.Update(model);
+                var result = Math.Round(averageRating, 1);
+
+                film.Rating = result;
+
+                _dbContext.Films.Update(film);
                 await _dbContext.SaveChangesAsync();
 
                 return null;

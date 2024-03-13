@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(FilmServiceDbContext))]
-    [Migration("20240312140402_Initial")]
+    [Migration("20240313164525_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -120,6 +120,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<byte[]>("Poster")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<double>("Rating")
+                        .HasColumnType("float");
 
                     b.Property<string>("StudioName")
                         .IsRequired()
