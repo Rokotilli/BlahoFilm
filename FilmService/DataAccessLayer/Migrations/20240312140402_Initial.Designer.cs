@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(FilmServiceDbContext))]
-    [Migration("20240307140319_Initial")]
+    [Migration("20240312140402_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -33,12 +33,6 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CountDislikes")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CountLikes")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -47,6 +41,10 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<int?>("ParentCommentId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -61,6 +59,36 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.CommentDislike", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CommentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "CommentId");
+
+                    b.HasIndex("CommentId");
+
+                    b.ToTable("CommentDislikes");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.CommentLike", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CommentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "CommentId");
+
+                    b.HasIndex("CommentId");
+
+                    b.ToTable("CommentLikes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Film", b =>
@@ -87,15 +115,11 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("time");
 
                     b.Property<string>("FileUri")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("Poster")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
 
                     b.Property<string>("StudioName")
                         .IsRequired()
@@ -147,6 +171,27 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("GenreId");
 
                     b.ToTable("GenresFilms");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Rating", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("FilmId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rate")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "FilmId");
+
+                    b.HasIndex("FilmId");
+
+                    b.ToTable("Rating", t =>
+                        {
+                            t.HasCheckConstraint("CK_Rating_Rate_Range", "[Rate] >= 1 AND [Rate] <= 10");
+                        });
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
@@ -216,6 +261,44 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.CommentDislike", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Comment", "Comment")
+                        .WithMany("CommentDislikes")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.User", "User")
+                        .WithMany("CommentDislikes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.CommentLike", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Comment", "Comment")
+                        .WithMany("CommentLikes")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.User", "User")
+                        .WithMany("CommentLikes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.GenresFilm", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Film", "Film")
@@ -233,6 +316,25 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Film");
 
                     b.Navigation("Genre");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Rating", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Film", "Film")
+                        .WithMany("Ratings")
+                        .HasForeignKey("FilmId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.User", "User")
+                        .WithMany("Ratings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Film");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.TagsFilm", b =>
@@ -254,9 +356,18 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Comment", b =>
+                {
+                    b.Navigation("CommentDislikes");
+
+                    b.Navigation("CommentLikes");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Film", b =>
                 {
                     b.Navigation("GenresFilms");
+
+                    b.Navigation("Ratings");
 
                     b.Navigation("TagsFilms");
                 });
@@ -273,7 +384,13 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.User", b =>
                 {
+                    b.Navigation("CommentDislikes");
+
+                    b.Navigation("CommentLikes");
+
                     b.Navigation("Comments");
+
+                    b.Navigation("Ratings");
                 });
 #pragma warning restore 612, 618
         }

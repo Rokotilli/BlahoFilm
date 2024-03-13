@@ -23,11 +23,10 @@ namespace DataAccessLayer.Migrations
                     Duration = table.Column<TimeOnly>(type: "time", nullable: false),
                     Year = table.Column<int>(type: "int", nullable: false),
                     Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false),
                     Actors = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StudioName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -127,9 +126,8 @@ namespace DataAccessLayer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FilmId = table.Column<int>(type: "int", nullable: false),
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ParentCommentId = table.Column<int>(type: "int", nullable: true),
-                    CountLikes = table.Column<int>(type: "int", nullable: false),
-                    CountDislikes = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -154,6 +152,86 @@ namespace DataAccessLayer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Rating",
+                columns: table => new
+                {
+                    FilmId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Rate = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rating", x => new { x.UserId, x.FilmId });
+                    table.CheckConstraint("CK_Rating_Rate_Range", "[Rate] >= 1 AND [Rate] <= 10");
+                    table.ForeignKey(
+                        name: "FK_Rating_Films_FilmId",
+                        column: x => x.FilmId,
+                        principalTable: "Films",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Rating_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommentDislikes",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CommentId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommentDislikes", x => new { x.UserId, x.CommentId });
+                    table.ForeignKey(
+                        name: "FK_CommentDislikes_Comments_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comments",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_CommentDislikes_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommentLikes",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CommentId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommentLikes", x => new { x.UserId, x.CommentId });
+                    table.ForeignKey(
+                        name: "FK_CommentLikes_Comments_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comments",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_CommentLikes_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId");
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommentDislikes_CommentId",
+                table: "CommentDislikes",
+                column: "CommentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommentLikes_CommentId",
+                table: "CommentLikes",
+                column: "CommentId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_FilmId",
                 table: "Comments",
@@ -175,6 +253,11 @@ namespace DataAccessLayer.Migrations
                 column: "GenreId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Rating_FilmId",
+                table: "Rating",
+                column: "FilmId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TagsFilms_TagId",
                 table: "TagsFilms",
                 column: "TagId");
@@ -184,25 +267,34 @@ namespace DataAccessLayer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Comments");
+                name: "CommentDislikes");
+
+            migrationBuilder.DropTable(
+                name: "CommentLikes");
 
             migrationBuilder.DropTable(
                 name: "GenresFilms");
 
             migrationBuilder.DropTable(
+                name: "Rating");
+
+            migrationBuilder.DropTable(
                 name: "TagsFilms");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "Genres");
 
             migrationBuilder.DropTable(
+                name: "Tags");
+
+            migrationBuilder.DropTable(
                 name: "Films");
 
             migrationBuilder.DropTable(
-                name: "Tags");
+                name: "Users");
         }
     }
 }
