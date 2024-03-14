@@ -2,6 +2,7 @@
 {
     public class MediaWithType
     {
+        public int Id { get; set; }
         public int MediaId { get; set; }
         public int MediaTypeId { get; set; }
 

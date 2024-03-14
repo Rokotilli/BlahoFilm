@@ -44,12 +44,14 @@ namespace DataAccessLayer.Migrations
                 name: "MediaWithTypes",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     MediaId = table.Column<int>(type: "int", nullable: false),
                     MediaTypeId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MediaWithTypes", x => x.MediaId);
+                    table.PrimaryKey("PK_MediaWithTypes", x => x.Id);
                     table.ForeignKey(
                         name: "FK_MediaWithTypes_MediaTypes_MediaTypeId",
                         column: x => x.MediaTypeId,
@@ -75,7 +77,7 @@ namespace DataAccessLayer.Migrations
                         name: "FK_Favorites_MediaWithTypes_MediaWithTypeId",
                         column: x => x.MediaWithTypeId,
                         principalTable: "MediaWithTypes",
-                        principalColumn: "MediaId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Favorites_Users_UserId",
@@ -93,7 +95,7 @@ namespace DataAccessLayer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MediaWithTypeId = table.Column<int>(type: "int", nullable: false),
-                    TimeCode = table.Column<TimeOnly>(type: "time", nullable: false),
+                    TimeCode = table.Column<TimeSpan>(type: "time", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -103,7 +105,7 @@ namespace DataAccessLayer.Migrations
                         name: "FK_Histories_MediaWithTypes_MediaWithTypeId",
                         column: x => x.MediaWithTypeId,
                         principalTable: "MediaWithTypes",
-                        principalColumn: "MediaId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Histories_Users_UserId",

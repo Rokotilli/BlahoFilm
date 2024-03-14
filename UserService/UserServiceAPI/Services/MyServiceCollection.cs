@@ -7,6 +7,7 @@ namespace UserServiceAPI.Services
     {
         public static IServiceCollection AddMyServices(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddScoped<IHistoryService, HistoryService>();
             serviceCollection.AddScoped<IFavoritesService, FavoritesService>();
 
             return serviceCollection;

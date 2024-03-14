@@ -63,7 +63,7 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("MediaWithTypeId")
                         .HasColumnType("int");
 
-                    b.Property<TimeOnly>("TimeCode")
+                    b.Property<TimeSpan>("TimeCode")
                         .HasColumnType("time");
 
                     b.Property<string>("UserId")
@@ -120,13 +120,19 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.MediaWithType", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("MediaId")
                         .HasColumnType("int");
 
                     b.Property<int>("MediaTypeId")
                         .HasColumnType("int");
 
-                    b.HasKey("MediaId");
+                    b.HasKey("Id");
 
                     b.HasIndex("MediaTypeId");
 

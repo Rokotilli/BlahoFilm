@@ -22,25 +22,25 @@ namespace BusinessLogicLayer.Services
                 if (model == null)
                 {
                     return "Media not found!";
-                }
+                }                
 
-                var favorite = new Favorite()
-                {
-                    UserId = userid,
-                    MediaWithTypeId = model.MediaId
-                };
-
-                var existFavorite = _dbContext.Favorites.FirstOrDefault(f => f.UserId == userid && f.MediaWithTypeId == model.MediaId);
+                var existFavorite = _dbContext.Favorites.FirstOrDefault(f => f.UserId == userid && f.MediaWithTypeId == model.Id);
 
                 if (existFavorite == null)
                 {
+                    var favorite = new Favorite()
+                    {
+                        UserId = userid,
+                        MediaWithTypeId = model.Id
+                    };
+
                     _dbContext.Favorites.Add(favorite);
                     await _dbContext.SaveChangesAsync();
 
                     return null;
                 }
 
-                _dbContext.Favorites.Remove(favorite);
+                _dbContext.Favorites.Remove(existFavorite);
                 await _dbContext.SaveChangesAsync();
 
                 return null;
