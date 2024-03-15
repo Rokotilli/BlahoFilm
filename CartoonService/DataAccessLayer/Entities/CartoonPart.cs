@@ -6,7 +6,7 @@
         public int CartoonId { get; set; }
         public int SeasonNumber { get; set; }
         public int PartNumber { get; set; }
-        public TimeOnly Duration { get; set; }
+        public string Duration { get; set; }
         public string FileName { get; set; }
         public string FileUri { get; set; }
 

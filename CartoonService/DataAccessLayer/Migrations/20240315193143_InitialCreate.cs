@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -85,7 +85,7 @@ namespace DataAccessLayer.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CountSeasons = table.Column<int>(type: "int", nullable: true),
                     CountParts = table.Column<int>(type: "int", nullable: true),
-                    Duration = table.Column<TimeOnly>(type: "time", nullable: true),
+                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     AnimationTypeId = table.Column<int>(type: "int", nullable: false),
                     Year = table.Column<int>(type: "int", nullable: false),
@@ -120,7 +120,7 @@ namespace DataAccessLayer.Migrations
                     CartoonId = table.Column<int>(type: "int", nullable: false),
                     SeasonNumber = table.Column<int>(type: "int", nullable: false),
                     PartNumber = table.Column<int>(type: "int", nullable: false),
-                    Duration = table.Column<TimeOnly>(type: "time", nullable: false),
+                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileUri = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },

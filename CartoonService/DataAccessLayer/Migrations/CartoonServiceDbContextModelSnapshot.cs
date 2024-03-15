@@ -17,7 +17,7 @@ namespace DataAccessLayer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -67,8 +67,8 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeOnly?>("Duration")
-                        .HasColumnType("time");
+                    b.Property<string>("Duration")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("Poster")
                         .IsRequired()
@@ -112,8 +112,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("CartoonId")
                         .HasColumnType("int");
 
-                    b.Property<TimeOnly>("Duration")
-                        .HasColumnType("time");
+                    b.Property<string>("Duration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileName")
                         .IsRequired()

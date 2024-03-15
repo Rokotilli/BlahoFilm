@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(CartoonServiceDbContext))]
-    [Migration("20240307140509_Initial")]
-    partial class Initial
+    [Migration("20240315193143_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -70,8 +70,8 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeOnly?>("Duration")
-                        .HasColumnType("time");
+                    b.Property<string>("Duration")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("Poster")
                         .IsRequired()
@@ -115,8 +115,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("CartoonId")
                         .HasColumnType("int");
 
-                    b.Property<TimeOnly>("Duration")
-                        .HasColumnType("time");
+                    b.Property<string>("Duration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileName")
                         .IsRequired()

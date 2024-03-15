@@ -8,7 +8,7 @@
         public string Description { get; set; }
         public int? CountSeasons { get; set; }
         public int? CountParts { get; set; }
-        public TimeOnly? Duration { get; set; }
+        public string? Duration { get; set; }
         public int CategoryId { get; set; }
         public int AnimationTypeId { get; set; }
         public int Year { get; set; }
