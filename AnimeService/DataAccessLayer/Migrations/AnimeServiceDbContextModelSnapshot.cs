@@ -30,10 +30,10 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CountParts")
+                    b.Property<int?>("CountParts")
                         .HasColumnType("int");
 
-                    b.Property<int>("CountSeasons")
+                    b.Property<int?>("CountSeasons")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -43,6 +43,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("Director")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly?>("Duration")
+                        .HasColumnType("time");
 
                     b.Property<byte[]>("Poster")
                         .IsRequired()

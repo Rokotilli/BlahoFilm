@@ -6,8 +6,9 @@
         public byte[] Poster { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public int CountSeasons { get; set; }
-        public int CountParts { get; set; }
+        public int? CountSeasons { get; set; }
+        public int? CountParts { get; set; }
+        public TimeSpan? Duration { get; set; }
         public int Year { get; set; }
         public string Director { get; set; }
         public int Rating { get; set; }
