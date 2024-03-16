@@ -183,19 +183,19 @@ avatar (файл): Аватар користувача
 
 Поля тіла запиту:
 
-MediaWithType (об'єкт){
-  MediaId (int): Ідентифікатор медія
-  MediaTypeId (int): Ідентифікатор типу медіа
-}
-PartNumber (int)?: Номер частини
-SeasonNumber (int)?: Номер сезона
-TimeCode (string): Позиція користувача на таймлайні
+MediaWithType (об'єкт){  
+MediaId (int): Ідентифікатор медія  
+MediaTypeId (int): Ідентифікатор типу медіа  
+}  
+PartNumber (int)?: Номер частини  
+SeasonNumber (int)?: Номер сезона  
+TimeCode (string): Позиція користувача на таймлайні  
 
 # FavoritesController
 - **GET /api/Favorites**
 
 - **POST /api/Favorites**
 
-Поля тіла запиту:
-MediaId (int): Ідентифікатор медія
-MediaTypeId (int): Ідентифікатор типу медіа
+Поля тіла запиту:  
+MediaId (int): Ідентифікатор медія  
+MediaTypeId (int): Ідентифікатор типу медіа  
