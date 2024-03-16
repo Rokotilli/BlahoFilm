@@ -156,3 +156,46 @@ commentId (int): Ідентифікатор коментаря.
 Параметри запиту:
 
 commentId (int): Ідентифікатор коментаря.
+
+# UsersController
+- **GET /api/byid**
+
+Параметри запиту:
+
+id (int): Ідентифікатор користувача
+
+- **GET /api/byids**
+
+Поля тіла запиту:
+
+ids (масив int): Масив Ідентифікаторів користувача
+
+- **POST /api/avatar**
+
+Поля тіла запиту:
+
+avatar (файл): Аватар користувача
+
+# HistoryController
+- **GET /api/History**
+
+- **POST /api/History**
+
+Поля тіла запиту:
+
+MediaWithType (об'єкт){
+  MediaId (int): Ідентифікатор медія
+  MediaTypeId (int): Ідентифікатор типу медіа
+}
+PartNumber (int)?: Номер частини
+SeasonNumber (int)?: Номер сезона
+TimeCode (string): Позиція користувача на таймлайні
+
+# FavoritesController
+- **GET /api/Favorites**
+
+- **POST /api/Favorites**
+
+Поля тіла запиту:
+MediaId (int): Ідентифікатор медія
+MediaTypeId (int): Ідентифікатор типу медіа
