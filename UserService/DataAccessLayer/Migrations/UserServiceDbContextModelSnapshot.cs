@@ -63,6 +63,12 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("MediaWithTypeId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PartNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SeasonNumber")
+                        .HasColumnType("int");
+
                     b.Property<TimeSpan>("TimeCode")
                         .HasColumnType("time");
 

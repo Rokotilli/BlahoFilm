@@ -95,6 +95,8 @@ namespace DataAccessLayer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MediaWithTypeId = table.Column<int>(type: "int", nullable: false),
+                    PartNumber = table.Column<int>(type: "int", nullable: true),
+                    SeasonNumber = table.Column<int>(type: "int", nullable: true),
                     TimeCode = table.Column<TimeSpan>(type: "time", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

@@ -1,7 +1,10 @@
-﻿namespace BusinessLogicLayer.Interfaces
+﻿using BusinessLogicLayer.Models;
+
+namespace BusinessLogicLayer.Interfaces
 {
     public interface IHistoryService
     {
-        Task AddHistory(string userId, int FilmId, TimeSpan TimeCode);
+        Task<string> AddHistoryForFilm(string userId, HistoryModel historyModel);
+        Task<string> AddHistoryForSeries(string userId, HistoryModel historyModel);
     }
 }

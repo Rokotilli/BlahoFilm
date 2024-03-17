@@ -2,7 +2,6 @@ using DataAccessLayer.Context;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using UserServiceAPI.Consumers;
-using UserServiceAPI.Hubs;
 using UserServiceAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,11 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddMyServices();
-
-builder.Services.AddSignalR(options =>
-{
-    options.KeepAliveInterval = TimeSpan.FromSeconds(10);
-});
 
 builder.Services.AddDbContext<UserServiceDbContext>(options =>
 {
@@ -42,8 +36,6 @@ if (!app.Environment.IsDevelopment())
 {
     app.Services.GetRequiredService<UserServiceDbContext>().Database.Migrate();
 }
-
-app.MapHub<WatchingFilmHub>("/watchingfilm");
 
 app.MapControllers();
 

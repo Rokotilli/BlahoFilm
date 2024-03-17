@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Context;
+﻿using BusinessLogicLayer.Interfaces;
+using DataAccessLayer.Context;
 using Microsoft.AspNetCore.Mvc;
 
 namespace UserServiceAPI.Controllers
@@ -8,10 +9,12 @@ namespace UserServiceAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly UserServiceDbContext _dbContext;
+        private readonly IUsersService _usersService;
 
-        public UsersController(UserServiceDbContext userServiceDbContext)
+        public UsersController(UserServiceDbContext userServiceDbContext, IUsersService usersService)
         {
             _dbContext = userServiceDbContext;
+            _usersService = usersService;
         }
 
         [HttpGet("byid")]
@@ -43,6 +46,32 @@ namespace UserServiceAPI.Controllers
             return Ok(model);
         }
 
+        [HttpPost("avatar")]
+        public async Task<IActionResult> AddAvatar(IFormFile avatar)
+        {
+            //UserId must be from jwt
+            var result = await _usersService.ChangeAvatar("user1", avatar);
 
+            if (result != null)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok();
+        }
+
+        [HttpPut("totaltime")]
+        public async Task<IActionResult> ChangeTotalTime([FromQuery] int seconds)
+        {
+            //UserId must be from jwt
+            var result = await _usersService.ChangeTotalTime("user1", seconds);
+
+            if (result != null)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok();
+        }
     }
 }

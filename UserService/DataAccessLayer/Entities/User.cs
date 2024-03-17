@@ -5,7 +5,7 @@
         public string UserId { get; set; }
         public string UserName { get; set; }
         public byte[]? Avatar { get; set; }
-        public TimeSpan TotalTime { get; set; } = TimeSpan.Parse("00:00:00");
+        public string TotalTime { get; set; } = "00:00:00";
 
         public ICollection<History> Histories { get; set; }
         public ICollection<Favorite> Favorites { get; set;}

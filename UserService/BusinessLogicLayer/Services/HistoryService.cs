@@ -1,6 +1,8 @@
 ﻿using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
+using MessageBus.Enums;
 
 namespace BusinessLogicLayer.Services
 {
@@ -13,29 +15,88 @@ namespace BusinessLogicLayer.Services
             _dbContext = userServiceDbContext;
         }
 
-        public async Task AddHistory(string userId, int FilmId, TimeSpan TimeCode)
+        public async Task<string> AddHistoryForFilm(string userId, HistoryModel historyModel)
         {
-            var existingHistory = _dbContext.Histories
-                .FirstOrDefault(h => h.UserId == userId && h.MediaWithTypeId == FilmId);
+            try
+            {
+                var media = _dbContext.MediaWithTypes
+                    .FirstOrDefault(mwt => mwt.MediaId == historyModel.MediaWithType.MediaId && mwt.MediaTypeId == historyModel.MediaWithType.MediaTypeId);
 
-            if (existingHistory != null)
-            {
-                existingHistory.TimeCode = TimeCode;
-            }
-            else
-            {
-                var model = new History()
+                if (media == null)
                 {
-                    UserId = userId,
-                    MediaWithTypeId = FilmId,
-                    TimeCode = TimeCode
-                };
+                    return "Media was not found!";
+                }
 
-                _dbContext.Histories.Add(model);
+                var existingHistory = _dbContext.Histories
+                    .FirstOrDefault(h => h.UserId == userId && h.MediaWithTypeId == media.Id);
+
+                if (existingHistory != null)
+                {
+                    existingHistory.TimeCode = historyModel.TimeCode;
+                }
+                else
+                {
+                    var model = new History()
+                    {
+                        UserId = userId,
+                        MediaWithTypeId = media.Id,
+                        TimeCode = historyModel.TimeCode
+                    };
+
+                    _dbContext.Histories.Add(model);
+                }
+
+                await _dbContext.SaveChangesAsync();
+
+                return null;
             }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
 
-            await _dbContext.SaveChangesAsync();
+        public async Task<string> AddHistoryForSeries(string userId, HistoryModel historyModel)
+        {
+            try
+            {
+                var media = _dbContext.MediaWithTypes
+                    .FirstOrDefault(mwt => mwt.MediaId == historyModel.MediaWithType.MediaId && mwt.MediaTypeId == historyModel.MediaWithType.MediaTypeId);
 
+                if (media == null)
+                {
+                    return "Media was not found!";
+                }
+
+                var existingHistory = _dbContext.Histories
+                        .FirstOrDefault(h => h.UserId == userId && h.MediaWithTypeId == media.Id && h.PartNumber == historyModel.PartNumber && h.SeasonNumber == historyModel.SeasonNumber);
+
+                if (existingHistory != null)
+                {
+                    existingHistory.TimeCode = historyModel.TimeCode;
+                }
+                else
+                {
+                    var model = new History()
+                    {
+                        UserId = userId,
+                        MediaWithTypeId = media.Id,
+                        PartNumber = historyModel.PartNumber,
+                        SeasonNumber = historyModel.SeasonNumber,
+                        TimeCode = historyModel.TimeCode
+                    };
+
+                    _dbContext.Histories.Add(model);
+                }
+
+                await _dbContext.SaveChangesAsync();
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }            
         }
     }
 }

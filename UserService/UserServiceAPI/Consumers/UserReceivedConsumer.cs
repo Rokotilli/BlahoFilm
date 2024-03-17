@@ -5,7 +5,7 @@ using MessageBus.Messages;
 
 namespace UserServiceAPI.Consumers
 {
-    public class UserReceivedConsumer : IConsumer<UserRecievedMessage>
+    public class UserReceivedConsumer : IConsumer<UserReceivedMessage>
     {
         private readonly UserServiceDbContext _dbContext;
 
@@ -14,7 +14,7 @@ namespace UserServiceAPI.Consumers
             _dbContext = userServiceDbContext;
         }
 
-        public async Task Consume(ConsumeContext<UserRecievedMessage> consumeContext)
+        public async Task Consume(ConsumeContext<UserReceivedMessage> consumeContext)
         {
             var user = _dbContext.Users.FirstOrDefault(u => u.UserId == consumeContext.Message.Id);
 
@@ -32,10 +32,8 @@ namespace UserServiceAPI.Consumers
                 return;
             }   
 
-            user.Avatar = consumeContext.Message.Avatar;
             user.UserName = consumeContext.Message.UserName;
 
-            _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
         }
     }

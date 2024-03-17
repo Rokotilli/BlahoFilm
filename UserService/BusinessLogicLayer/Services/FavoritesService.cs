@@ -17,21 +17,21 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                var model = _dbContext.MediaWithTypes.FirstOrDefault(mwt => mwt.MediaId == mediaWithType.MediaId && mwt.MediaTypeId == mediaWithType.MediaTypeId);                
+                var media = _dbContext.MediaWithTypes.FirstOrDefault(mwt => mwt.MediaId == mediaWithType.MediaId && mwt.MediaTypeId == mediaWithType.MediaTypeId);                
 
-                if (model == null)
+                if (media == null)
                 {
                     return "Media not found!";
                 }                
 
-                var existFavorite = _dbContext.Favorites.FirstOrDefault(f => f.UserId == userid && f.MediaWithTypeId == model.Id);
+                var existFavorite = _dbContext.Favorites.FirstOrDefault(f => f.UserId == userid && f.MediaWithTypeId == media.Id);
 
                 if (existFavorite == null)
                 {
                     var favorite = new Favorite()
                     {
                         UserId = userid,
-                        MediaWithTypeId = model.Id
+                        MediaWithTypeId = media.Id
                     };
 
                     _dbContext.Favorites.Add(favorite);

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(UserServiceDbContext))]
-    [Migration("20240314135941_Initial")]
+    [Migration("20240315161759_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -64,6 +64,12 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("MediaWithTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PartNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SeasonNumber")
                         .HasColumnType("int");
 
                     b.Property<TimeSpan>("TimeCode")
