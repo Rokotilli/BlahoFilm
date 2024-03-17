@@ -158,23 +158,29 @@ commentId (int): Ідентифікатор коментаря.
 commentId (int): Ідентифікатор коментаря.
 
 # UsersController
-- **GET /api/byid**
+- **GET /api/Users/byid**
 
 Параметри запиту:
 
 id (int): Ідентифікатор користувача
 
-- **GET /api/byids**
+- **GET /api/Users/byids**
 
 Поля тіла запиту:
 
 ids (масив int): Масив Ідентифікаторів користувача
 
-- **POST /api/avatar**
+- **POST /api/Users/avatar**
 
 Поля тіла запиту:
 
 avatar (файл): Аватар користувача
+
+- **POST /api/Users/totaltime**  
+
+Параметри запиту:  
+
+seconds (int): Кількість секунд за сеанс перегляду  
 
 # HistoryController
 - **GET /api/History**
