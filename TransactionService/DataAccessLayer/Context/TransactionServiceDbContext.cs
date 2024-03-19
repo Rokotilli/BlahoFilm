@@ -7,7 +7,7 @@ namespace DataAccessLayer.Context
     {
         public TransactionServiceDbContext(DbContextOptions<TransactionServiceDbContext> dbContextOptions) : base(dbContextOptions) { }
 
-        public DbSet<Donation> Donations { get; set; }
+        public DbSet<Fundraising> Fundraisings { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }

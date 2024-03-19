@@ -22,7 +22,7 @@ namespace DataAccessLayer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Donation", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.Fundraising", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -32,6 +32,10 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsClosed")
                         .HasColumnType("bit");
@@ -45,7 +49,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Donations");
+                    b.ToTable("Fundraisings");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Subscription", b =>
@@ -90,7 +94,7 @@ namespace DataAccessLayer.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DonationId")
+                    b.Property<int?>("FundraisingId")
                         .HasColumnType("int");
 
                     b.Property<string>("PaymentId")
@@ -105,6 +109,10 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FundraisingId");
+
+                    b.HasIndex("SubscriptionId");
 
                     b.HasIndex("UserId");
 
@@ -134,11 +142,23 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.Transaction", b =>
                 {
+                    b.HasOne("DataAccessLayer.Entities.Fundraising", "Fundraising")
+                        .WithMany()
+                        .HasForeignKey("FundraisingId");
+
+                    b.HasOne("DataAccessLayer.Entities.Subscription", "Subscription")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionId");
+
                     b.HasOne("DataAccessLayer.Entities.User", "User")
                         .WithMany("Transactions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Fundraising");
+
+                    b.Navigation("Subscription");
 
                     b.Navigation("User");
                 });

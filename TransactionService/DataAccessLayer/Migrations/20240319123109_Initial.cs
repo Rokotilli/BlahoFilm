@@ -12,19 +12,20 @@ namespace DataAccessLayer.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Donations",
+                name: "Fundraisings",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsClosed = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Donations", x => x.Id);
+                    table.PrimaryKey("PK_Fundraisings", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,13 +70,23 @@ namespace DataAccessLayer.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PaymentId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SubscriptionId = table.Column<int>(type: "int", nullable: true),
-                    DonationId = table.Column<int>(type: "int", nullable: true),
+                    FundraisingId = table.Column<int>(type: "int", nullable: true),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Transactions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Transactions_Fundraisings_FundraisingId",
+                        column: x => x.FundraisingId,
+                        principalTable: "Fundraisings",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Transactions_Subscriptions_SubscriptionId",
+                        column: x => x.SubscriptionId,
+                        principalTable: "Subscriptions",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Transactions_Users_UserId",
                         column: x => x.UserId,
@@ -90,6 +101,16 @@ namespace DataAccessLayer.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Transactions_FundraisingId",
+                table: "Transactions",
+                column: "FundraisingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Transactions_SubscriptionId",
+                table: "Transactions",
+                column: "SubscriptionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transactions_UserId",
                 table: "Transactions",
                 column: "UserId");
@@ -99,13 +120,13 @@ namespace DataAccessLayer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Donations");
+                name: "Transactions");
+
+            migrationBuilder.DropTable(
+                name: "Fundraisings");
 
             migrationBuilder.DropTable(
                 name: "Subscriptions");
-
-            migrationBuilder.DropTable(
-                name: "Transactions");
 
             migrationBuilder.DropTable(
                 name: "Users");
