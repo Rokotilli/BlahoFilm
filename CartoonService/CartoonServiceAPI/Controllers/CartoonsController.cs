@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CartoonServiceAPI.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class CartoonsController : ControllerBase
     {
         private readonly CartoonServiceDbContext _dbContext;
@@ -13,7 +13,6 @@ namespace CartoonServiceAPI.Controllers
         {
             _dbContext = CartoonServiceDbContext;
         }
-
         [HttpGet]
         public async Task<IActionResult> GetPaggedCartoons([FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
@@ -148,7 +147,6 @@ namespace CartoonServiceAPI.Controllers
                 .Take(pageSize)
                 .Where(f => tags.All(g => f.TagsCartoons.Any(gf => gf.Tag.Name == g)))
                 .ToArray();
-
             if (!model.Any())
             {
                 return NotFound();
