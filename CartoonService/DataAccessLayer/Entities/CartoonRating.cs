@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Entities
 {
-    public class Rating
+    public class CartoonRating
     {
+        public int Id { get; set; }
         public int CartoonId { get; set; }
         public string UserId { get; set; }
-        public int Rate { get; set; }
-        public Cartoon Cartoon { get; set; }
+        public double Rate { get; set; }
         public User User { get; set; }
+        public Cartoon Cartoon { get; set; }
     }
 }

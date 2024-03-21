@@ -15,5 +15,7 @@
         public User User { get; set; }
         public CartoonPart CartoonPart { get; set; }
         public Comment ParentComment { get; set; }
+        public ICollection<CommentLike> CommentLikes { get; set; }
+        public ICollection<CommentDislike> CommentDislikes { get; set; }
     }
 }

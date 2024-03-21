@@ -17,30 +17,30 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                var model = _dbContext.Rating.FirstOrDefault(r => r.CartoonId == cartoonId && r.UserId == userid);
+                var model = _dbContext.CartoonRating.FirstOrDefault(r => r.CartoonId == cartoonId && r.UserId == userid);
                 var cartoon = _dbContext.Cartoons.FirstOrDefault(f => f.Id == cartoonId);
 
                 if (model == null)
                 {
-                    var rating = new Rating()
+                    var rating = new CartoonRating()
                     {
                         CartoonId = cartoonId,
                         UserId = userid,
                         Rate = rate
                     };
 
-                    _dbContext.Rating.Add(rating);
+                    _dbContext.CartoonRating.Add(rating);
                     await _dbContext.SaveChangesAsync();
                 }
                 else
                 {
                     model.Rate = rate;
 
-                    _dbContext.Rating.Update(model);
+                    _dbContext.CartoonRating.Update(model);
                     await _dbContext.SaveChangesAsync();
                 }
 
-                var averageRating = _dbContext.Rating
+                var averageRating = _dbContext.CartoonRating
                     .Where(r => r.CartoonId == cartoonId)
                     .Average(r => r.Rate);
 
@@ -64,31 +64,31 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                var model = _dbContext.Rating.FirstOrDefault(r => r.CartoonId == cartoonPartId && r.UserId == userid);
+                var model = _dbContext.CartoonPartRating.FirstOrDefault(r => r.CartoonPartId == cartoonPartId && r.UserId == userid);
                 var cartoonPart = _dbContext.Cartoons.FirstOrDefault(f => f.Id == cartoonPartId);
 
                 if (model == null)
                 {
-                    var rating = new Rating()
+                    var rating = new CartoonPartRating()
                     {
-                        CartoonId = cartoonPartId,
+                        CartoonPartId = cartoonPartId,
                         UserId = userid,
                         Rate = rate
                     };
 
-                    _dbContext.Rating.Add(rating);
+                    _dbContext.CartoonPartRating.Add(rating);
                     await _dbContext.SaveChangesAsync();
                 }
                 else
                 {
                     model.Rate = rate;
 
-                    _dbContext.Rating.Update(model);
+                    _dbContext.CartoonPartRating.Update(model);
                     await _dbContext.SaveChangesAsync();
                 }
 
-                var averageRating = _dbContext.Rating
-                    .Where(r => r.CartoonId == cartoonPartId)
+                var averageRating = _dbContext.CartoonPartRating
+                    .Where(r => r.CartoonPartId == cartoonPartId)
                     .Average(r => r.Rate);
 
                 var result = Math.Round(averageRating, 1);

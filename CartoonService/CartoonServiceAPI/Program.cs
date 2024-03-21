@@ -8,10 +8,6 @@ builder.Services.AddDbContext<CartoonServiceDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("CartoonServiceSqlServer"));
 });
-builder.Services.AddDbContext<CartoonServiceDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("FilmServiceSqlServer"));
-});
 builder.Services.AddControllers();
 builder.Services.AddMassTransit(x =>
 {
@@ -20,7 +16,7 @@ builder.Services.AddMassTransit(x =>
     {
         cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
         {
-            h.Username("guest");
+            h.Username("guest");  
             h.Password("guest");
         });
         cfg.ConfigureEndpoints(cxt);
