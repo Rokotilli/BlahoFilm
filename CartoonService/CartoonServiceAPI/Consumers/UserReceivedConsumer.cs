@@ -21,7 +21,7 @@ namespace CartoonServiceAPI.Consumers
                 UserId = consumeContext.Message.Id
             };
 
-            _dbContext.Users.Add(model);
+            _dbContext.Users.Add(model); 
             await _dbContext.SaveChangesAsync();
         }
     }

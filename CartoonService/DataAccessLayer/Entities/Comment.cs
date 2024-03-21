@@ -9,6 +9,7 @@
         public int? ParentCommentId { get; set; }
         public int CountLikes { get; set; }
         public int CountDislikes { get; set; }
+        public string Text { get; set; }
         public DateTime Date { get; set; }
 
         public User User { get; set; }

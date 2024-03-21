@@ -21,5 +21,6 @@ namespace BusinessLogicLayer.Models
         public int Rating { get; set; }
         public string StudioName { get; set; }
         public string TrailerUri { get; set; }
+        public string Genres { get; set; }
     }
 }

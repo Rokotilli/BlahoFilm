@@ -17,6 +17,9 @@ namespace DataAccessLayer.Context
         public DbSet<TagsCartoon> TagsCartoons { get; set; }
         public DbSet<AnimationType> AnimationTypes { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Rating> Rating { get; set; }
+        public DbSet<CommentLike> CommentLikes { get; set; }
+        public DbSet<CommentDislike> CommentDislikes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

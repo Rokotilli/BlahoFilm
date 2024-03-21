@@ -31,11 +31,25 @@ namespace CartoonServiceAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Rate([FromQuery] int cartoonId, [FromQuery] int rate)
+        public async Task<IActionResult> RateCartoon([FromQuery] int cartoonId, [FromQuery] int rate)
         {
             //UserId must be from jwt
-            var result = await _ratingService.Rate(cartoonId, rate, "user1");
+            var result = await _ratingService.RateCartoon(cartoonId, rate, "user1");
             
+            if (result != null)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RateCartoonPart([FromQuery] int cartoonPartId, [FromQuery] int rate)
+        {
+            //UserId must be from jwt
+            var result = await _ratingService.RateCartoonPart(cartoonPartId, rate, "user1");
+
             if (result != null)
             {
                 return BadRequest(result);
