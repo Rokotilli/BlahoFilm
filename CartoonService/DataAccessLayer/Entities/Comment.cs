@@ -4,7 +4,8 @@
     {
         public int Id { get; set; }
         public string UserId { get; set; }
-        public int CartoonPartId { get; set; }
+        public int? CartoonId { get; set; }
+        public int? CartoonPartId { get; set; }
         public int? ParentCommentId { get; set; }
         public int CountLikes { get; set; }
         public int CountDislikes { get; set; }
