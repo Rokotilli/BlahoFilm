@@ -13,6 +13,7 @@
         public string Actors { get; set; }
         public string StudioName { get; set; }
         public string TrailerUri { get; set; }
+        public string? FileName { get; set; }
         public string? FileUri { get; set; }
 
         public ICollection<GenresFilm> GenresFilms { get; set; }

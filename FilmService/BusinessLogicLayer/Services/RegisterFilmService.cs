@@ -27,7 +27,7 @@ namespace BusinessLogicLayer.Services
             {
                 byte[] posterBytes = null;
                 var genres = filmRegisterModel.Genres.Split(",");
-                var tags = filmRegisterModel.Genres.Split(",");
+                var tags = filmRegisterModel.Tags.Split(",");
 
                 using (var stream = new MemoryStream())
                 {

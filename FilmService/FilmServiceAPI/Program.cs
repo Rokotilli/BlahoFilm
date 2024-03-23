@@ -15,6 +15,15 @@ builder.Services.AddDbContext<FilmServiceDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("FilmServiceSqlServer"));
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Default", policy =>
+    {
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+    });
+});
+
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UserReceivedConsumer>();
@@ -30,6 +39,8 @@ builder.Services.AddMassTransit(x =>
 });
 
 var app = builder.Build();
+
+app.UseCors("Default");
 
 if (!app.Environment.IsDevelopment())
 {
