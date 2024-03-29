@@ -8,7 +8,5 @@
         public decimal Amount { get; set; }
         public decimal Total { get; set; }
         public bool IsClosed { get; set; } = false;
-
-        public ICollection<Transaction> Transactions { get; set; }
     }
 }

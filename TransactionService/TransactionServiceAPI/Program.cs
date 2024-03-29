@@ -10,9 +10,20 @@ builder.Services.AddControllers();
 
 builder.Services.AddMyServices();
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddDbContext<TransactionServiceDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("TransactionServiceSqlServer"));
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Default", policy =>
+    {
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+    });
 });
 
 builder.Services.AddMassTransit(x =>
@@ -31,5 +42,8 @@ builder.Services.AddMassTransit(x =>
 
 var app = builder.Build();
 
+app.UseCors("Default");
+
 app.MapControllers();
+
 app.Run();
