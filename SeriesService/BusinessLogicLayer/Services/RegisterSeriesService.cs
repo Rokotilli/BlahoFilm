@@ -41,11 +41,8 @@ namespace BusinessLogicLayer.Services
                     Poster = posterBytes,
                     Title = seriesRegisterModel.Title,
                     Description = seriesRegisterModel.Description,
-                    Duration = seriesRegisterModel.Duration,
                     CountSeasons = seriesRegisterModel.CountSeasons,
                     CountParts = seriesRegisterModel.CountParts,
-                    CategoryId = seriesRegisterModel.CategoryId,
-                    AnimationTypeId = seriesRegisterModel.AnimationTypeId,
                     Year = seriesRegisterModel.Year,
                     Director = seriesRegisterModel.Director,
                     Rating = seriesRegisterModel.Rating,
@@ -53,20 +50,19 @@ namespace BusinessLogicLayer.Services
                     TrailerUri = seriesRegisterModel.TrailerUri
                 };
 
-                var series = await _dbContext.Seriess
-                    .FirstOrDefaultAsync(c =>
-                                     c.StudioName == model.StudioName &&
-                                     c.Title == model.Title &&
-                                     c.Description == model.Description &&
-                                     c.Duration == model.Duration &&
-                                     c.CountSeasons == model.CountSeasons &&
-                                     c.CountParts == model.CountParts &&
-                                     c.CategoryId == model.CategoryId &&
-                                     c.AnimationTypeId == model.AnimationTypeId &&
-                                     c.Year == model.Year &&
-                                     c.Director == model.Director &&
-                                     c.Rating == model.Rating &&
-                                     c.StudioName == model.StudioName);
+                var series = await _dbContext.Series
+                    .FirstOrDefaultAsync(s =>
+                     s.Poster == model.Poster &&
+                       s.Title == model.Title &&
+                      s.Description == model.Description &&
+                        s.CountSeasons == s.CountSeasons &&
+                       s.CountParts == s.CountParts &&
+                       s.Year == model.Year &&
+                          s.Director == model.Director &&
+                       s.Rating == model.Rating &&
+                          s.Actors == model.Actors &&
+                          s.StudioName == model.StudioName &&
+                          s.TrailerUri == model.TrailerUri);
                 if (series != null)
                 {
                     return "This series already exists!";
@@ -100,24 +96,23 @@ namespace BusinessLogicLayer.Services
                     _dbContext.Tags.Add(newTag);
                 }
 
-                _dbContext.Seriess.Add(model);
+                _dbContext.Series.Add(model);
 
                 await _dbContext.SaveChangesAsync();
 
-                var seriesid = _dbContext.Seriess
-                    .Where(c =>
-                                     c.StudioName == model.StudioName &&
-                                     c.Title == model.Title &&
-                                     c.Description == model.Description &&
-                                     c.Duration == model.Duration &&
-                                     c.CountSeasons == model.CountSeasons &&
-                                     c.CountParts == model.CountParts &&
-                                     c.CategoryId == model.CategoryId &&
-                                     c.AnimationTypeId == model.AnimationTypeId &&
-                                     c.Year == model.Year &&
-                                     c.Director == model.Director &&
-                                     c.Rating == model.Rating &&
-                                     c.StudioName == model.StudioName)
+                var seriesid = _dbContext.Series
+                    .Where(s =>
+                                      s.Poster == model.Poster &&
+                       s.Title == model.Title &&
+                      s.Description == model.Description &&
+                        s.CountSeasons == s.CountSeasons &&
+                       s.CountParts == s.CountParts &&
+                       s.Year == model.Year &&
+                          s.Director == model.Director &&
+                       s.Rating == model.Rating &&
+                          s.Actors == model.Actors &&
+                          s.StudioName == model.StudioName &&
+                          s.TrailerUri == model.TrailerUri)
                     .Select(f => f.Id)
                     .First();
 
@@ -128,7 +123,7 @@ namespace BusinessLogicLayer.Services
                         .ToArray()
                         .First();
 
-                    _dbContext.GenresSeriess.Add(new GenresSeries() { SeriesId = seriesid, GenreId = genre.Id });
+                    _dbContext.GenresSeries.Add(new GenresSeries() { SeriesId = seriesid, GenreId = genre.Id });
                 }
 
                 foreach (var item in tags)
@@ -138,7 +133,7 @@ namespace BusinessLogicLayer.Services
                         .ToArray()
                         .First();
 
-                    _dbContext.TagsSeriess.Add(new TagsSeries() { SeriesId = seriesid, TagId = tag.Id });
+                    _dbContext.TagsSeries.Add(new TagsSeries() { SeriesId = seriesid, TagId = tag.Id });
                 }
 
                 await _dbContext.SaveChangesAsync();

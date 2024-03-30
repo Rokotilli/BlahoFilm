@@ -13,5 +13,6 @@
         public User User { get; set; }
         public SeriesPart SeriesPart { get; set; }
         public Comment ParentComment { get; set; }
+        public string Text { get; set; }
     }
 }

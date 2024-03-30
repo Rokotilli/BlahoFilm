@@ -21,7 +21,6 @@ namespace BusinessLogicLayer.Services
                 var model = new Comment()
                 {
                     UserId = userId,
-                    SeriesId = commentAddModel.SeriesId,
                     SeriesPartId = commentAddModel.SeriesPartId,
                     ParentCommentId = commentAddModel.ParentCommentId,
                     Text = commentAddModel.Text

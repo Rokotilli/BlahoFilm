@@ -11,10 +11,14 @@ namespace DataAccessLayer.Context
         public DbSet<User> Users { get; set; }
         public DbSet<SeriesPart> SeriesParts { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<CommentLike> CommentLikes { get; set; }
+        public DbSet<CommentDislike> CommentDislikes { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<GenresSeries> GenresSeries { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<TagsSeries> TagsSeries { get; set; }
+        public DbSet<SeriesRating> SeriesRatings { get; set; }
+        public DbSet<SeriesPartRating> SeriesPartRating { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

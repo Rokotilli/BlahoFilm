@@ -2,9 +2,8 @@
 
 namespace BusinessLogicLayer.Interfaces
 {
-    public interface IUploadedSeriesService
+    public interface IUploadedSeriesPartService
     {
-        Task<string> UploadedSeries(SeriesUploadedModel seriesUploadedModel);
         Task<string> UploadedSeriesPart(SeriesPartUploadedModel seriesUploadedModel);
     }
 }

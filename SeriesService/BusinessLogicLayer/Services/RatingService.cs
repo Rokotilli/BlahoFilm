@@ -17,8 +17,8 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                var model = _dbContext.SeriesRating.FirstOrDefault(r => r.SeriesId == seriesId && r.UserId == userid);
-                var series = _dbContext.Seriess.FirstOrDefault(f => f.Id == seriesId);
+                var model = _dbContext.SeriesRatings.FirstOrDefault(r => r.SeriesId == seriesId && r.UserId == userid);
+                var series = _dbContext.Series.FirstOrDefault(f => f.Id == seriesId);
 
                 if (model == null)
                 {
@@ -29,18 +29,18 @@ namespace BusinessLogicLayer.Services
                         Rate = rate
                     };
 
-                    _dbContext.SeriesRating.Add(rating);
+                    _dbContext.SeriesRatings.Add(rating);
                     await _dbContext.SaveChangesAsync();
                 }
                 else
                 {
                     model.Rate = rate;
 
-                    _dbContext.SeriesRating.Update(model);
+                    _dbContext.SeriesRatings.Update(model);
                     await _dbContext.SaveChangesAsync();
                 }
 
-                var averageRating = _dbContext.SeriesRating
+                var averageRating = _dbContext.SeriesRatings
                     .Where(r => r.SeriesId == seriesId)
                     .Average(r => r.Rate);
 
@@ -48,7 +48,7 @@ namespace BusinessLogicLayer.Services
 
                 series.Rating = result;
 
-                _dbContext.Seriess.Update(series);
+                _dbContext.Series.Update(series);
                 await _dbContext.SaveChangesAsync();
 
                 return null;
@@ -65,7 +65,7 @@ namespace BusinessLogicLayer.Services
             try
             {
                 var model = _dbContext.SeriesPartRating.FirstOrDefault(r => r.SeriesPartId == seriesPartId && r.UserId == userid);
-                var seriesPart = _dbContext.Seriess.FirstOrDefault(f => f.Id == seriesPartId);
+                var seriesPart = _dbContext.Series.FirstOrDefault(f => f.Id == seriesPartId);
 
                 if (model == null)
                 {
@@ -95,7 +95,7 @@ namespace BusinessLogicLayer.Services
 
                 seriesPart.Rating = result;
 
-                _dbContext.Seriess.Update(seriesPart);
+                _dbContext.Series.Update(seriesPart);
                 await _dbContext.SaveChangesAsync();
 
                 return null;

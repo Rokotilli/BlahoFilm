@@ -8,8 +8,8 @@ namespace BusinessLogicLayer.Models
         public IFormFile Poster { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public int? CountSeasons { get; set; }
-        public int? CountParts { get; set; }
+        public int CountSeasons { get; set; }
+        public int CountParts { get; set; }
 
         [RegularExpression(@"\d+[.](0[0-9]|1[0-9]|2[0-4]):[0-5][0-9]:[0-5][0-9]",
             ErrorMessage = "Duration must be in the format 'd.hh:mm:ss'")]

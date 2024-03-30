@@ -10,7 +10,7 @@
         public int CountParts { get; set; }
         public int Year { get; set; }
         public string Director { get; set; }
-        public int Rating { get; set; }
+        public double  Rating { get; set; }
         public string Actors { get; set; }
         public string StudioName { get; set; }
         public string TrailerUri { get; set; }

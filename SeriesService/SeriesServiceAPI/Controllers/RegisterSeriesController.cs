@@ -10,14 +10,14 @@ namespace SeriesServiceAPI.Controllers
     {
         private readonly IGetSaSService _getSaSService;
         private readonly IRegisterSeriesService _registerSeriesService;
-        private readonly IUploadedSeriesService _uploadedSeriesService;
+        private readonly IUploadedSeriesPartService _uploadedSeriesService;
         private readonly IConfiguration _configuration;
 
         public RegisterSeriesController(
             IGetSaSService getSaSService,
             IConfiguration configuration,
             IRegisterSeriesService registerSeriesService,
-            IUploadedSeriesService uploadedSeriesService)
+            IUploadedSeriesPartService uploadedSeriesService)
         {
             _getSaSService = getSaSService;
             _configuration = configuration;
@@ -54,19 +54,6 @@ namespace SeriesServiceAPI.Controllers
         public async Task<IActionResult> RegisterSeriesPart(SeriesPartRegisterModel seriesPartRegisterModel)
         {
             var result = await _registerSeriesService.RegisterSeriesPart(seriesPartRegisterModel);
-
-            if (result == null)
-            {
-                return Ok();
-            }
-
-            return BadRequest(result);
-        }
-
-        [HttpPost("uploadedseries")]
-        public async Task<IActionResult> UploadedSeries(SeriesUploadedModel seriesUploadedModel)
-        {
-            var result = await _uploadedSeriesService.UploadedSeries(seriesUploadedModel);
 
             if (result == null)
             {
