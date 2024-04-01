@@ -10,6 +10,7 @@ namespace UserServiceAPI.Services
             serviceCollection.AddScoped<IHistoryService, HistoryService>();
             serviceCollection.AddScoped<IUsersService, UsersService>();
             serviceCollection.AddScoped<IFavoritesService, FavoritesService>();
+            serviceCollection.AddScoped<IBookMarksService, BookMarksService>();
 
             return serviceCollection;
         }

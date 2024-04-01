@@ -12,6 +12,7 @@ namespace DataAccessLayer.Context
         public DbSet<MediaType> MediaTypes { get; set; }
         public DbSet<MediaWithType> MediaWithTypes { get; set; }
         public DbSet<History> Histories { get; set; }
+        public DbSet<BookMark> BookMarks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

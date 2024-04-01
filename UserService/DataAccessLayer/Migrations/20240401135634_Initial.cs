@@ -61,6 +61,33 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BookMarks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MediaWithTypeId = table.Column<int>(type: "int", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookMarks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BookMarks_MediaWithTypes_MediaWithTypeId",
+                        column: x => x.MediaWithTypeId,
+                        principalTable: "MediaWithTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BookMarks_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Favorites",
                 columns: table => new
                 {
@@ -129,6 +156,16 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BookMarks_MediaWithTypeId",
+                table: "BookMarks",
+                column: "MediaWithTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookMarks_UserId",
+                table: "BookMarks",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Favorites_MediaWithTypeId",
                 table: "Favorites",
                 column: "MediaWithTypeId");
@@ -163,6 +200,9 @@ namespace DataAccessLayer.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "BookMarks");
+
             migrationBuilder.DropTable(
                 name: "Favorites");
 
