@@ -40,7 +40,8 @@ namespace BusinessLogicLayer.Services
                     Poster = posterBytes,
                     Title = filmRegisterModel.Title,
                     Description = filmRegisterModel.Description,
-                    Duration = filmRegisterModel.Duration,
+                    Duration = filmRegisterModel.Duration,    
+                    AgeRestriction = filmRegisterModel.AgeRestriction,
                     Year = filmRegisterModel.Year,
                     Director = filmRegisterModel.Director,
                     Actors = filmRegisterModel.Actors,
@@ -107,20 +108,14 @@ namespace BusinessLogicLayer.Services
 
                 foreach (var item in genres)
                 {
-                    var genre = _dbContext.Genres
-                        .Where(g => g.Name == item)
-                        .ToArray()
-                        .First();
+                    var genre = await _dbContext.Genres.FirstOrDefaultAsync(g => g.Name == item);
 
                     _dbContext.GenresFilms.Add(new GenresFilm() { FilmId = filmid, GenreId = genre.Id});
                 }
 
                 foreach (var item in tags)
                 {
-                    var tag = _dbContext.Tags
-                        .Where(t => t.Name == item)
-                        .ToArray()
-                        .First();
+                    var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Name == item);
 
                     _dbContext.TagsFilms.Add(new TagsFilm() { FilmId = filmid, TagId = tag.Id });
                 }

@@ -1,6 +1,7 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLogicLayer.Services
 {
@@ -17,10 +18,14 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                var model = _dbContext.Films
-                .Where(f => f.Id == filmUploadedModel.Id)
-                .ToArray().First();
+                var model = await _dbContext.Films.FirstOrDefaultAsync(f => f.Id == filmUploadedModel.Id);
 
+                if (model == null)
+                {
+                    return "Film not found!";
+                }
+
+                model.FileName = filmUploadedModel.FileName;
                 model.FileUri = filmUploadedModel.FileUri;
 
                 _dbContext.Films.Update(model);
