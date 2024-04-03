@@ -206,6 +206,15 @@ TimeCode (string): Позиція користувача на таймлайні
 MediaId (int): Ідентифікатор медія  
 MediaTypeId (int): Ідентифікатор типу медіа  
 
+# BookMarksController
+- **GET /api/BookMarks**
+
+- **POST /api/BookMarks**
+
+Поля тіла запиту:  
+MediaId (int): Ідентифікатор медія  
+MediaTypeId (int): Ідентифікатор типу медіа  
+
 # FundraisingController  
 - **GET /api/Fundraising**
 
