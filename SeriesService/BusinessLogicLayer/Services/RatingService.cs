@@ -17,30 +17,30 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                var model = _dbContext.SeriesRatings.FirstOrDefault(r => r.SeriesId == seriesId && r.UserId == userid);
+                var model = _dbContext.Ratings.FirstOrDefault(r => r.SeriesId == seriesId && r.UserId == userid);
                 var series = _dbContext.Series.FirstOrDefault(f => f.Id == seriesId);
 
                 if (model == null)
                 {
-                    var rating = new SeriesRating()
+                    var rating = new Rating()
                     {
                         SeriesId = seriesId,
                         UserId = userid,
                         Rate = rate
                     };
 
-                    _dbContext.SeriesRatings.Add(rating);
+                    _dbContext.Ratings.Add(rating);
                     await _dbContext.SaveChangesAsync();
                 }
                 else
                 {
                     model.Rate = rate;
 
-                    _dbContext.SeriesRatings.Update(model);
+                    _dbContext.Ratings.Update(model);
                     await _dbContext.SaveChangesAsync();
                 }
 
-                var averageRating = _dbContext.SeriesRatings
+                var averageRating = _dbContext.Ratings
                     .Where(r => r.SeriesId == seriesId)
                     .Average(r => r.Rate);
 
@@ -57,53 +57,6 @@ namespace BusinessLogicLayer.Services
             {
                 return ex.ToString();
             }
-        }
-
-
-        public async Task<string> RateSeriesPart(int seriesPartId, int rate, string userid)
-        {
-            try
-            {
-                var model = _dbContext.SeriesPartRating.FirstOrDefault(r => r.SeriesPartId == seriesPartId && r.UserId == userid);
-                var seriesPart = _dbContext.Series.FirstOrDefault(f => f.Id == seriesPartId);
-
-                if (model == null)
-                {
-                    var rating = new SeriesPartRating()
-                    {
-                        SeriesPartId = seriesPartId,
-                        UserId = userid,
-                        Rate = rate
-                    };
-
-                    _dbContext.SeriesPartRating.Add(rating);
-                    await _dbContext.SaveChangesAsync();
-                }
-                else
-                {
-                    model.Rate = rate;
-
-                    _dbContext.SeriesPartRating.Update(model);
-                    await _dbContext.SaveChangesAsync();
-                }
-
-                var averageRating = _dbContext.SeriesPartRating
-                    .Where(r => r.SeriesPartId == seriesPartId)
-                    .Average(r => r.Rate);
-
-                var result = Math.Round(averageRating, 1);
-
-                seriesPart.Rating = result;
-
-                _dbContext.Series.Update(seriesPart);
-                await _dbContext.SaveChangesAsync();
-
-                return null;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-            }
-        }
+        }      
     }
 }

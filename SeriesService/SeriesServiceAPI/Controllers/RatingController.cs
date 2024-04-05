@@ -43,19 +43,5 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok();
         }
-
-        [HttpPost]
-        public async Task<IActionResult> RateSeriesPart([FromQuery] int seriesPartId, [FromQuery] int rate)
-        {
-            //UserId must be from jwt
-            var result = await _ratingService.RateSeriesPart(seriesPartId, rate, "user1");
-
-            if (result != null)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok();
-        }
     }
 }

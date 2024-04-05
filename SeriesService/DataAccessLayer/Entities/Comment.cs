@@ -14,5 +14,7 @@
         public SeriesPart SeriesPart { get; set; }
         public Comment ParentComment { get; set; }
         public string Text { get; set; }
+        public ICollection<CommentLike> CommentLikes { get; set; }
+        public ICollection<CommentDislike> CommentDislikes { get; set; }
     }
 }

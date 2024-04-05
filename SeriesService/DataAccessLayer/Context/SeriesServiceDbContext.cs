@@ -17,14 +17,17 @@ namespace DataAccessLayer.Context
         public DbSet<GenresSeries> GenresSeries { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<TagsSeries> TagsSeries { get; set; }
-        public DbSet<SeriesRating> SeriesRatings { get; set; }
-        public DbSet<SeriesPartRating> SeriesPartRating { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<CommentDislike>().HasOne(c => c.User).WithMany(c => c.CommentDislikes).HasForeignKey(cr => cr.UserId).OnDelete(DeleteBehavior.ClientSetNull);
+            modelBuilder.Entity<CommentLike>().HasOne(c => c.User).WithMany(c => c.CommentLikes).HasForeignKey(cr => cr.UserId).OnDelete(DeleteBehavior.ClientSetNull);
+            modelBuilder.Entity<Comment>().HasMany(c => c.CommentDislikes).WithOne(c => c.Comment).HasForeignKey(cr => cr.CommentId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Comment>().HasMany(c => c.CommentLikes).WithOne(c => c.Comment).HasForeignKey(cr => cr.CommentId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
