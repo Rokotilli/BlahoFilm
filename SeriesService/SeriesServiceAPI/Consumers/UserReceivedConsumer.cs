@@ -16,13 +16,18 @@ namespace SeriesServiceAPI.Consumers
 
         public async Task Consume(ConsumeContext<UserReceivedMessage> consumeContext)
         {
-            var model = new User()
-            {
-                UserId = consumeContext.Message.Id
-            };
+            var model = _dbContext.Users.FirstOrDefault(u => u.UserId == consumeContext.Message.Id);
 
-            _dbContext.Users.Add(model); 
-            await _dbContext.SaveChangesAsync();
+            if (model == null)
+            {
+                var user = new User()
+                {
+                    UserId = consumeContext.Message.Id,
+                };
+
+                _dbContext.Users.Add(user);
+                await _dbContext.SaveChangesAsync();
+            }
         }
     }
 }

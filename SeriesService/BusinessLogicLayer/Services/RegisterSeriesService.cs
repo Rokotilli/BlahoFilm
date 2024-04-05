@@ -47,7 +47,8 @@ namespace BusinessLogicLayer.Services
                     Director = seriesRegisterModel.Director,
                     Rating = seriesRegisterModel.Rating,
                     StudioName = seriesRegisterModel.StudioName,
-                    TrailerUri = seriesRegisterModel.TrailerUri
+                    TrailerUri = seriesRegisterModel.TrailerUri,
+                    AgeRestriction = seriesRegisterModel.AgeRestriction
                 };
 
                 var series = await _dbContext.Series
@@ -62,7 +63,8 @@ namespace BusinessLogicLayer.Services
                        s.Rating == model.Rating &&
                           s.Actors == model.Actors &&
                           s.StudioName == model.StudioName &&
-                          s.TrailerUri == model.TrailerUri);
+                          s.TrailerUri == model.TrailerUri &&
+                          s.AgeRestriction == model.AgeRestriction);
                 if (series != null)
                 {
                     return "This series already exists!";
@@ -112,26 +114,22 @@ namespace BusinessLogicLayer.Services
                        s.Rating == model.Rating &&
                           s.Actors == model.Actors &&
                           s.StudioName == model.StudioName &&
-                          s.TrailerUri == model.TrailerUri)
-                    .Select(f => f.Id)
+                          s.TrailerUri == model.TrailerUri &&
+                          s.AgeRestriction == model.AgeRestriction)
+                    .Select(s => s.Id)
                     .First();
 
                 foreach (var item in genres)
                 {
-                    var genre = _dbContext.Genres
-                        .Where(g => g.Name == item)
-                        .ToArray()
-                        .First();
+                    var genre = await _dbContext.Genres.FirstOrDefaultAsync(g => g.Name == item);
 
                     _dbContext.GenresSeries.Add(new GenresSeries() { SeriesId = seriesid, GenreId = genre.Id });
                 }
 
                 foreach (var item in tags)
                 {
-                    var tag = _dbContext.Tags
-                        .Where(t => t.Name == item)
-                        .ToArray()
-                        .First();
+
+                    var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Name == item);
 
                     _dbContext.TagsSeries.Add(new TagsSeries() { SeriesId = seriesid, TagId = tag.Id });
                 }
@@ -171,9 +169,6 @@ namespace BusinessLogicLayer.Services
                 {
                     return "This series already exists!";
                 }
-
-
-
                 _dbContext.SeriesParts.Add(model);
 
                 await _dbContext.SaveChangesAsync();
@@ -188,8 +183,6 @@ namespace BusinessLogicLayer.Services
                     .Select(cp => cp.Id)
                     .First();
                 await _dbContext.SaveChangesAsync();
-
-                await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = seriesid, MediaType = MediaTypes.Series });
 
                 return null;
             }

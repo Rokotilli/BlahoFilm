@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Context;
+﻿using BusinessLogicLayer.Models;
+using DataAccessLayer.Context;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SeriesServiceAPI.Controllers
@@ -19,6 +20,20 @@ namespace SeriesServiceAPI.Controllers
             var model = _dbContext.Series
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Select(s=>new
+                {
+                    Poster = s.Poster,
+                    Title = s.Title,
+                    Description = s.Description,
+                    CountSeasons = s.CountSeasons,
+                    CountParts = s.CountParts,
+                    Year = s.Year,
+                    Director = s.Director,
+                    Rating = s.Rating,
+                    StudioName = s.StudioName,
+                    TrailerUri = s.TrailerUri,
+                    AgeRestriction = s.AgeRestriction
+                })
                 .ToArray();
 
             if (!model.Any())
@@ -48,7 +63,7 @@ namespace SeriesServiceAPI.Controllers
         public async Task<IActionResult> GetCountPagesSeriesByGenres([FromQuery] int pageSize, [FromBody] string[] genres)
         {
             var model = _dbContext.Series
-                .Where(f => genres.All(g => f.GenresSeries.Any(gf => gf.Genre.Name == g)))
+                .Where(s => genres.All(g => s.GenresSeries.Any(gf => gf.Genre.Name == g)))
                 .Count();
 
             if (model == 0)
@@ -65,7 +80,7 @@ namespace SeriesServiceAPI.Controllers
         public async Task<IActionResult> GetCountPagesSeriesByTags([FromQuery] int pageSize, [FromBody] string[] tags)
         {
             var model = _dbContext.Series
-                .Where(f => tags.All(g => f.TagsSeries.Any(gf => gf.Tag.Name == g)))
+                .Where(s => tags.All(g => s.TagsSeries.Any(gf => gf.Tag.Name == g)))
                 .Count();
 
             if (model == 0)
@@ -81,7 +96,7 @@ namespace SeriesServiceAPI.Controllers
         [HttpGet("byid")]
         public async Task<IActionResult> GetSeriesById([FromQuery] int id)
         {
-            var model = _dbContext.Series.FirstOrDefault(f => f.Id == id);
+            var model = _dbContext.Series.FirstOrDefault(s => s.Id == id);
 
             if (model == null)
             {
@@ -95,8 +110,8 @@ namespace SeriesServiceAPI.Controllers
         public async Task<IActionResult> GetSeriesByIds([FromBody] int[] ids)
         {
             var model = _dbContext.Series
-                .Where(f => ids
-                .Contains(f.Id))
+                .Where(s => ids
+                .Contains(s.Id))
                 .ToArray();
 
             if (!model.Any())
@@ -111,7 +126,21 @@ namespace SeriesServiceAPI.Controllers
         public async Task<IActionResult> GetSeriesByTitle([FromQuery] string title)
         {
             var model = _dbContext.Series
-                .Where(f => f.Title == title)
+                .Where(s => s.Title == title)
+                .Select(s => new
+                {
+                    Poster = s.Poster,
+                    Title = s.Title,
+                    Description = s.Description,
+                    CountSeasons = s.CountSeasons,
+                    CountParts = s.CountParts,
+                    Year = s.Year,
+                    Director = s.Director,
+                    Rating = s.Rating,
+                    StudioName = s.StudioName,
+                    TrailerUri = s.TrailerUri,
+                    AgeRestriction = s.AgeRestriction
+                })
                 .ToArray();
 
             if (!model.Any())
@@ -128,7 +157,21 @@ namespace SeriesServiceAPI.Controllers
             var model = _dbContext.Series
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(f => genres.All(g => f.GenresSeries.Any(gf => gf.Genre.Name == g)))
+                .Where(s => genres.All(g => s.GenresSeries.Any(gf => gf.Genre.Name == g)))
+                .Select(s => new
+                {
+                    Poster = s.Poster,
+                    Title = s.Title,
+                    Description = s.Description,
+                    CountSeasons = s.CountSeasons,
+                    CountParts = s.CountParts,
+                    Year = s.Year,
+                    Director = s.Director,
+                    Rating = s.Rating,
+                    StudioName = s.StudioName,
+                    TrailerUri = s.TrailerUri,
+                    AgeRestriction = s.AgeRestriction
+                })
                 .ToArray();
 
             if (!model.Any())
@@ -145,7 +188,21 @@ namespace SeriesServiceAPI.Controllers
             var model = _dbContext.Series
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(f => tags.All(g => f.TagsSeries.Any(gf => gf.Tag.Name == g)))
+                .Where(s => tags.All(g => s.TagsSeries.Any(gf => gf.Tag.Name == g)))
+                .Select(s => new
+                {
+                    Poster = s.Poster,
+                    Title = s.Title,
+                    Description = s.Description,
+                    CountSeasons = s.CountSeasons,
+                    CountParts = s.CountParts,
+                    Year = s.Year,
+                    Director = s.Director,
+                    Rating = s.Rating,
+                    StudioName = s.StudioName,
+                    TrailerUri = s.TrailerUri,
+                    AgeRestriction = s.AgeRestriction
+                })
                 .ToArray();
             if (!model.Any())
             {

@@ -14,7 +14,7 @@
         public string Actors { get; set; }
         public string StudioName { get; set; }
         public string TrailerUri { get; set; }
-
+        public int AgeRestriction { get; set; }
         public ICollection<GenresSeries> GenresSeries { get; set; }
         public ICollection<SeriesPart> SeriesParts { get; set; }
         public ICollection<TagsSeries> TagsSeries { get; set; }
