@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Context;
+using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CartoonServiceAPI.Controllers
@@ -19,6 +20,28 @@ namespace CartoonServiceAPI.Controllers
             var model = _dbContext.Cartoons
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Select(c => new
+                {
+                    Id = c.Id,
+                    Poster = c.Poster,
+                    Title = c.Title,
+                    Description = c.Description,
+                    CountSeasons = c.CountSeasons,
+                    CountParts = c.CountParts,
+                    Duration = c.Duration,
+                    CategoryId = c.CategoryId,
+                    AnimationTypeId = c.AnimationTypeId,
+                    Year = c.Year,
+                    Director = c.Director,
+                    Rating = c.Rating,
+                    StudioName = c.StudioName,
+                    TrailerUri = c.TrailerUri,
+                    FileName = c.FileName,
+                    FileUri = c.FileUri,
+                    genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
+                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                }
+                )
                 .ToArray();
 
             if (!model.Any())
@@ -48,7 +71,7 @@ namespace CartoonServiceAPI.Controllers
         public async Task<IActionResult> GetCountPagesCartoonsByGenres([FromQuery] int pageSize, [FromBody] string[] genres)
         {
             var model = _dbContext.Cartoons
-                .Where(f => genres.All(g => f.GenresCartoons.Any(gf => gf.Genre.Name == g)))
+                .Where(c => genres.All(g => c.GenresCartoons.Any(gc => gc.Genre.Name == g)))
                 .Count();
 
             if (model == 0)
@@ -65,7 +88,7 @@ namespace CartoonServiceAPI.Controllers
         public async Task<IActionResult> GetCountPagesCartoonsByTags([FromQuery] int pageSize, [FromBody] string[] tags)
         {
             var model = _dbContext.Cartoons
-                .Where(f => tags.All(g => f.TagsCartoons.Any(gf => gf.Tag.Name == g)))
+                .Where(c => tags.All(g => c.TagsCartoons.Any(gc => gc.Tag.Name == g)))
                 .Count();
 
             if (model == 0)
@@ -81,7 +104,29 @@ namespace CartoonServiceAPI.Controllers
         [HttpGet("byid")]
         public async Task<IActionResult> GetCartoonById([FromQuery] int id)
         {
-            var model = _dbContext.Cartoons.FirstOrDefault(f => f.Id == id);
+            var model = _dbContext.Cartoons
+                .Select(c => new
+                {
+                    Id = c.Id,
+                    Poster = c.Poster,
+                    Title = c.Title,
+                    Description = c.Description,
+                    CountSeasons = c.CountSeasons,
+                    CountParts = c.CountParts,
+                    Duration = c.Duration,
+                    CategoryId = c.CategoryId,
+                    AnimationTypeId = c.AnimationTypeId,
+                    Year = c.Year,
+                    Director = c.Director,
+                    Rating = c.Rating,
+                    StudioName = c.StudioName,
+                    TrailerUri = c.TrailerUri,
+                    FileName = c.FileName,
+                    FileUri = c.FileUri,
+                    genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
+                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                }
+                ).FirstOrDefault(c => c.Id == id);
 
             if (model == null)
             {
@@ -97,6 +142,28 @@ namespace CartoonServiceAPI.Controllers
             var model = _dbContext.Cartoons
                 .Where(f => ids
                 .Contains(f.Id))
+                .Select(c => new
+                {
+                    Id = c.Id,
+                    Poster = c.Poster,
+                    Title = c.Title,
+                    Description = c.Description,
+                    CountSeasons = c.CountSeasons,
+                    CountParts = c.CountParts,
+                    Duration = c.Duration,
+                    CategoryId = c.CategoryId,
+                    AnimationTypeId = c.AnimationTypeId,
+                    Year = c.Year,
+                    Director = c.Director,
+                    Rating = c.Rating,
+                    StudioName = c.StudioName,
+                    TrailerUri = c.TrailerUri,
+                    FileName = c.FileName,
+                    FileUri = c.FileUri,
+                    genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
+                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                }
+                )
                 .ToArray();
 
             if (!model.Any())
@@ -112,6 +179,28 @@ namespace CartoonServiceAPI.Controllers
         {
             var model = _dbContext.Cartoons
                 .Where(f => f.Title == title)
+                .Select(c => new
+                {
+                    Id = c.Id,
+                    Poster = c.Poster,
+                    Title = c.Title,
+                    Description = c.Description,
+                    CountSeasons = c.CountSeasons,
+                    CountParts = c.CountParts,
+                    Duration = c.Duration,
+                    CategoryId = c.CategoryId,
+                    AnimationTypeId = c.AnimationTypeId,
+                    Year = c.Year,
+                    Director = c.Director,
+                    Rating = c.Rating,
+                    StudioName = c.StudioName,
+                    TrailerUri = c.TrailerUri,
+                    FileName = c.FileName,
+                    FileUri = c.FileUri,
+                    genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
+                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                }
+                )
                 .ToArray();
 
             if (!model.Any())
@@ -128,7 +217,29 @@ namespace CartoonServiceAPI.Controllers
             var model = _dbContext.Cartoons
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(f => genres.All(g => f.GenresCartoons.Any(gf => gf.Genre.Name == g)))
+                .Where(c => genres.All(g => c.GenresCartoons.Any(gc => gc.Genre.Name == g)))
+                 .Select(c => new
+                 {
+                     Id = c.Id,
+                     Poster = c.Poster,
+                     Title = c.Title,
+                     Description = c.Description,
+                     CountSeasons = c.CountSeasons,
+                     CountParts = c.CountParts,
+                     Duration = c.Duration,
+                     CategoryId = c.CategoryId,
+                     AnimationTypeId = c.AnimationTypeId,
+                     Year = c.Year,
+                     Director = c.Director,
+                     Rating = c.Rating,
+                     StudioName = c.StudioName,
+                     TrailerUri = c.TrailerUri,
+                     FileName = c.FileName,
+                     FileUri = c.FileUri,
+                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
+                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                 }
+                )
                 .ToArray();
 
             if (!model.Any())
@@ -145,7 +256,29 @@ namespace CartoonServiceAPI.Controllers
             var model = _dbContext.Cartoons
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(f => tags.All(g => f.TagsCartoons.Any(gf => gf.Tag.Name == g)))
+                .Where(c => tags.All(g => c.TagsCartoons.Any(gc => gc.Tag.Name == g)))
+                 .Select(c => new
+                 {
+                     Id = c.Id,
+                     Poster = c.Poster,
+                     Title = c.Title,
+                     Description = c.Description,
+                     CountSeasons = c.CountSeasons,
+                     CountParts = c.CountParts,
+                     Duration = c.Duration,
+                     CategoryId = c.CategoryId,
+                     AnimationTypeId = c.AnimationTypeId,
+                     Year = c.Year,
+                     Director = c.Director,
+                     Rating = c.Rating,
+                     StudioName = c.StudioName,
+                     TrailerUri = c.TrailerUri,
+                     FileName = c.FileName,
+                     FileUri = c.FileUri,
+                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
+                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                 }
+                )
                 .ToArray();
             if (!model.Any())
             {
