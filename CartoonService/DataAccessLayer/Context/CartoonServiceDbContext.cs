@@ -18,7 +18,6 @@ namespace DataAccessLayer.Context
         public DbSet<AnimationType> AnimationTypes { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CartoonRating> CartoonRating { get; set; }
-        public DbSet<CartoonPartRating> CartoonPartRating { get; set; }
         public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<CommentDislike> CommentDislikes { get; set; }
 
@@ -28,7 +27,6 @@ namespace DataAccessLayer.Context
 
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Cartoon>().HasMany(c => c.CartoonRatings).WithOne(c => c.Cartoon).HasForeignKey(cr => cr.CartoonId).OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<CartoonPart>().HasMany(c => c.CartoonPartRatings).WithOne(c => c.CartoonPart).HasForeignKey(cr => cr.CartoonPartId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<CommentDislike>().HasOne(c => c.User).WithMany(c => c.CommentDislikes).HasForeignKey(cr => cr.UserId).OnDelete(DeleteBehavior.ClientSetNull);
             modelBuilder.Entity<CommentLike>().HasOne(c => c.User).WithMany(c => c.CommentLikes).HasForeignKey(cr => cr.UserId).OnDelete(DeleteBehavior.ClientSetNull);
             modelBuilder.Entity<Comment>().HasMany(c => c.CommentDislikes).WithOne(c => c.Comment).HasForeignKey(cr => cr.CommentId).OnDelete(DeleteBehavior.Cascade);

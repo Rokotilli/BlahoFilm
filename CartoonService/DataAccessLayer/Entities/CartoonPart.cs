@@ -11,6 +11,5 @@
         public string? FileName { get; set; }
         public string? FileUri { get; set; }
         public Cartoon Cartoon { get; set; }
-        public ICollection<CartoonPartRating> CartoonPartRatings { get; set; }
     }
 }

@@ -43,19 +43,5 @@ namespace CartoonServiceAPI.Controllers
 
             return Ok();
         }
-
-        [HttpPost]
-        public async Task<IActionResult> RateCartoonPart([FromQuery] int cartoonPartId, [FromQuery] int rate)
-        {
-            //UserId must be from jwt
-            var result = await _ratingService.RateCartoonPart(cartoonPartId, rate, "user1");
-
-            if (result != null)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok();
-        }
     }
 }

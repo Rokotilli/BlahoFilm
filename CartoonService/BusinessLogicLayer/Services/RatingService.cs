@@ -58,52 +58,5 @@ namespace BusinessLogicLayer.Services
                 return ex.ToString();
             }
         }
-
-
-        public async Task<string> RateCartoonPart(int cartoonPartId, int rate, string userid)
-        {
-            try
-            {
-                var model = _dbContext.CartoonPartRating.FirstOrDefault(r => r.CartoonPartId == cartoonPartId && r.UserId == userid);
-                var cartoonPart = _dbContext.Cartoons.FirstOrDefault(f => f.Id == cartoonPartId);
-
-                if (model == null)
-                {
-                    var rating = new CartoonPartRating()
-                    {
-                        CartoonPartId = cartoonPartId,
-                        UserId = userid,
-                        Rate = rate
-                    };
-
-                    _dbContext.CartoonPartRating.Add(rating);
-                    await _dbContext.SaveChangesAsync();
-                }
-                else
-                {
-                    model.Rate = rate;
-
-                    _dbContext.CartoonPartRating.Update(model);
-                    await _dbContext.SaveChangesAsync();
-                }
-
-                var averageRating = _dbContext.CartoonPartRating
-                    .Where(r => r.CartoonPartId == cartoonPartId)
-                    .Average(r => r.Rate);
-
-                var result = Math.Round(averageRating, 1);
-
-                cartoonPart.Rating = result;
-
-                _dbContext.Cartoons.Update(cartoonPart);
-                await _dbContext.SaveChangesAsync();
-
-                return null;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-            }
-        }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class Cartoons : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -214,33 +214,6 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CartoonPartRating",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CartoonPartId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Rate = table.Column<double>(type: "float", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CartoonPartRating", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CartoonPartRating_CartoonParts_CartoonPartId",
-                        column: x => x.CartoonPartId,
-                        principalTable: "CartoonParts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CartoonPartRating_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Comments",
                 columns: table => new
                 {
@@ -327,16 +300,6 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartoonPartRating_CartoonPartId",
-                table: "CartoonPartRating",
-                column: "CartoonPartId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CartoonPartRating_UserId",
-                table: "CartoonPartRating",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CartoonParts_CartoonId",
                 table: "CartoonParts",
                 column: "CartoonId");
@@ -410,9 +373,6 @@ namespace DataAccessLayer.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "CartoonPartRating");
-
             migrationBuilder.DropTable(
                 name: "CartoonRating");
 

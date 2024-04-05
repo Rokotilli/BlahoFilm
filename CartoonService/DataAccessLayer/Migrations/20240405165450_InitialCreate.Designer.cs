@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(CartoonServiceDbContext))]
-    [Migration("20240321205821_Cartoons")]
-    partial class Cartoons
+    [Migration("20240405165450_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -145,33 +145,6 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("CartoonId");
 
                     b.ToTable("CartoonParts");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.CartoonPartRating", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CartoonPartId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Rate")
-                        .HasColumnType("float");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CartoonPartId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CartoonPartRating");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.CartoonRating", b =>
@@ -415,25 +388,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Cartoon");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.CartoonPartRating", b =>
-                {
-                    b.HasOne("DataAccessLayer.Entities.CartoonPart", "CartoonPart")
-                        .WithMany("CartoonPartRatings")
-                        .HasForeignKey("CartoonPartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DataAccessLayer.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CartoonPart");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DataAccessLayer.Entities.CartoonRating", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Cartoon", "Cartoon")
@@ -564,11 +518,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("GenresCartoons");
 
                     b.Navigation("TagsCartoons");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.CartoonPart", b =>
-                {
-                    b.Navigation("CartoonPartRatings");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
