@@ -4,6 +4,7 @@ using DataAccessLayer.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AnimeServiceDbContext))]
-    partial class AnimeServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240405215615_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,18 +33,12 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-<<<<<<< Updated upstream
-                    b.Property<int?>("CountParts")
-                        .HasColumnType("int");
-
-=======
                     b.Property<int>("AgeRestriction")
                         .HasColumnType("int");
 
                     b.Property<int?>("CountParts")
                         .HasColumnType("int");
 
->>>>>>> Stashed changes
                     b.Property<int?>("CountSeasons")
                         .HasColumnType("int");
 
@@ -53,10 +50,6 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-<<<<<<< Updated upstream
-                    b.Property<TimeOnly?>("Duration")
-                        .HasColumnType("time");
-=======
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -64,7 +57,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("FileUri")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
->>>>>>> Stashed changes
 
                     b.Property<byte[]>("Poster")
                         .IsRequired()

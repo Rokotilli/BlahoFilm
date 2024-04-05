@@ -64,7 +64,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UploadService", "UploadServ
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UploadServiceAPI", "UploadService\UploadServiceAPI\UploadServiceAPI.csproj", "{6DA4B517-A3FB-4CDA-B190-DEB551C47C9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBus", "MessageBus\MessageBus.csproj", "{8B60CC72-99F3-476E-AB56-743EDA1FA422}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageBus", "MessageBus\MessageBus.csproj", "{8B60CC72-99F3-476E-AB56-743EDA1FA422}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
