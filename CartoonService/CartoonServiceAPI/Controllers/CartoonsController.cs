@@ -38,6 +38,7 @@ namespace CartoonServiceAPI.Controllers
                     TrailerUri = c.TrailerUri,
                     FileName = c.FileName,
                     FileUri = c.FileUri,
+                    AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
                 }
@@ -123,6 +124,7 @@ namespace CartoonServiceAPI.Controllers
                     TrailerUri = c.TrailerUri,
                     FileName = c.FileName,
                     FileUri = c.FileUri,
+                    AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
                 }
@@ -160,6 +162,7 @@ namespace CartoonServiceAPI.Controllers
                     TrailerUri = c.TrailerUri,
                     FileName = c.FileName,
                     FileUri = c.FileUri,
+                    AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
                 }
@@ -197,6 +200,7 @@ namespace CartoonServiceAPI.Controllers
                     TrailerUri = c.TrailerUri,
                     FileName = c.FileName,
                     FileUri = c.FileUri,
+                    AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
                 }
@@ -236,6 +240,7 @@ namespace CartoonServiceAPI.Controllers
                      TrailerUri = c.TrailerUri,
                      FileName = c.FileName,
                      FileUri = c.FileUri,
+                     AgeRestriction = c.AgeRestriction,
                      genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                      tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
                  }
@@ -275,6 +280,7 @@ namespace CartoonServiceAPI.Controllers
                      TrailerUri = c.TrailerUri,
                      FileName = c.FileName,
                      FileUri = c.FileUri,
+                     AgeRestriction = c.AgeRestriction,
                      genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                      tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
                  }

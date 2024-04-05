@@ -121,7 +121,7 @@ namespace BusinessLogicLayer.Services
                                      c.Rating == model.Rating &&
                                      c.StudioName == model.StudioName &&
                                      c.AgeRestriction == model.AgeRestriction)
-                    .Select(f => f.Id)
+                    .Select(s => s.Id)
                     .First();
 
                 foreach (var item in genres)
