@@ -47,6 +47,9 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AgeRestriction")
+                        .HasColumnType("int");
+
                     b.Property<int>("AnimationTypeId")
                         .HasColumnType("int");
 

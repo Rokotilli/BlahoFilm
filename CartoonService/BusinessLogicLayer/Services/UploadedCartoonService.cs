@@ -1,6 +1,7 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLogicLayer.Services
 {
@@ -17,11 +18,10 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                var model = _dbContext.Cartoons
-                .Where(c => c.Id == cartoonUploadedModel.Id)
-                .ToArray().First();
+                var model = await _dbContext.Cartoons.FirstOrDefaultAsync(c => c.Id == cartoonUploadedModel.Id);
 
-                model.FileUri = cartoonUploadedModel.FileUri;
+                model.FileName = cartoonUploadedModel.FileName;
+                model.FileUri = cartoonUploadedModel.FileUri; 
 
                 _dbContext.Cartoons.Update(model);
                 await _dbContext.SaveChangesAsync();
@@ -41,7 +41,7 @@ namespace BusinessLogicLayer.Services
                 var model = _dbContext.CartoonParts
                 .Where(c => c.Id == cartoonPartUploadedModel.Id)
                 .ToArray().First();
-
+                model.FileName = cartoonPartUploadedModel.FileName;
                 model.FileUri = cartoonPartUploadedModel.FileUri;
 
                 _dbContext.CartoonParts.Update(model);

@@ -50,7 +50,8 @@ namespace BusinessLogicLayer.Services
                     Director = cartoonRegisterModel.Director,
                     Rating = cartoonRegisterModel.Rating,
                     StudioName = cartoonRegisterModel.StudioName,
-                    TrailerUri = cartoonRegisterModel.TrailerUri
+                    TrailerUri = cartoonRegisterModel.TrailerUri,
+                    AgeRestriction = cartoonRegisterModel.AgeRestriction
                 };
 
                 var cartoon = await _dbContext.Cartoons
@@ -66,7 +67,8 @@ namespace BusinessLogicLayer.Services
                                      c.Year == model.Year &&
                                      c.Director == model.Director &&
                                      c.Rating == model.Rating &&
-                                     c.StudioName == model.StudioName);
+                                     c.StudioName == model.StudioName &&
+                                     c.AgeRestriction == model.AgeRestriction);
                 if (cartoon != null)
                 {
                     return "This cartoon already exists!";
@@ -117,27 +119,21 @@ namespace BusinessLogicLayer.Services
                                      c.Year == model.Year &&
                                      c.Director == model.Director &&
                                      c.Rating == model.Rating &&
-                                     c.StudioName == model.StudioName)
+                                     c.StudioName == model.StudioName &&
+                                     c.AgeRestriction == model.AgeRestriction)
                     .Select(f => f.Id)
                     .First();
 
                 foreach (var item in genres)
                 {
-                    var genre = _dbContext.Genres
-                        .Where(g => g.Name == item)
-                        .ToArray()
-                        .First();
+                    var genre = await _dbContext.Genres.FirstOrDefaultAsync(g => g.Name == item);
 
                     _dbContext.GenresCartoons.Add(new GenresCartoon() { CartoonId = cartoonid, GenreId = genre.Id });
                 }
 
                 foreach (var item in tags)
                 {
-                    var tag = _dbContext.Tags
-                        .Where(t => t.Name == item)
-                        .ToArray()
-                        .First();
-
+                    var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Name == item);
                     _dbContext.TagsCartoons.Add(new TagsCartoon() { CartoonId = cartoonid, TagId = tag.Id });
                 }
 

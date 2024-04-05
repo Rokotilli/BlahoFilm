@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(CartoonServiceDbContext))]
-    [Migration("20240405165450_InitialCreate")]
+    [Migration("20240405190423_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -49,6 +49,9 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AgeRestriction")
+                        .HasColumnType("int");
 
                     b.Property<int>("AnimationTypeId")
                         .HasColumnType("int");

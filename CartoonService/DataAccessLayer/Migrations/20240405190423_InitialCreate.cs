@@ -94,7 +94,8 @@ namespace DataAccessLayer.Migrations
                     StudioName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AgeRestriction = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
