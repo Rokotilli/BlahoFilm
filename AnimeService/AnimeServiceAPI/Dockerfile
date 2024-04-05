@@ -13,11 +13,11 @@ COPY ["AnimeService/AnimeServiceAPI/AnimeServiceAPI.csproj", "AnimeService/Anime
 RUN dotnet restore "./AnimeService/AnimeServiceAPI/AnimeServiceAPI.csproj"
 COPY . .
 WORKDIR "/src/AnimeService/AnimeServiceAPI"
-RUN dotnet build "./AnimeServiceAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./AnimeServiceAPI.csproj" -a $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./AnimeServiceAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./AnimeServiceAPI.csproj" -a $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
