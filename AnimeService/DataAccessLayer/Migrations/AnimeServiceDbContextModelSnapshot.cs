@@ -30,18 +30,12 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-<<<<<<< Updated upstream
-                    b.Property<int?>("CountParts")
-                        .HasColumnType("int");
-
-=======
                     b.Property<int>("AgeRestriction")
                         .HasColumnType("int");
 
                     b.Property<int?>("CountParts")
                         .HasColumnType("int");
 
->>>>>>> Stashed changes
                     b.Property<int?>("CountSeasons")
                         .HasColumnType("int");
 
@@ -53,10 +47,9 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-<<<<<<< Updated upstream
-                    b.Property<TimeOnly?>("Duration")
-                        .HasColumnType("time");
-=======
+                    b.Property<string>("Duration")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -64,7 +57,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("FileUri")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
->>>>>>> Stashed changes
 
                     b.Property<byte[]>("Poster")
                         .IsRequired()

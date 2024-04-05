@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,12 +22,15 @@ namespace DataAccessLayer.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CountSeasons = table.Column<int>(type: "int", nullable: true),
                     CountParts = table.Column<int>(type: "int", nullable: true),
-                    Duration = table.Column<TimeOnly>(type: "time", nullable: true),
+                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Year = table.Column<int>(type: "int", nullable: false),
                     Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false),
+                    Rating = table.Column<double>(type: "float", nullable: false),
                     StudioName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AgeRestriction = table.Column<int>(type: "int", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -80,7 +83,7 @@ namespace DataAccessLayer.Migrations
                     AnimeId = table.Column<int>(type: "int", nullable: false),
                     SeasonNumber = table.Column<int>(type: "int", nullable: false),
                     PartNumber = table.Column<int>(type: "int", nullable: false),
-                    Duration = table.Column<TimeOnly>(type: "time", nullable: false),
+                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileUri = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -144,17 +147,46 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AnimeRating",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AnimeId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Rate = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AnimeRating", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AnimeRating_Animes_AnimeId",
+                        column: x => x.AnimeId,
+                        principalTable: "Animes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AnimeRating_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Comments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    AnimePartId = table.Column<int>(type: "int", nullable: false),
+                    AnimeId = table.Column<int>(type: "int", nullable: true),
+                    AnimePartId = table.Column<int>(type: "int", nullable: true),
                     ParentCommentId = table.Column<int>(type: "int", nullable: true),
                     CountLikes = table.Column<int>(type: "int", nullable: false),
                     CountDislikes = table.Column<int>(type: "int", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -163,8 +195,7 @@ namespace DataAccessLayer.Migrations
                         name: "FK_Comments_AnimeParts_AnimePartId",
                         column: x => x.AnimePartId,
                         principalTable: "AnimeParts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Comments_Comments_ParentCommentId",
                         column: x => x.ParentCommentId,
@@ -178,10 +209,90 @@ namespace DataAccessLayer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CommentDislikes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CommentId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommentDislikes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CommentDislikes_Comments_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CommentDislikes_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommentLikes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CommentId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommentLikes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CommentLikes_Comments_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CommentLikes_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AnimeParts_AnimeId",
                 table: "AnimeParts",
                 column: "AnimeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AnimeRating_AnimeId",
+                table: "AnimeRating",
+                column: "AnimeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AnimeRating_UserId",
+                table: "AnimeRating",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommentDislikes_CommentId",
+                table: "CommentDislikes",
+                column: "CommentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommentDislikes_UserId",
+                table: "CommentDislikes",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommentLikes_CommentId",
+                table: "CommentLikes",
+                column: "CommentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommentLikes_UserId",
+                table: "CommentLikes",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_AnimePartId",
@@ -213,7 +324,13 @@ namespace DataAccessLayer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Comments");
+                name: "AnimeRating");
+
+            migrationBuilder.DropTable(
+                name: "CommentDislikes");
+
+            migrationBuilder.DropTable(
+                name: "CommentLikes");
 
             migrationBuilder.DropTable(
                 name: "GenresAnimes");
@@ -222,16 +339,19 @@ namespace DataAccessLayer.Migrations
                 name: "TagsAnimes");
 
             migrationBuilder.DropTable(
-                name: "AnimeParts");
-
-            migrationBuilder.DropTable(
-                name: "Users");
+                name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "Genres");
 
             migrationBuilder.DropTable(
                 name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "AnimeParts");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Animes");

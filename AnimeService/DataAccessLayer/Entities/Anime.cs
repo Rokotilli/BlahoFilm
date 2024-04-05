@@ -8,10 +8,7 @@
         public string Description { get; set; }
         public int? CountSeasons { get; set; }
         public int? CountParts { get; set; }
-<<<<<<< Updated upstream
-        public TimeSpan? Duration { get; set; }
-=======
->>>>>>> Stashed changes
+        public string? Duration { get; set; }
         public int Year { get; set; }
         public string Director { get; set; }
         public double Rating { get; set; }
