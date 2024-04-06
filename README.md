@@ -12,7 +12,8 @@ blobName (string): Назва об'єкта Blob.
 Poster (file): Постер фільму.  
 Title (string): Назва фільму.  
 Description (string): Опис фільму.    
-Duration (time): Тривалість фільму.  
+Duration (string): Тривалість фільму.  
+AgeRestriction (int): Вікове обмеження
 Year (int): Рік випуску фільму.  
 Director (string): Режисер фільму.  
 Rating (int): Рейтинг фільму.  
@@ -27,6 +28,7 @@ Tags (string): Теги фільму (через кому).
 Поля тіла запиту:
 
 Id (int): Ідентифікатор фільму.  
+FileName (string): Назва файлу.  
 FileUri (string): URI файлу.  
 
 # RatingController
@@ -129,7 +131,7 @@ filmId (int): Ідентифікатор фільму.
 Поля тіла запиту:
 
 FilmId (int): Ідентифікатор фільму.  
-ParentCommentId (int): Ідентифікатор батьківського коментаря (необов'язково).  
+ParentCommentId? (int): Ідентифікатор батьківського коментаря (необов'язково).  
 Text (string): Текст коментаря.  
 
 - **DELETE /api/Comments**
@@ -170,17 +172,23 @@ id (int): Ідентифікатор користувача
 
 ids (масив int): Масив Ідентифікаторів користувача
 
-- **POST /api/Users/avatar**
+- **PUT /api/Users/avatar**
 
 Поля тіла запиту:
 
 avatar (file): Аватар користувача
 
-- **POST /api/Users/totaltime**  
+- **PUT /api/Users/totaltime**  
 
 Параметри запиту:  
 
 seconds (int): Кількість секунд за сеанс перегляду  
+
+- **PUT /api/Users/changenusername**  
+
+Параметри запиту:  
+
+username (string): Нове ім'я користувача
 
 # HistoryController
 - **GET /api/History**
@@ -203,6 +211,7 @@ TimeCode (string): Позиція користувача на таймлайні
 - **POST /api/Favorites**
 
 Поля тіла запиту:  
+
 MediaId (int): Ідентифікатор медія  
 MediaTypeId (int): Ідентифікатор типу медіа  
 
@@ -212,6 +221,7 @@ MediaTypeId (int): Ідентифікатор типу медіа
 - **POST /api/BookMarks**
 
 Поля тіла запиту:  
+
 MediaId (int): Ідентифікатор медія  
 MediaTypeId (int): Ідентифікатор типу медіа  
 
@@ -255,4 +265,23 @@ SubscriptionId (string): Ідентифікатор підписки
 
 Параметри запиту:  
 
-reason (string): Причина зміни статусу
+reason (string): Причина зміни статусу  
+
+# AuthController
+- **POST /api/Auth/register**
+
+Поля тіла запиту:  
+
+Email (string): Пошта користувача
+Password (string): Пароль користувача  
+
+- **POST /api/Auth/authenticate**
+
+Поля тіла запиту:  
+
+Email (string): Пошта користувача
+Password (string): Пароль користувача  
+
+- **PUT /api/Auth/refreshjwt**
+
+- **DELETE /api/Auth/logout**
