@@ -1,7 +1,9 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace UserServiceAPI.Controllers
 {
@@ -18,11 +20,12 @@ namespace UserServiceAPI.Controllers
             _favoritesService = favoritesService;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetFavouritesByUserId()
         {
-            //UserId must be from jwt
-            var model = _dbContext.Favorites.Where(f => f.UserId == "user1").ToArray();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var model = _dbContext.Favorites.Where(f => f.UserId == userId).ToArray();
 
             if (!model.Any()) 
             {
@@ -32,11 +35,12 @@ namespace UserServiceAPI.Controllers
             return Ok(model);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Favourite(MediaWithType mediaWithType)
         {
-            //UserId must be from jwt
-            var result = await _favoritesService.Favorite(mediaWithType, "user1");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _favoritesService.Favorite(mediaWithType, userId);
 
             if (result != null)
             {

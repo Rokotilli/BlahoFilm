@@ -1,7 +1,9 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace UserServiceAPI.Controllers
 {
@@ -18,10 +20,12 @@ namespace UserServiceAPI.Controllers
             _dbContext = userServiceDbContext;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetHistoryByUserId()
         {
-            var model = _dbContext.Histories.Where(f => f.UserId == "user1").ToArray();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var model = _dbContext.Histories.Where(f => f.UserId == userId).ToArray();
 
             if (!model.Any())
             {
@@ -31,20 +35,20 @@ namespace UserServiceAPI.Controllers
             return Ok(model);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> ChangeHistory(HistoryModel historyModel)
         {
-            string result = null;
+            string result = "";
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (historyModel.PartNumber == 0 && historyModel.SeasonNumber == 0)
             {
-                //UserId must be from jwt
-                result = await _historyService.AddHistoryForFilm("user1", historyModel);
+                result = await _historyService.AddHistoryForFilm(userId, historyModel);
             }
             else
             {
-                //UserId must be from jwt
-                result = await _historyService.AddHistoryForSeries("user1", historyModel);
+                result = await _historyService.AddHistoryForSeries(userId, historyModel);
             }
 
             if (result != null)

@@ -9,6 +9,9 @@ namespace DataAccessLayer.Context
 
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<MediaType> MediaTypes { get; set; }
         public DbSet<MediaWithType> MediaWithTypes { get; set; }
         public DbSet<History> Histories { get; set; }

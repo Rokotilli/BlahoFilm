@@ -6,5 +6,6 @@ namespace BusinessLogicLayer.Interfaces
     {
         Task<string> ChangeAvatar(string userid, IFormFile avatar);
         Task<string> ChangeTotalTime(string userid, int timeInSeconds);
+        Task<string> ChangeNickName(string userid, string username);
     }
 }
