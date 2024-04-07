@@ -1,9 +1,11 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Services;
+using DataAccessLayer.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace UserServiceAPI.Controllers
 {
@@ -14,12 +16,14 @@ namespace UserServiceAPI.Controllers
         private readonly IAuthService _authService;
         private readonly IConfiguration _configuration;
         private readonly IDataProtectionProvider _protectionProvider;
+        private readonly UserServiceDbContext _dbContext;
 
-        public AuthController(IAuthService authService, IConfiguration configuration, IDataProtectionProvider dataProtectionProvider)
+        public AuthController(IAuthService authService, IConfiguration configuration, IDataProtectionProvider dataProtectionProvider, UserServiceDbContext userServiceDbContext)
         {
             _authService = authService;
             _configuration = configuration;
             _protectionProvider = dataProtectionProvider;
+            _dbContext = userServiceDbContext;
         }
 
         [HttpPost("register")]
@@ -47,7 +51,7 @@ namespace UserServiceAPI.Controllers
 
             setTokensCookie(result);
 
-            return Ok(result);
+            return Ok();
         }
 
         [HttpPut("refreshjwt")]
@@ -66,15 +70,31 @@ namespace UserServiceAPI.Controllers
 
             setTokensCookie(result);
 
-            return Ok(result);
+            return Ok();
         }
 
         [Authorize]
         [HttpDelete("logout")]
         public async Task<IActionResult> RemoveAllTokens()
         {
+            var encryptedToken = HttpContext.Request.Cookies["refreshToken"];
+            var protector = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
+            var token = protector.Unprotect(encryptedToken);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             Response.Cookies.Delete("accessToken");
             Response.Cookies.Delete("refreshToken");
+
+            var model = _dbContext.RefreshTokens.FirstOrDefault(rt => rt.Token == token && rt.UserId == userId);
+
+            if (model == null)
+            {
+                return BadRequest("Refresh token not found!");
+            }
+
+            _dbContext.RefreshTokens.Remove(model);
+
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }
@@ -84,6 +104,7 @@ namespace UserServiceAPI.Controllers
             var cookieAccessTokenOptions = new CookieOptions
             {
                 HttpOnly = true,
+                SameSite = SameSiteMode.None,
                 Secure = true,
                 Expires = DateTime.UtcNow.AddMinutes(15)
             };
@@ -91,6 +112,7 @@ namespace UserServiceAPI.Controllers
             var cookieRefreshTokenOptions = new CookieOptions
             {
                 HttpOnly = true,
+                SameSite = SameSiteMode.None,
                 Secure = true,
                 Expires = DateTime.UtcNow.AddDays(int.Parse(_configuration["Security:RefreshTokenTTL"]))
             };

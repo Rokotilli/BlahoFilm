@@ -93,7 +93,9 @@ namespace BusinessLogicLayer.Services
                     return new AuthResponse() { Exception = "Password is incorrect!" };
                 }
 
-                var expiredRefreshTokens = _dbContext.RefreshTokens.Where(rt => rt.UserId == user.Id && rt.IsExpired).ToArray();
+                var expiredRefreshTokens = _dbContext.RefreshTokens
+                                            .Where(rt => rt.UserId == user.Id && rt.Expires < DateTime.UtcNow)
+                                            .ToArray();
 
                 if (expiredRefreshTokens.Any())
                 {
@@ -126,7 +128,7 @@ namespace BusinessLogicLayer.Services
             {                
                 var refreshToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);
 
-                if (refreshToken == null || refreshToken.IsExpired)
+                if (refreshToken == null || refreshToken.Expires < DateTime.UtcNow)
                 {
                     if (refreshToken != null)
                     {
@@ -205,7 +207,7 @@ namespace BusinessLogicLayer.Services
             {
                 Token = token,
                 UserId = userId,
-                Expires = DateTime.UtcNow.AddDays(int.Parse(_configuration["RefreshTokenTTL"])),
+                Expires = DateTime.UtcNow.AddDays(int.Parse(_configuration["Security:RefreshTokenTTL"])),
                 Created = DateTime.UtcNow                
             };
 

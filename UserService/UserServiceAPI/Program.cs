@@ -17,6 +17,17 @@ builder.Services.AddMyServices();
 
 builder.Services.AddDataProtection();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin", opt =>
+    {
+        opt.WithOrigins(builder.Configuration.GetSection("Security:AllowedOrigins").Get<string[]>())
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
+    });
+});
+
 builder.Services.AddDbContext<UserServiceDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("UserServiceSqlServer"));
@@ -78,6 +89,8 @@ if (!app.Environment.IsDevelopment())
 {
     app.Services.GetRequiredService<UserServiceDbContext>().Database.Migrate();
 }
+
+app.UseCors("AllowOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();
