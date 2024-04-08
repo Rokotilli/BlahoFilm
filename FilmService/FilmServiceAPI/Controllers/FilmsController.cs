@@ -132,7 +132,7 @@ namespace FilmServiceAPI.Controllers
         public async Task<IActionResult> GetFilmsByTitle([FromQuery] string title)
         {
             var model = _dbContext.Films
-                .Where(f => f.Title == title)
+                .Where(f => f.Title.Contains(title))
                 .Select(f => new
                 {
                     id = f.Id,

@@ -1,6 +1,8 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using DataAccessLayer.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FilmServiceAPI.Controllers
 {
@@ -30,11 +32,12 @@ namespace FilmServiceAPI.Controllers
             return Ok(result.Rating);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Rate([FromQuery] int filmId, [FromQuery] int rate)
         {
-            //UserId must be from jwt
-            var result = await _ratingService.Rate(filmId, rate, "user1");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _ratingService.Rate(filmId, rate, userId);
             
             if (result != null)
             {

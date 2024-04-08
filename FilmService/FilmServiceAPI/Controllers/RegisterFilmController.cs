@@ -1,5 +1,6 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FilmServiceAPI.Controllers
@@ -25,6 +26,7 @@ namespace FilmServiceAPI.Controllers
             _uploadedFilmService = uploadedFilmService;
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpGet("getsas")]
         public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
@@ -38,6 +40,7 @@ namespace FilmServiceAPI.Controllers
             return BadRequest("Can't get a SaS");
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("register")]
         public async Task<IActionResult> RegisterFilm(FilmRegisterModel filmRegisterModel)
         {
@@ -51,6 +54,7 @@ namespace FilmServiceAPI.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("uploadedfilm")]
         public async Task<IActionResult> UploadedFilm(FilmUploadedModel filmUploadedModel)
         {
