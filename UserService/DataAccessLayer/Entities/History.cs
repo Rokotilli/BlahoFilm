@@ -7,7 +7,7 @@
         public int MediaWithTypeId { get; set; }
         public int? PartNumber { get; set; }
         public int? SeasonNumber { get; set; }
-        public TimeSpan TimeCode { get; set; }
+        public string TimeCode { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
         public User? User { get; set; }

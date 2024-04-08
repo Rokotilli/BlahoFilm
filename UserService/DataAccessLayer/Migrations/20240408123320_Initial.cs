@@ -186,7 +186,7 @@ namespace DataAccessLayer.Migrations
                     MediaWithTypeId = table.Column<int>(type: "int", nullable: false),
                     PartNumber = table.Column<int>(type: "int", nullable: true),
                     SeasonNumber = table.Column<int>(type: "int", nullable: true),
-                    TimeCode = table.Column<TimeSpan>(type: "time", nullable: false),
+                    TimeCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>

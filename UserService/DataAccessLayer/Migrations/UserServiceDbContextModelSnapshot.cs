@@ -96,8 +96,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("SeasonNumber")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan>("TimeCode")
-                        .HasColumnType("time");
+                    b.Property<string>("TimeCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()

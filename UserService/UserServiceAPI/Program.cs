@@ -15,7 +15,10 @@ builder.Services.AddControllers();
 
 builder.Services.AddMyServices();
 
-builder.Services.AddDataProtection();
+builder.Services.AddDataProtection(opt =>
+{
+    opt.ApplicationDiscriminator = builder.Configuration["Security:CookieProtectKey"];
+});
 
 builder.Services.AddCors(options =>
 {
@@ -52,7 +55,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                            {
                                var _dataProtectionProvider = context.HttpContext.RequestServices.GetRequiredService<IDataProtectionProvider>();
                                var encryptedToken = context.Request.Cookies["accessToken"];
-
                                var protector = _dataProtectionProvider.CreateProtector(builder.Configuration["Security:CookieProtectKey"]);
 
                                if (!string.IsNullOrEmpty(encryptedToken))
