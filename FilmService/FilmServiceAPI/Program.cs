@@ -1,6 +1,5 @@
 using DataAccessLayer.Context;
 using FilmServiceAPI.Consumers;
-using FilmServiceAPI.JWTValidators;
 using FilmServiceAPI.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,12 +40,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                    {
                        options.TokenValidationParameters = new TokenValidationParameters
                        {
-                           ValidateIssuer = false,
-                           ValidateAudience = true,
+                           ValidateIssuer = true,
+                           ValidateAudience = false,
                            ValidateLifetime = true,
-                           LifetimeValidator = MyLifetimeValidator.LifetimeValidator,
+                           ClockSkew = TimeSpan.Zero,
                            ValidateIssuerSigningKey = true,
-                           ValidAudience = builder.Configuration["Security:JwtAudience"],
+                           ValidIssuer = builder.Configuration["Security:JwtIssuer"],
                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Security:JwtSecretKey"]))
                        };
                        options.Events = new JwtBearerEvents
