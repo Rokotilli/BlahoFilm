@@ -7,12 +7,9 @@ using MassTransit.Initializers;
 using MessageBus.Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace BusinessLogicLayer.Services
 {
@@ -28,15 +25,17 @@ namespace BusinessLogicLayer.Services
         private readonly UserServiceDbContext _dbContext;
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly IConfiguration _configuration;
+        private readonly IJWTHelper _jWTHelper;
 
-        public AuthService(UserServiceDbContext userServiceDbContext, IPublishEndpoint publishEndpoint, IConfiguration configuration)
+        public AuthService(UserServiceDbContext userServiceDbContext, IPublishEndpoint publishEndpoint, IConfiguration configuration, IJWTHelper jWTHelper)
         {
             _dbContext = userServiceDbContext;
             _publishEndpoint = publishEndpoint;
             _configuration = configuration;
+            _jWTHelper = jWTHelper;
         }
 
-        public async Task<string> AddUser(UserModel userModel)
+        public async Task<string> AddUser(UserModel userModel, string externalProvider = null, string externalId = null)
         {
             try
             {
@@ -47,9 +46,18 @@ namespace BusinessLogicLayer.Services
                     return "This email has already taken!";
                 }
 
-                var passwordHash = BCrypt.Net.BCrypt.HashPassword(userModel.Password, BCrypt.Net.BCrypt.GenerateSalt());                
+                var passwordHash = BCrypt.Net.BCrypt.HashPassword(userModel.Password ?? "", BCrypt.Net.BCrypt.GenerateSalt());                
 
-                var addedUser = await _dbContext.Users.AddAsync(new User() { UserName = getUniqueUserName(), Email = userModel.Email, EmailConfirmed = false, PasswordHash = passwordHash });
+                var addedUser = await _dbContext.Users.AddAsync(new User()
+                {
+                    ExternalId = externalId,
+                    ExternalProvider = externalProvider,
+                    UserName = getUniqueUserName(),
+                    Email = userModel.Email,
+                    EmailConfirmed = externalProvider == null ? false : true,
+                    PasswordHash = externalProvider == null ? passwordHash : null
+                });
+
                 await _dbContext.UserRoles.AddAsync(new UserRole() { UserId = addedUser.Entity.Id, RoleId = 1 });
                 await _dbContext.SaveChangesAsync();
 
@@ -88,7 +96,7 @@ namespace BusinessLogicLayer.Services
                     return new AuthResponse() { Exception = "User not found!" };
                 }
 
-                if (!BCrypt.Net.BCrypt.Verify(userModel.Password, user.PasswordHash))
+                if (userModel.Password != null && !BCrypt.Net.BCrypt.Verify(userModel.Password, user.PasswordHash))
                 {
                     return new AuthResponse() { Exception = "Password is incorrect!" };
                 }
@@ -106,9 +114,15 @@ namespace BusinessLogicLayer.Services
                                     .Include(ur => ur.Role)
                                     .Where(ur => ur.UserId == user.Id)
                                     .Select(ur => ur.Role.Name)
-                                    .ToArray();                
+                                    .ToArray();
 
-                var jwtToken = await GenerateJwtToken(user.Id, userRoles);
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id)
+                };
+                claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+                var jwtToken = await _jWTHelper.GenerateJwtToken(claims);
                 var refrestToken = await GenerateRefreshToken(user.Id);
 
                 await _dbContext.RefreshTokens.AddAsync(refrestToken);
@@ -137,7 +151,7 @@ namespace BusinessLogicLayer.Services
                     return new AuthResponse() { Exception = "Invalid token!" };
                 }
 
-                var user = await getUserByRefreshToken(token);
+                var user = await GetUserByRefreshToken(token);
 
                 var userRoles = _dbContext.UserRoles
                     .Include(ur => ur.Role)
@@ -150,7 +164,13 @@ namespace BusinessLogicLayer.Services
 
                 await _dbContext.SaveChangesAsync();
 
-                var jwtToken = await GenerateJwtToken(user.Id, userRoles);
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id)
+                };
+                claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+                var jwtToken = await _jWTHelper.GenerateJwtToken(claims);
 
                 return new AuthResponse { JwtToken = jwtToken, RefreshToken = newRefreshToken.Token };
             }
@@ -160,43 +180,16 @@ namespace BusinessLogicLayer.Services
             }
         }
 
-        private async Task<User> getUserByRefreshToken(string token)
+        public async Task MigrateUser(string email, string externalId, string externalProvider)
         {
-            var user = await _dbContext.RefreshTokens
-                .Include(rt => rt.User)
-                .FirstOrDefaultAsync(rt => rt.Token == token)
-                .Select(u => u.User);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-            if (user == null)
-            {
-                return null;
-            }               
+            user.ExternalProvider = externalProvider;
+            user.EmailConfirmed = true;
+            user.ExternalId = externalId;
+            user.PasswordHash = null;
 
-            return user;
-        }
-
-        private async Task<string> GenerateJwtToken(string userId, string[] roles)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Security:JwtSecretKey"]);
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, userId)
-            };
-            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Audience = _configuration["Security:JwtAudience"],
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(15),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
+            await _dbContext.SaveChangesAsync();
         }
 
         private async Task<RefreshToken> GenerateRefreshToken(string userId)
@@ -212,6 +205,21 @@ namespace BusinessLogicLayer.Services
             };
 
             return refreshToken;
+        }
+
+        private async Task<User> GetUserByRefreshToken(string token)
+        {
+            var user = await _dbContext.RefreshTokens
+                .Include(rt => rt.User)
+                .FirstOrDefaultAsync(rt => rt.Token == token)
+                .Select(u => u.User);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return user;
         }
     }
 }

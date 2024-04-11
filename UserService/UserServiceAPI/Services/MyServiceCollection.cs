@@ -12,6 +12,7 @@ namespace UserServiceAPI.Services
             serviceCollection.AddScoped<IFavoritesService, FavoritesService>();
             serviceCollection.AddScoped<IBookMarksService, BookMarksService>();
             serviceCollection.AddScoped<IAuthService, AuthService>();
+            serviceCollection.AddScoped<IJWTHelper, JWTHelper>();
 
             return serviceCollection;
         }

@@ -44,10 +44,12 @@ namespace DataAccessLayer.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ExternalId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ExternalProvider = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Avatar = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     TotalTime = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },

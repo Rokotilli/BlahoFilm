@@ -3,10 +3,12 @@
     public class User
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string UserName { get; set; }
+        public string? ExternalId { get; set; }
+        public string? ExternalProvider { get; set; }
+        public string UserName { get; set; }        
         public string Email { get; set; }
         public bool EmailConfirmed { get; set; }
-        public string PasswordHash { get; set; }
+        public string? PasswordHash { get; set; }
         public byte[]? Avatar { get; set; }
         public string TotalTime { get; set; } = "0.00:00:00";
 

@@ -1,12 +1,12 @@
 using DataAccessLayer.Context;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using UserServiceAPI.Consumers;
-using UserServiceAPI.JWTValidators;
 using UserServiceAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,17 +36,21 @@ builder.Services.AddDbContext<UserServiceDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("UserServiceSqlServer"));
 });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(opt =>
+                    {
+                        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    })
                    .AddJwtBearer(options =>
                    {
                        options.TokenValidationParameters = new TokenValidationParameters
                        {
-                           ValidateIssuer = false,
-                           ValidateAudience = true,
+                           ValidateIssuer = true,
+                           ValidateAudience = false,
                            ValidateLifetime = true,
-                           LifetimeValidator = MyLifetimeValidator.LifetimeValidator,
                            ValidateIssuerSigningKey = true,
-                           ValidAudience = builder.Configuration["Security:JwtAudience"],
+                           ClockSkew = TimeSpan.Zero,
+                           ValidIssuer = builder.Configuration["Security:JwtIssuer"],
                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Security:JwtSecretKey"]))
                        };
                        options.Events = new JwtBearerEvents
@@ -64,11 +68,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                        var token = protector.Unprotect(encryptedToken);
                                        context.Token = token;
                                    }
-                                   catch { };                                   
+                                   catch { };
                                }
                                return Task.CompletedTask;
                            }
                        };
+                   })
+                   .AddCookie("Cookies")
+                   .AddGoogle("Google", opt =>
+                   {
+                       opt.ClientId = builder.Configuration["Google:ClientId"];
+                       opt.ClientSecret = builder.Configuration["Google:ClientSecret"];
                    });
 
 builder.Services.AddMassTransit(x =>
