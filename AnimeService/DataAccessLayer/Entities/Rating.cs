@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Entities
 {
-    public class AnimeRating
+    public class Rating
     {
         public int Id { get; set; }
         public int AnimeId { get; set; }

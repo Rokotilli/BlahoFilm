@@ -20,6 +20,6 @@
         public ICollection<AnimePart> AnimeParts { get; set; }
         public ICollection<GenresAnime> GenresAnimes { get; set; }
         public ICollection<TagsAnime> TagsAnimes { get; set; }
-        public ICollection<AnimeRating> AnimeRatings{ get; set; }
+        public ICollection<Rating> AnimeRatings{ get; set; }
     }
 }

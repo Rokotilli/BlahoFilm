@@ -136,8 +136,8 @@ namespace AnimeServiceAPI.Controllers
         public async Task<IActionResult> GetAnimesByIds([FromBody] int[] ids)
         {
             var model = _dbContext.Animes
-                .Where(f => ids
-                .Contains(f.Id))
+                .Where(a => ids
+                .Contains(a.Id))
                 .Select(a => new
                 {
                     Id = a.Id,
@@ -172,7 +172,7 @@ namespace AnimeServiceAPI.Controllers
         public async Task<IActionResult> GetAnimesByTitle([FromQuery] string title)
         {
             var model = _dbContext.Animes
-                .Where(f => f.Title == title)
+                .Where(a => a.Title.Contains(title))
                 .Select(a => new
                 {
                     Id = a.Id,
