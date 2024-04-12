@@ -1,5 +1,6 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CartoonServiceAPI.Controllers
@@ -26,6 +27,7 @@ namespace CartoonServiceAPI.Controllers
         }
 
         [HttpGet("getsas")]
+        [Authorize(Roles ="ADMIN")]
         public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
             var result = await _getSaSService.GetSaS(_configuration, _configuration["AzureStorageContainerName"], blobName);
@@ -39,6 +41,7 @@ namespace CartoonServiceAPI.Controllers
         }
 
         [HttpPost("registercartoon")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> RegisterCartoon(CartoonRegisterModel cartoonRegisterModel)
         {
             var result = await _registerCartoonService.RegisterCartoon(cartoonRegisterModel);
@@ -51,6 +54,7 @@ namespace CartoonServiceAPI.Controllers
             return BadRequest(result);
         }
         [HttpPost("registercartoonpart")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> RegisterCartoonPart(CartoonPartRegisterModel cartoonPartRegisterModel)
         {
             var result = await _registerCartoonService.RegisterCartoonPart(cartoonPartRegisterModel);
@@ -64,6 +68,7 @@ namespace CartoonServiceAPI.Controllers
         }
 
         [HttpPost("uploadedcartoon")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UploadedCartoon(CartoonUploadedModel cartoonUploadedModel)
         {
             var result = await _uploadedCartoonService.UploadedCartoon(cartoonUploadedModel);
@@ -76,6 +81,7 @@ namespace CartoonServiceAPI.Controllers
             return BadRequest(result);
         }
         [HttpPost("uploadedcartoonpart")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UploadedCartoonPart(CartoonPartUploadedModel cartoonPartUploadedModel)
         {
             var result = await _uploadedCartoonService.UploadedCartoonPart(cartoonPartUploadedModel);

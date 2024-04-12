@@ -24,6 +24,6 @@
         public ICollection<CartoonPart> Cartoons { get; set; }
         public ICollection<TagsCartoon> TagsCartoons { get; set; }
         public ICollection<GenresCartoon> GenresCartoons { get; set; }
-        public ICollection<CartoonRating> CartoonRatings { get; set; }
+        public ICollection<Rating> CartoonRatings { get; set; }
     }
 }
