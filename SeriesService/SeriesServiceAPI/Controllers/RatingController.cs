@@ -1,6 +1,8 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using DataAccessLayer.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace SeriesServiceAPI.Controllers
 {
@@ -31,10 +33,11 @@ namespace SeriesServiceAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> RateSeries([FromQuery] int seriesId, [FromQuery] int rate)
         {
-            //UserId must be from jwt
-            var result = await _ratingService.RateSeries(seriesId, rate, "user1");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _ratingService.RateSeries(seriesId, rate, userId);
             
             if (result != null)
             {

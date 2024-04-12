@@ -126,7 +126,7 @@ namespace SeriesServiceAPI.Controllers
         public async Task<IActionResult> GetSeriesByTitle([FromQuery] string title)
         {
             var model = _dbContext.Series
-                .Where(s => s.Title == title)
+                .Where(s => s.Title.Contains(title))
                 .Select(s => new
                 {
                     Poster = s.Poster,

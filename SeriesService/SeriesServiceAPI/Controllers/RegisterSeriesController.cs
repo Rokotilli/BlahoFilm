@@ -1,5 +1,6 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SeriesServiceAPI.Controllers
@@ -26,6 +27,7 @@ namespace SeriesServiceAPI.Controllers
         }
 
         [HttpGet("getsas")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
             var result = await _getSaSService.GetSaS(_configuration, _configuration["AzureStorageContainerName"], blobName);
@@ -39,6 +41,7 @@ namespace SeriesServiceAPI.Controllers
         }
 
         [HttpPost("registerseries")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> RegisterSeries(SeriesRegisterModel seriesRegisterModel)
         {
             var result = await _registerSeriesService.RegisterSeries(seriesRegisterModel);
@@ -51,6 +54,7 @@ namespace SeriesServiceAPI.Controllers
             return BadRequest(result);
         }
         [HttpPost("registerseriespart")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> RegisterSeriesPart(SeriesPartRegisterModel seriesPartRegisterModel)
         {
             var result = await _registerSeriesService.RegisterSeriesPart(seriesPartRegisterModel);
@@ -63,6 +67,7 @@ namespace SeriesServiceAPI.Controllers
             return BadRequest(result);
         }
         [HttpPost("uploadedseriespart")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UploadedSeriesPart(SeriesPartUploadedModel seriesPartUploadedModel)
         {
             var result = await _uploadedSeriesService.UploadedSeriesPart(seriesPartUploadedModel);
