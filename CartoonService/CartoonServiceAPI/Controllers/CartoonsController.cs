@@ -181,7 +181,7 @@ namespace CartoonServiceAPI.Controllers
         public async Task<IActionResult> GetCartoonsByTitle([FromQuery] string title)
         {
             var model = _dbContext.Cartoons
-                .Where(f => f.Title == title)
+                .Where(f => f.Title.Contains(title))
                 .Select(c => new
                 {
                     Id = c.Id,
