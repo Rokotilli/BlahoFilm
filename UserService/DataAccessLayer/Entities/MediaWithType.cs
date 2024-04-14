@@ -8,6 +8,5 @@
 
         public MediaType? MediaType { get; set; }
         public ICollection<History>? Histories { get; set; }
-        public ICollection<Favorite>? Favorites { get; set; }
     }
 }

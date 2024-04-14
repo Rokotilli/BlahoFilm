@@ -25,7 +25,7 @@ namespace UserServiceAPI.Controllers
         public async Task<IActionResult> GetBookMarksByUserId()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var model = _dbContext.Favorites.Where(f => f.UserId == userId).ToArray();
+            var model = _dbContext.BookMarks.Where(f => f.UserId == userId).ToArray();
 
             if (!model.Any())
             {

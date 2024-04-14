@@ -18,7 +18,8 @@ namespace UserServiceAPI.Controllers
         private readonly IAuthService _authService;
         private readonly IConfiguration _configuration;
         private readonly IDataProtectionProvider _protectionProvider;
-        private readonly IJWTHelper _jwthelper;
+        private readonly IJWTHelper _jWTHelper;
+        private readonly IEmailService _emailService;
         private readonly UserServiceDbContext _dbContext;
 
         public AuthController(
@@ -26,24 +27,36 @@ namespace UserServiceAPI.Controllers
             IConfiguration configuration,
             IDataProtectionProvider dataProtectionProvider,
             UserServiceDbContext userServiceDbContext,
-            IJWTHelper jwthelper)
+            IJWTHelper jwthelper,
+            IEmailService emailService)
         {
             _authService = authService;
             _configuration = configuration;
             _protectionProvider = dataProtectionProvider;
             _dbContext = userServiceDbContext;
-            _jwthelper = jwthelper;
+            _jWTHelper = jwthelper;
+            _emailService = emailService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> AddUser(UserModel addUserModel)
-        {
+        {            
             var result = await _authService.AddUser(addUserModel);
 
-            if (result != null)
+            if (result.Exception != null)
             {
-                return BadRequest(result);
+                return BadRequest(result.Exception);
             }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, addUserModel.Email)
+            };
+
+            var token = await _jWTHelper.GenerateJwtToken(claims);
+            var protect = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
+            var encryptedToken = protect.Protect(token);
+            await _emailService.SendEmailAsync(addUserModel.Email, _configuration["RedirectUrlToConfirmEmail"] + "?token=" + encryptedToken);
 
             return Ok();
         }
@@ -68,9 +81,17 @@ namespace UserServiceAPI.Controllers
         {
             var encryptedToken = HttpContext.Request.Cookies["refreshToken"];
             var protector = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            var token = protector.Unprotect(encryptedToken);
+            string decryptedToken;
+            try
+            {
+                decryptedToken = protector.Unprotect(encryptedToken);
+            }
+            catch
+            {
+                return BadRequest("Invalid payload!");
+            }
 
-            var result = await _authService.RefreshJwtToken(token);
+            var result = await _authService.RefreshJwtToken(decryptedToken);
 
             if (result.Exception != null)
             {
@@ -86,15 +107,23 @@ namespace UserServiceAPI.Controllers
         [HttpDelete("logout")]
         public async Task<IActionResult> RemoveAllTokens()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var encryptedToken = HttpContext.Request.Cookies["refreshToken"];
             var protector = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            var token = protector.Unprotect(encryptedToken);
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string decryptedToken;
+            try
+            {
+                decryptedToken = protector.Unprotect(encryptedToken);
+            }
+            catch
+            {
+                return BadRequest("Invalid payload!");
+            }            
 
             Response.Cookies.Delete("accessToken");
             Response.Cookies.Delete("refreshToken");
 
-            var model = _dbContext.RefreshTokens.FirstOrDefault(rt => rt.Token == token && rt.UserId == userId);
+            var model = _dbContext.RefreshTokens.FirstOrDefault(rt => rt.Token == decryptedToken && rt.UserId == userId);
 
             if (model == null)
             {
@@ -144,27 +173,14 @@ namespace UserServiceAPI.Controllers
             var provider = result.Properties.Items["scheme"];
             var redirectUrl = result.Properties.Items["url"];
 
-            var existUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == externalUserEmail);
-            var ifUserIsExternal = await _dbContext.Users.AnyAsync(u => u.ExternalProvider == null && u.Email == externalUserEmail);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == externalUserEmail || u.ExternalId == externalUserId);
 
-            if (existUser == null)
+            var resultToken = await _authService.CheckUserEmailForMigrate(user, externalUserEmail, externalUserId, provider);
+
+            if (resultToken != null)
             {
-                var resultReg = await _authService.AddUser(new UserModel { Email = externalUserEmail }, provider, externalUserId);
-            }
-            else if (ifUserIsExternal)
-            {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, externalUserId),
-                    new Claim(ClaimTypes.Email, externalUserEmail),
-                    new Claim(ClaimTypes.System, provider)
-                };
-
-                var newToken = await _jwthelper.GenerateJwtToken(claims);
-
                 var protect = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-                var encryptedToken = protect.Protect(newToken);
-
+                var encryptedToken = protect.Protect(resultToken);
                 return Redirect($"{_configuration["RedirectUrlToMigrate"]}?token=" + encryptedToken);
             }
 
@@ -179,9 +195,56 @@ namespace UserServiceAPI.Controllers
         public async Task<IActionResult> MigrateUser([FromQuery] string token)
         {
             var protector = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            var decryptedToken = protector.Unprotect(token);
+            string decryptedToken;
+            try
+            {
+                decryptedToken = protector.Unprotect(token);
+            }
+            catch
+            {
+                return BadRequest("Invalid payload!");
+            }
 
-            var validToken = _jwthelper.ValidateJwtToken(decryptedToken);
+            var validToken = _jWTHelper.ValidateJwtToken(decryptedToken);
+
+            if (validToken == null)
+            {
+                return BadRequest("Invalid token!");
+            }
+
+            var externalEmail = validToken.Claims.First(t => t.Type == "email").Value;
+            var externalId = validToken.Claims.First(t => t.Type == "nameid").Value;
+            var provider = validToken.Claims.First(t => t.Type == ClaimTypes.System).Value;
+
+            var result = await _authService.MigrateUser(externalEmail, externalId, provider);
+
+            if (result != null)
+            {
+                return BadRequest(result);
+            }
+
+            var resultAuth = await _authService.Authenticate(new UserModel { Email = externalEmail });
+
+            setTokensCookie(resultAuth);
+
+            return Ok();
+        }
+
+        [HttpPost("emailconfirm")]
+        public async Task<IActionResult> EmailConfirm([FromQuery] string token)
+        {
+            var protector = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
+            string decryptedToken;
+            try
+            {
+                decryptedToken = protector.Unprotect(token);
+            }
+            catch
+            {
+                return BadRequest("Invalid payload!");
+            }
+
+            var validToken = _jWTHelper.ValidateJwtToken(decryptedToken);
 
             if (validToken == null)
             {
@@ -189,14 +252,16 @@ namespace UserServiceAPI.Controllers
             }
 
             var email = validToken.Claims.First(t => t.Type == "email").Value;
-            var externalId = validToken.Claims.First(t => t.Type == "nameid").Value;
-            var provider = validToken.Claims.First(t => t.Type == ClaimTypes.System).Value;
 
-            await _authService.MigrateUser(email, externalId, provider);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email); 
 
-            var resultAuth = await _authService.Authenticate(new UserModel { Email = email });
+            if (user.EmailConfirmed == true)
+            {
+                return Conflict("Email already confirmed!");
+            }
 
-            setTokensCookie(resultAuth);
+            user.EmailConfirmed = true;
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }

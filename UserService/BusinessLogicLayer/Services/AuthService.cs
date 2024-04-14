@@ -20,6 +20,13 @@ namespace BusinessLogicLayer.Services
         public string? Exception { get; set; }
     }
 
+    public class RegisterResponse
+    {
+        public string? UserId { get; set; }
+        public string? Email { get; set; }
+        public string? Exception { get; set; }
+    }
+
     public class AuthService : IAuthService
     {
         private readonly UserServiceDbContext _dbContext;
@@ -27,7 +34,11 @@ namespace BusinessLogicLayer.Services
         private readonly IConfiguration _configuration;
         private readonly IJWTHelper _jWTHelper;
 
-        public AuthService(UserServiceDbContext userServiceDbContext, IPublishEndpoint publishEndpoint, IConfiguration configuration, IJWTHelper jWTHelper)
+        public AuthService(
+            UserServiceDbContext userServiceDbContext,
+            IPublishEndpoint publishEndpoint,
+            IConfiguration configuration,
+            IJWTHelper jWTHelper)
         {
             _dbContext = userServiceDbContext;
             _publishEndpoint = publishEndpoint;
@@ -35,7 +46,7 @@ namespace BusinessLogicLayer.Services
             _jWTHelper = jWTHelper;
         }
 
-        public async Task<string> AddUser(UserModel userModel, string externalProvider = null, string externalId = null)
+        public async Task<RegisterResponse> AddUser(UserModel userModel, string externalProvider = null, string externalId = null)
         {
             try
             {
@@ -43,7 +54,7 @@ namespace BusinessLogicLayer.Services
 
                 if (user != null && user.Email == userModel.Email)
                 {
-                    return "This email has already taken!";
+                    return new RegisterResponse { Exception = "This email has already taken!" };
                 }
 
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword(userModel.Password ?? "", BCrypt.Net.BCrypt.GenerateSalt());                
@@ -61,13 +72,13 @@ namespace BusinessLogicLayer.Services
                 await _dbContext.UserRoles.AddAsync(new UserRole() { UserId = addedUser.Entity.Id, RoleId = 1 });
                 await _dbContext.SaveChangesAsync();
 
-                await _publishEndpoint.Publish(new UserReceivedMessage() { Id = addedUser.Entity.Id });
+                //await _publishEndpoint.Publish(new UserReceivedMessage() { Id = addedUser.Entity.Id });
 
-                return null;
+                return new RegisterResponse { UserId = addedUser.Entity.Id, Email = addedUser.Entity.Email };
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                return new RegisterResponse { Exception = ex.ToString() };
             }
 
             string getUniqueUserName()
@@ -180,9 +191,19 @@ namespace BusinessLogicLayer.Services
             }
         }
 
-        public async Task MigrateUser(string email, string externalId, string externalProvider)
+        public async Task<string> MigrateUser(string externalEmail, string externalId, string externalProvider)
         {
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == externalEmail);
+
+            if (user == null)
+            {
+                return "User not found!";
+            }
+
+            if (user.ExternalProvider != null)
+            {
+                return "You've already migrated your account!";
+            }
 
             user.ExternalProvider = externalProvider;
             user.EmailConfirmed = true;
@@ -190,6 +211,39 @@ namespace BusinessLogicLayer.Services
             user.PasswordHash = null;
 
             await _dbContext.SaveChangesAsync();
+
+            return null;
+        }
+
+        public async Task<string> CheckUserEmailForMigrate(User user, string externalEmail, string externalId, string provider)
+        {
+            if (user == null)
+            {
+                await AddUser(new UserModel { Email = externalEmail }, provider, externalId);
+                return null;
+            }
+
+            if (user.ExternalId == null && user.Email == externalEmail)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, externalId),
+                    new Claim(ClaimTypes.Email, externalEmail),
+                    new Claim(ClaimTypes.System, provider)
+                };
+
+                var newToken = await _jWTHelper.GenerateJwtToken(claims);
+
+                return newToken;
+            }
+
+            if (user.ExternalId == externalId && user.Email != externalEmail)
+            {
+                user.Email = externalEmail;
+                await _dbContext.SaveChangesAsync();
+            }            
+
+            return null;
         }
 
         private async Task<RefreshToken> GenerateRefreshToken(string userId)

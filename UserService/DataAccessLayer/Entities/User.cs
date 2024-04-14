@@ -11,9 +11,9 @@
         public string? PasswordHash { get; set; }
         public byte[]? Avatar { get; set; }
         public string TotalTime { get; set; } = "0.00:00:00";
+        public DateTime RegisterDate { get; set; } = DateTime.UtcNow;
 
         public ICollection<History> Histories { get; set; }
-        public ICollection<Favorite> Favorites { get; set; }
         public ICollection<UserRole> UserRoles { get; set; }
         public ICollection<RefreshToken> RefreshTokens { get; set; }
     }
