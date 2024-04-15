@@ -1,4 +1,5 @@
-# RegisterFilmController
+# FilmService
+## RegisterFilmController
 - **GET /api/RegisterFilm/getsas**
 
 Параметри запиту:
@@ -31,7 +32,7 @@ Id (int): Ідентифікатор фільму.
 FileName (string): Назва файлу.  
 FileUri (string): URI файлу.  
 
-# RatingController
+## RatingController
 - **GET /api/Rating**
   
 Параметри запиту:
@@ -45,7 +46,7 @@ filmId (int): Ідентифікатор фільму.
 filmId (int): Ідентифікатор фільму.  
 rate (int): Оцінка фільму.  
 
-# FilmsController
+## FilmsController
 - **GET /api/Films**
 
 Параметри запиту:
@@ -119,7 +120,7 @@ pageSize (int): Розмір сторінки.
 
 tags (масив string): Масив тегів фільму.  
 
-# CommentsController
+## CommentsController
 - **GET /api/Comments**
   
 Параметри запиту:
@@ -159,7 +160,41 @@ commentId (int): Ідентифікатор коментаря.
 
 commentId (int): Ідентифікатор коментаря.
 
-# UsersController
+# UserService
+## AuthController
+- **POST /api/Auth/register**
+
+Поля тіла запиту:  
+
+Email (string): Пошта користувача
+Password (string): Пароль користувача  
+
+- **POST /api/Auth/authenticate**
+
+Поля тіла запиту:  
+
+Email (string): Пошта користувача
+Password (string): Пароль користувача  
+
+- **PUT /api/Auth/refreshjwt**
+
+- **DELETE /api/Auth/logout**
+
+- **GET /api/Auth/google**
+
+- **GET /api/Auth/migrateuser**
+
+Параметри запиту:  
+
+token (string): Токен користувача  
+
+- **GET /api/Auth/emailconfirm**
+
+Параметри запиту:  
+
+token (string): Токен користувача  
+
+## UsersController
 - **GET /api/Users/byid**
 
 Параметри запиту:
@@ -190,7 +225,7 @@ seconds (int): Кількість секунд за сеанс перегляд�
 
 username (string): Нове ім'я користувача
 
-# HistoryController
+## HistoryController
 - **GET /api/History**
 
 - **POST /api/History**
@@ -205,17 +240,7 @@ PartNumber (int)?: Номер частини
 SeasonNumber (int)?: Номер сезона  
 TimeCode (string): Позиція користувача на таймлайні  
 
-# FavoritesController
-- **GET /api/Favorites**
-
-- **POST /api/Favorites**
-
-Поля тіла запиту:  
-
-MediaId (int): Ідентифікатор медія  
-MediaTypeId (int): Ідентифікатор типу медіа  
-
-# BookMarksController
+## BookMarksController
 - **GET /api/BookMarks**
 
 - **POST /api/BookMarks**
@@ -225,7 +250,8 @@ MediaTypeId (int): Ідентифікатор типу медіа
 MediaId (int): Ідентифікатор медія  
 MediaTypeId (int): Ідентифікатор типу медіа  
 
-# FundraisingController  
+# TransactionService
+## FundraisingController  
 - **GET /api/Fundraising**
 
 Параметри запиту:  
@@ -253,7 +279,7 @@ Title (string): Назва збору
 Description (string): Опис збору  
 TotalAmount (decimal): Загальна кількість коштів  
 
-# TransactionController
+## TransactionController
 - **POST /api/Transaction/subscribe**
 
 Поля тіла запиту:  
@@ -266,22 +292,3 @@ SubscriptionId (string): Ідентифікатор підписки
 Параметри запиту:  
 
 reason (string): Причина зміни статусу  
-
-# AuthController
-- **POST /api/Auth/register**
-
-Поля тіла запиту:  
-
-Email (string): Пошта користувача
-Password (string): Пароль користувача  
-
-- **POST /api/Auth/authenticate**
-
-Поля тіла запиту:  
-
-Email (string): Пошта користувача
-Password (string): Пароль користувача  
-
-- **PUT /api/Auth/refreshjwt**
-
-- **DELETE /api/Auth/logout**
