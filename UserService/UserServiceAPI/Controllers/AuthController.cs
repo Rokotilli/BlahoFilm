@@ -2,12 +2,12 @@
 using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Services;
 using DataAccessLayer.Context;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace UserServiceAPI.Controllers
 {
@@ -20,6 +20,7 @@ namespace UserServiceAPI.Controllers
         private readonly IDataProtectionProvider _protectionProvider;
         private readonly IJWTHelper _jWTHelper;
         private readonly IEmailService _emailService;
+        private readonly HttpClient _httpClient;
         private readonly UserServiceDbContext _dbContext;
 
         public AuthController(
@@ -28,7 +29,8 @@ namespace UserServiceAPI.Controllers
             IDataProtectionProvider dataProtectionProvider,
             UserServiceDbContext userServiceDbContext,
             IJWTHelper jwthelper,
-            IEmailService emailService)
+            IEmailService emailService,
+            IHttpClientFactory httpClientFactory)
         {
             _authService = authService;
             _configuration = configuration;
@@ -36,6 +38,7 @@ namespace UserServiceAPI.Controllers
             _dbContext = userServiceDbContext;
             _jWTHelper = jwthelper;
             _emailService = emailService;
+            _httpClient = httpClientFactory.CreateClient("google");
         }
 
         [HttpPost("register")]
@@ -64,7 +67,29 @@ namespace UserServiceAPI.Controllers
         [HttpPost("authenticate")]
         public async Task<IActionResult> AuthUser(UserModel userModel)
         {
-            var result = await _authService.Authenticate(userModel);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == userModel.Email);
+
+            if (user == null)
+            {
+                return NotFound("User not found!");
+            }
+
+            if (!user.EmailConfirmed)
+            {
+                return Forbid("Email is not confirmed!");
+            }
+
+            if (user.PasswordHash == null)
+            {
+                return BadRequest("User is registered through a remote provider");
+            }
+
+            if (userModel.Password != null && !BCrypt.Net.BCrypt.Verify(userModel.Password, user.PasswordHash))
+            {
+                return BadRequest("Password is incorrect!");
+            }
+
+            var result = await _authService.Authenticate(user);
 
             if (result.Exception != null)
             {
@@ -137,45 +162,30 @@ namespace UserServiceAPI.Controllers
             return Ok();
         }
 
-        [HttpGet("google")]
-        public async Task<IActionResult> GetGoogle()
+        [HttpPost("google")]
+        public async Task<IActionResult> Callback([FromForm] string token)
         {
-            var host = HttpContext.Request.Host.Value;
+            var response = await _httpClient.GetAsync($"tokeninfo?access_token={token}");
 
-            var props = new AuthenticationProperties
-            {
-                RedirectUri = $"https://{host}/api/auth/callback",
-
-                Items =
-                {
-                    { "url", _configuration["Google:RedirectUrl"] },
-                    { "scheme", "Google" }
-                }
-            };
-
-            return Challenge(props, props.Items["scheme"]);
-        }
-
-        [HttpGet("callback")]
-        public async Task<IActionResult> Callback()
-        {
-            var result = await HttpContext.AuthenticateAsync("Cookies");
-            await HttpContext.SignOutAsync("Cookies");
-
-            if (!result.Succeeded)
+            if (!response.IsSuccessStatusCode)
             {
                 return BadRequest("External authentication failed!");
             }
 
-            var externalUserId = result.Principal.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var externalUserEmail = result.Principal.FindFirst(ClaimTypes.Email).Value;
+            var result = await response.Content.ReadAsStringAsync();
+            var payload = JsonConvert.DeserializeObject<dynamic>(result);            
 
-            var provider = result.Properties.Items["scheme"];
-            var redirectUrl = result.Properties.Items["url"];
+            string externalUserId = payload.sub;
+            string externalUserEmail = payload.email;
 
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == externalUserEmail || u.ExternalId == externalUserId);
 
-            var resultToken = await _authService.CheckUserEmailForMigrate(user, externalUserEmail, externalUserId, provider);
+            if (user == null)
+            {
+                user = _authService.AddUser(new UserModel { Email = externalUserEmail }, "Google", externalUserId).Result.User;
+            }
+
+            var resultToken = await _authService.CheckUserEmailForMigrate(user, externalUserEmail, externalUserId, "Google");
 
             if (resultToken != null)
             {
@@ -184,11 +194,11 @@ namespace UserServiceAPI.Controllers
                 return Redirect($"{_configuration["RedirectUrlToMigrate"]}?token=" + encryptedToken);
             }
 
-            var resultAuth = await _authService.Authenticate(new UserModel { Email = externalUserEmail });            
+            var resultAuth = await _authService.Authenticate(user);
 
             setTokensCookie(resultAuth);
 
-            return Redirect(redirectUrl);
+            return Ok();
         }
 
         [HttpPost("migrateuser")]
@@ -216,14 +226,26 @@ namespace UserServiceAPI.Controllers
             var externalId = validToken.Claims.First(t => t.Type == "nameid").Value;
             var provider = validToken.Claims.First(t => t.Type == ClaimTypes.System).Value;
 
-            var result = await _authService.MigrateUser(externalEmail, externalId, provider);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == externalEmail);
 
-            if (result != null)
+            if (user == null)
             {
-                return BadRequest(result);
+                return NotFound("User not found!");
             }
 
-            var resultAuth = await _authService.Authenticate(new UserModel { Email = externalEmail });
+            if (user.ExternalProvider != null)
+            {
+                return Conflict("Account already migrated!");
+            }
+
+            user.ExternalProvider = provider;
+            user.EmailConfirmed = true;
+            user.ExternalId = externalId;
+            user.PasswordHash = null;
+
+            await _dbContext.SaveChangesAsync();
+
+            var resultAuth = await _authService.Authenticate(user);
 
             setTokensCookie(resultAuth);
 

@@ -19,7 +19,7 @@ namespace BusinessLogicLayer.Services
             try
             {
                 var mimeMessage = new MimeMessage();
-                mimeMessage.From.Add(new MailboxAddress("BlahoFilm", _config["EmailAddress"]));
+                mimeMessage.From.Add(new MailboxAddress("BlahoFilm", _config["EmailConfirmation:EmailAddress"]));
                 mimeMessage.To.Add(new MailboxAddress(email, email));
                 mimeMessage.Subject = "Confirmation email";
                 var builder = new BodyBuilder();
@@ -30,8 +30,8 @@ namespace BusinessLogicLayer.Services
 
                 using (var smtp = new SmtpClient())
                 {
-                    smtp.Connect(_config["SMTPServerHost"], int.Parse(_config["SMTPServerPort"] ?? "0"), false);
-                    smtp.Authenticate(_config["EmailAddress"], _config["Password"]);
+                    smtp.Connect(_config["EmailConfirmation:SMTPServerHost"], int.Parse(_config["EmailConfirmation:SMTPServerPort"] ?? "0"), false);
+                    smtp.Authenticate(_config["EmailConfirmation:EmailAddress"], _config["EmailConfirmation:Password"]);
                     smtp.Send(mimeMessage);
                     smtp.Disconnect(true);
                 }

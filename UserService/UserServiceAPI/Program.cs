@@ -1,6 +1,5 @@
 using DataAccessLayer.Context;
 using MassTransit;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddMyServices();
+
+builder.Services.AddHttpClient("google", opt =>
+{
+    opt.BaseAddress = new Uri(builder.Configuration["OAuthGoogleApi"]);
+});
 
 builder.Services.AddDataProtection(opt =>
 {
@@ -36,11 +40,7 @@ builder.Services.AddDbContext<UserServiceDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("UserServiceSqlServer"));
 });
 
-builder.Services.AddAuthentication(opt =>
-                    {
-                        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                        opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    })
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                    .AddJwtBearer(options =>
                    {
                        options.TokenValidationParameters = new TokenValidationParameters
@@ -73,20 +73,15 @@ builder.Services.AddAuthentication(opt =>
                                return Task.CompletedTask;
                            }
                        };
-                   })
-                   .AddCookie("Cookies")
-                   .AddGoogle("Google", opt =>
-                   {
-                       opt.ClientId = builder.Configuration["Google:ClientId"];
-                       opt.ClientSecret = builder.Configuration["Google:ClientSecret"];
                    });
 
 builder.Services.AddMassTransit(x =>
 {
+    x.AddConsumer<PremiumReceivedConsumer>();
     x.AddConsumer<MediaRegisteredConsumer>();
     x.UsingRabbitMq((cxt, cfg) =>
     {
-        cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
+        cfg.Host(builder.Configuration["RabbitMqHost"], "/", h =>
         {
             h.Username("guest");
             h.Password("guest");

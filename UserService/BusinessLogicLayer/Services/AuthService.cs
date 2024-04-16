@@ -22,8 +22,7 @@ namespace BusinessLogicLayer.Services
 
     public class RegisterResponse
     {
-        public string? UserId { get; set; }
-        public string? Email { get; set; }
+        public User User { get; set; }
         public string? Exception { get; set; }
     }
 
@@ -72,9 +71,9 @@ namespace BusinessLogicLayer.Services
                 await _dbContext.UserRoles.AddAsync(new UserRole() { UserId = addedUser.Entity.Id, RoleId = 1 });
                 await _dbContext.SaveChangesAsync();
 
-                //await _publishEndpoint.Publish(new UserReceivedMessage() { Id = addedUser.Entity.Id });
+                await _publishEndpoint.Publish(new UserReceivedMessage() { Id = addedUser.Entity.Id });
 
-                return new RegisterResponse { UserId = addedUser.Entity.Id, Email = addedUser.Entity.Email };
+                return new RegisterResponse { User = addedUser.Entity };
             }
             catch (Exception ex)
             {
@@ -96,22 +95,10 @@ namespace BusinessLogicLayer.Services
             }
         }
 
-        public async Task<AuthResponse> Authenticate(UserModel userModel)
+        public async Task<AuthResponse> Authenticate(User user)
         {
             try
-            {
-                var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == userModel.Email);
-
-                if (user == null)
-                {
-                    return new AuthResponse() { Exception = "User not found!" };
-                }
-
-                if (userModel.Password != null && !BCrypt.Net.BCrypt.Verify(userModel.Password, user.PasswordHash))
-                {
-                    return new AuthResponse() { Exception = "Password is incorrect!" };
-                }
-
+            {               
                 var expiredRefreshTokens = _dbContext.RefreshTokens
                                             .Where(rt => rt.UserId == user.Id && rt.Expires < DateTime.UtcNow)
                                             .ToArray();
@@ -191,38 +178,8 @@ namespace BusinessLogicLayer.Services
             }
         }
 
-        public async Task<string> MigrateUser(string externalEmail, string externalId, string externalProvider)
-        {
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == externalEmail);
-
-            if (user == null)
-            {
-                return "User not found!";
-            }
-
-            if (user.ExternalProvider != null)
-            {
-                return "You've already migrated your account!";
-            }
-
-            user.ExternalProvider = externalProvider;
-            user.EmailConfirmed = true;
-            user.ExternalId = externalId;
-            user.PasswordHash = null;
-
-            await _dbContext.SaveChangesAsync();
-
-            return null;
-        }
-
         public async Task<string> CheckUserEmailForMigrate(User user, string externalEmail, string externalId, string provider)
-        {
-            if (user == null)
-            {
-                await AddUser(new UserModel { Email = externalEmail }, provider, externalId);
-                return null;
-            }
-
+        {          
             if (user.ExternalId == null && user.Email == externalEmail)
             {
                 var claims = new List<Claim>
