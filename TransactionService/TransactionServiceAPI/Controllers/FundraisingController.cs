@@ -1,6 +1,7 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TransactionServiceAPI.Controllers
@@ -34,6 +35,7 @@ namespace TransactionServiceAPI.Controllers
             return Ok(model);
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost]
         public async Task<IActionResult> CreateFundraising(FundraisingModel fundraisingModel)
         {
@@ -47,6 +49,7 @@ namespace TransactionServiceAPI.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut]
         public async Task<IActionResult> ChangeFundraising([FromQuery] int fundraisingId, FundraisingModel fundraisingModel)
         {

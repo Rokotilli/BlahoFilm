@@ -1,6 +1,8 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace TransactionServiceAPI.Controllers
 {
@@ -15,11 +17,12 @@ namespace TransactionServiceAPI.Controllers
             _transactionService = transactionService;
         }
 
+        [Authorize]
         [HttpPost("subscribe")]
         public async Task<IActionResult> AddSubscription(SubscriptionModel subscriptionModel)
         {
-            //UserId must be from jwt
-            var result = await _transactionService.AddSubscription(subscriptionModel, "user1");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _transactionService.AddSubscription(subscriptionModel, userId);
 
             if (result != null)
             {
@@ -29,11 +32,12 @@ namespace TransactionServiceAPI.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpPut("changestatus")]
         public async Task<IActionResult> ChangeStatus([FromQuery] string reason)
         {
-            //UserId must be from jwt
-            var result = await _transactionService.ChangeStatusSubscription("user1", reason);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _transactionService.ChangeStatusSubscription(userId, reason);
 
             if (result != null)
             {

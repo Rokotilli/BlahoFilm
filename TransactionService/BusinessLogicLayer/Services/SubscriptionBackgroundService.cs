@@ -6,6 +6,9 @@ using System.Text.Json.Nodes;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using MassTransit;
+using MessageBus.Messages;
+using System.Net.Http;
 
 namespace BusinessLogicLayer.Services
 {
@@ -15,10 +18,10 @@ namespace BusinessLogicLayer.Services
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
 
-        public SubscriptionBackgroundService(IServiceScopeFactory serviceScopeFactory, HttpClient httpClient, IConfiguration configuration)
+        public SubscriptionBackgroundService(IServiceScopeFactory serviceScopeFactory, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _serviceScopeFactory = serviceScopeFactory;
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("paypal");
             _configuration = configuration;
         }
 
@@ -29,7 +32,7 @@ namespace BusinessLogicLayer.Services
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<TransactionServiceDbContext>();
-                    string baseUrl = _configuration["PayPalConfigs:Url"] + "v1/billing/";
+                    var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
                     var accessToken = await GetPayPalAccessToken();                    
 
                     _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -39,12 +42,12 @@ namespace BusinessLogicLayer.Services
 
                     foreach (var item in model)
                     {
-                        var response = await _httpClient.GetAsync($"{baseUrl}subscriptions/{item.Id}");
+                        var response = await _httpClient.GetAsync($"v1/billing/subscriptions/{item.Id}");
 
                         var result = await response.Content.ReadAsStringAsync();
                         var json = JsonConvert.DeserializeObject<dynamic>(result);
 
-                        var responseplan = await _httpClient.GetAsync($"{baseUrl}plans/{item.PlanId}");
+                        var responseplan = await _httpClient.GetAsync($"v1/billing/plans/{item.PlanId}");
 
                         var resultplan = await responseplan.Content.ReadAsStringAsync();
                         var jsonplan = JsonConvert.DeserializeObject<dynamic>(resultplan);
@@ -53,6 +56,7 @@ namespace BusinessLogicLayer.Services
                         {
                             item.IsExpired = true;
                             item.IsActive = false;
+                            await publishEndpoint.Publish(new PremiumReceivedMessage { UserId = item.UserId});
                         }
                         else
                         {
@@ -69,7 +73,6 @@ namespace BusinessLogicLayer.Services
 
         private async Task<string> GetPayPalAccessToken()
         {
-            string url = _configuration["PayPalConfigs:Url"] + "v1/oauth2/token";
             string clientId = _configuration["PayPalConfigs:ClientId"];
             string secret = _configuration["PayPalConfigs:Secret"];
 
@@ -77,7 +80,7 @@ namespace BusinessLogicLayer.Services
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
 
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, "v1/oauth2/token")
             {
                 Content = new StringContent("grant_type=client_credentials", Encoding.UTF8, "application/x-www-form-urlencoded")
             };
