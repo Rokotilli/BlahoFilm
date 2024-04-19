@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using BusinessLogicLayer.Models.Enums;
+using MassTransit.Initializers;
 
 namespace UserServiceAPI.Controllers
 {
@@ -59,7 +61,7 @@ namespace UserServiceAPI.Controllers
             var token = await _jWTHelper.GenerateJwtToken(claims);
             var protect = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
             var encryptedToken = protect.Protect(token);
-            await _emailService.SendEmailAsync(addUserModel.Email, _configuration["RedirectUrlToConfirmEmail"] + "?token=" + encryptedToken);
+            await _emailService.SendEmailAsync(addUserModel.Email, _configuration["RedirectUrlToConfirmEmail"] + "?token=" + encryptedToken, SendEmailActions.ConfirmEmail);
 
             return Ok();
         }
@@ -76,7 +78,7 @@ namespace UserServiceAPI.Controllers
 
             if (!user.EmailConfirmed)
             {
-                return Forbid("Email is not confirmed!");
+                return StatusCode(403, "Email is not confirmed!");
             }
 
             if (user.PasswordHash == null)

@@ -19,6 +19,12 @@ builder.Services.AddHttpClient("google", opt =>
     opt.BaseAddress = new Uri(builder.Configuration["OAuthGoogleApi"]);
 });
 
+builder.Services.AddStackExchangeRedisCache(opt =>
+{
+    opt.Configuration = "localhost:6379";
+    opt.InstanceName = "userservice";
+});
+
 builder.Services.AddDataProtection(opt =>
 {
     opt.ApplicationDiscriminator = builder.Configuration["Security:CookieProtectKey"];

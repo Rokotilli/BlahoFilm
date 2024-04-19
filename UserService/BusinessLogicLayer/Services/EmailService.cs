@@ -1,4 +1,5 @@
 ﻿using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Models.Enums;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
@@ -14,7 +15,7 @@ namespace BusinessLogicLayer.Services
             _config = config;
         }
 
-        public async Task SendEmailAsync(string email, string content)
+        public async Task SendEmailAsync(string email, string content, SendEmailActions action)
         {
             try
             {
@@ -23,8 +24,17 @@ namespace BusinessLogicLayer.Services
                 mimeMessage.To.Add(new MailboxAddress(email, email));
                 mimeMessage.Subject = "Confirmation email";
                 var builder = new BodyBuilder();
-                builder.HtmlBody = @"<p>Press button to confirm email</p>
+
+                if (action == SendEmailActions.ConfirmEmail)
+                {
+                    builder.HtmlBody = @"<p>Press button to confirm email</p>
                      <a href='" + content + @"' style='background-color: #4CAF50; border: none; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;'>Confirm</a>";
+                }
+                if (action == SendEmailActions.ChangePassword)
+                {
+                    builder.HtmlBody = @"<p>Press button to start changing your password</p>
+                     <a href='" + content + @"' style='background-color: #4CAF50; border: none; color: white; padding: 15px 32px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;'>Start</a>";
+                }                
 
                 mimeMessage.Body = builder.ToMessageBody();
 
