@@ -86,7 +86,7 @@ namespace UserServiceAPI.Controllers
                 return BadRequest("User is registered through a remote provider");
             }
 
-            if (userModel.Password != null && !BCrypt.Net.BCrypt.Verify(userModel.Password, user.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(userModel.Password, user.PasswordHash))
             {
                 return BadRequest("Password is incorrect!");
             }
