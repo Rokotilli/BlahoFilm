@@ -8,7 +8,7 @@ blobName (string): Назва об'єкта Blob.
 
 - **POST /api/RegisterFilm/register**
 
-Поля тіла запиту:
+Поля тіла запиту (application/json):
 
 Poster (file): Постер фільму.  
 Title (string): Назва фільму.  
@@ -19,14 +19,15 @@ Year (int): Рік випуску фільму.
 Director (string): Режисер фільму.  
 Rating (int): Рейтинг фільму.  
 Actors (string): Актори фільму.  
-StudioName (string): Назва студії, яка зняла фільм.  
 TrailerUri (string): Посилання на трейлер фільму.  
+Studios (string): Студії фільму (через кому).  
+Voiceovers (string): Озвучки фільму (через кому).  
 Genres (string): Жанри фільму (через кому).  
 Tags (string): Теги фільму (через кому).  
 
 - **POST /api/RegisterFilm/uploadedfilm**
   
-Поля тіла запиту:
+Поля тіла запиту (application/json):
 
 Id (int): Ідентифікатор фільму.  
 FileName (string): Назва файлу.  
@@ -60,25 +61,16 @@ pageSize (int): Розмір сторінки.
 
 pageSize (int): Розмір сторінки.
 
-- **GET /api/Films/countpagesbygenres**
+- **GET /api/Films/countpagesbyfilter**
   
-Параметри запиту:
+Параметри запиту:  
 
-pageSize (int): Розмір сторінки.
+filter (string): Назва фільтру (допустимі назви: "Genres", "Tags", "Studios", "Voiceovers").  
+pageSize (int): Розмір сторінки.  
 
-Поля тіла запиту:
+Поля тіла запиту (application/json):  
 
-genres (масив string): Масив жанрів фільму.
-
-- **GET /api/Films/countpagesbytags**
-  
-Параметри запиту:
-
-pageSize (int): Розмір сторінки.
-
-Поля тіла запиту:
-
-tags (масив string): Масив тегів фільму.
+items (масив string): Масив предметів фільтрації.  
 
 - **GET /api/Films/byid**
   
@@ -88,7 +80,7 @@ id (int): Ідентифікатор фільму.
 
 - **GET /api/Films/byids**
   
-Поля тіла запиту:
+Поля тіла запиту (application/json):
 
 ids (масив int): Масив ідентифікаторів фільмів.
 
@@ -98,27 +90,17 @@ ids (масив int): Масив ідентифікаторів фільмів.
 
 title (string): Назва фільму.
 
-- **GET /api/Films/bygenres**
+- **GET /api/Films/byfilter**
   
 Параметри запиту:
 
+filter (string): Назва фільтру (допустимі назви: "Genres", "Tags", "Studios", "Voiceovers").  
 pageNumber (int): Номер сторінки.  
 pageSize (int): Розмір сторінки.  
 
-Поля тіла запиту:
+Поля тіла запиту (application/json):  
 
-genres (масив string): Масив жанрів фільму.
-
-- **GET /api/Films/bytags**
-  
-Параметри запиту:
-
-pageNumber (int): Номер сторінки.  
-pageSize (int): Розмір сторінки.  
-
-Поля тіла запиту:
-
-tags (масив string): Масив тегів фільму.  
+items (масив string): Масив предметів фільтрації.  
 
 ## CommentsController
 - **GET /api/Comments**
@@ -129,7 +111,7 @@ filmId (int): Ідентифікатор фільму.
 
 - **POST /api/Comments**
   
-Поля тіла запиту:
+Поля тіла запиту (application/json):
 
 FilmId (int): Ідентифікатор фільму.  
 ParentCommentId? (int): Ідентифікатор батьківського коментаря (необов'язково).  
@@ -143,7 +125,7 @@ commentId (int): Ідентифікатор коментаря.
 
 - **PUT /api/Comments**
   
-Поля тіла запиту:
+Поля тіла запиту (application/json):
 
 Id (int): Ідентифікатор коментаря.  
 Text (string): Текст коментаря.  
@@ -164,14 +146,14 @@ commentId (int): Ідентифікатор коментаря.
 ## AuthController
 - **POST /api/Auth/register**
 
-Поля тіла запиту:  
+Поля тіла запиту (application/json):  
 
 Email (string): Пошта користувача
 Password (string): Пароль користувача  
 
 - **POST /api/Auth/authenticate**
 
-Поля тіла запиту:  
+Поля тіла запиту (application/json):  
 
 Email (string): Пошта користувача
 Password (string): Пароль користувача  
@@ -181,6 +163,10 @@ Password (string): Пароль користувача
 - **DELETE /api/Auth/logout**
 
 - **GET /api/Auth/google**
+
+Поля тіла запиту (multipart/form-data):  
+
+token (string): Токен доступу виданий Google
 
 - **GET /api/Auth/migrateuser**
 
@@ -203,15 +189,44 @@ id (int): Ідентифікатор користувача
 
 - **GET /api/Users/byids**
 
-Поля тіла запиту:
+Поля тіла запиту (application/json):
 
 ids (масив int): Масив Ідентифікаторів користувача
 
 - **PUT /api/Users/avatar**
 
-Поля тіла запиту:
+Поля тіла запиту (multipart/form-data):
 
-avatar (file): Аватар користувача
+avatar (file): Аватар користувача  
+
+- **POST /api/Users/sendemailchangepassword**
+
+Поля тіла запиту (multipart/form-data):  
+
+email (string): Поштовий адрес користувача  
+
+- **PUT /api/Users/changepassword**
+
+Параметри запиту:  
+
+token (string): Токен виданий сервісом для зміни пароля  
+
+Поля тіла запиту (multipart/form-data):  
+
+password (string): Новий пароль  
+
+- **POST /api/Users/sendemailchangeemailaddress**
+
+Поля тіла запиту (application/json):  
+
+password (string): Пароль користувача  
+email (string): Новий поштовий адрес користувача  
+
+- **PUT /api/Users/changeemail**
+
+Параметри запиту:  
+
+token (string): Токен виданий сервісом для зміни пошти    
 
 - **PUT /api/Users/totaltime**  
 
@@ -230,7 +245,7 @@ username (string): Нове ім'я користувача
 
 - **POST /api/History**
 
-Поля тіла запиту:  
+Поля тіла запиту (application/json):  
 
 MediaWithType (object){  
 MediaId (int): Ідентифікатор медія  
@@ -245,7 +260,7 @@ TimeCode (string): Позиція користувача на таймлайні
 
 - **POST /api/BookMarks**
 
-Поля тіла запиту:  
+Поля тіла запиту (application/json):  
 
 MediaId (int): Ідентифікатор медія  
 MediaTypeId (int): Ідентифікатор типу медіа  
@@ -261,7 +276,7 @@ pageSize (int): Розмір сторінки.
 
 - **POST /api/Fundraising
 
-Поля тіла запиту:  
+Поля тіла запиту (application/json):  
 
 Title (string): Назва збору  
 Description (string): Опис збору  
@@ -273,7 +288,7 @@ TotalAmount (decimal): Загальна кількість коштів
 
 fundraisingId (int): Ідентифікатор збору  
 
-Поля тіла запиту:  
+Поля тіла запиту (application/json):  
 
 Title (string): Назва збору  
 Description (string): Опис збору  
@@ -282,7 +297,7 @@ TotalAmount (decimal): Загальна кількість коштів
 ## TransactionController
 - **POST /api/Transaction/subscribe**
 
-Поля тіла запиту:  
+Поля тіла запиту (application/json):  
 
 OrderId (string): Ідентифікатор замовлення  
 SubscriptionId (string): Ідентифікатор підписки  
