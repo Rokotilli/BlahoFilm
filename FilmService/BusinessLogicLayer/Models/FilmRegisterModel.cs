@@ -17,7 +17,8 @@ namespace BusinessLogicLayer.Models
         public string Director { get; set; }
         public int Rating { get; set; }
         public string Actors { get; set; }
-        public string StudioName { get; set; }
+        public string Studios { get; set; }
+        public string Voiceovers { get; set; }
         public string TrailerUri { get; set; }
         public string Genres { get; set; }
         public string Tags { get; set; }

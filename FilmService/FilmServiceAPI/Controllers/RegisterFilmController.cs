@@ -5,28 +5,28 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FilmServiceAPI.Controllers
 {
+    [Authorize(Roles = "ADMIN")]
     [Route("api/[controller]")]
     [ApiController]
     public class RegisterFilmController : ControllerBase
     {
         private readonly IGetSaSService _getSaSService;
-        private readonly IRegisterFilmService _registerFilmService;
+        private readonly IFilmService _filmService;
         private readonly IUploadedFilmService _uploadedFilmService;
         private readonly IConfiguration _configuration;
 
         public RegisterFilmController(
             IGetSaSService getSaSService,
             IConfiguration configuration,
-            IRegisterFilmService registerFilmService,
+            IFilmService filmService,
             IUploadedFilmService uploadedFilmService)
         {
             _getSaSService = getSaSService;
             _configuration = configuration;
-            _registerFilmService = registerFilmService;
+            _filmService = filmService;
             _uploadedFilmService = uploadedFilmService;
         }
 
-        [Authorize(Roles = "ADMIN")]
         [HttpGet("getsas")]
         public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
@@ -40,11 +40,10 @@ namespace FilmServiceAPI.Controllers
             return BadRequest("Can't get a SaS");
         }
 
-        [Authorize(Roles = "ADMIN")]
         [HttpPost("register")]
         public async Task<IActionResult> RegisterFilm(FilmRegisterModel filmRegisterModel)
         {
-            var result = await _registerFilmService.RegisterFilm(filmRegisterModel);
+            var result = await _filmService.RegisterFilm(filmRegisterModel);
 
             if (result == null)
             {
@@ -54,7 +53,6 @@ namespace FilmServiceAPI.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "ADMIN")]
         [HttpPost("uploadedfilm")]
         public async Task<IActionResult> UploadedFilm(FilmUploadedModel filmUploadedModel)
         {

@@ -12,7 +12,6 @@
         public string Director { get; set; }
         public double Rating { get; set; } = 0;
         public string Actors { get; set; }
-        public string StudioName { get; set; }
         public string TrailerUri { get; set; }
         public string? FileName { get; set; }
         public string? FileUri { get; set; }
@@ -20,5 +19,7 @@
         public ICollection<GenresFilm> GenresFilms { get; set; }
         public ICollection<TagsFilm> TagsFilms { get; set; }
         public ICollection<Rating> Ratings { get; set; }
+        public ICollection<StudiosFilm> StudiosFilms { get; set; }
+        public ICollection<VoiceoversFilm> VoiceoversFilms { get; set; }
     }
 }

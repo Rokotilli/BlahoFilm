@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(FilmServiceDbContext))]
-    [Migration("20240401133301_Initial")]
+    [Migration("20240422134345_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -131,10 +131,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<double>("Rating")
                         .HasColumnType("float");
 
-                    b.Property<string>("StudioName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -204,6 +200,38 @@ namespace DataAccessLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Studios");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.StudiosFilm", b =>
+                {
+                    b.Property<int>("FilmId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FilmId", "StudioId");
+
+                    b.HasIndex("StudioId");
+
+                    b.ToTable("StudiosFilms");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
                 {
                     b.Property<int>("Id")
@@ -244,6 +272,38 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Voiceover", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Voiceovers");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.VoiceoversFilm", b =>
+                {
+                    b.Property<int>("FilmId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VoiceoverId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FilmId", "VoiceoverId");
+
+                    b.HasIndex("VoiceoverId");
+
+                    b.ToTable("VoiceoversFilms");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Comment", b =>
@@ -347,6 +407,25 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.StudiosFilm", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Film", "Film")
+                        .WithMany("StudiosFilms")
+                        .HasForeignKey("FilmId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.Studio", "Studio")
+                        .WithMany("StudiosFilms")
+                        .HasForeignKey("StudioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Film");
+
+                    b.Navigation("Studio");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.TagsFilm", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Film", "Film")
@@ -366,6 +445,25 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.VoiceoversFilm", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Film", "Film")
+                        .WithMany("VoiceoversFilms")
+                        .HasForeignKey("FilmId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.Voiceover", "Voiceover")
+                        .WithMany("Voices")
+                        .HasForeignKey("VoiceoverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Film");
+
+                    b.Navigation("Voiceover");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Comment", b =>
                 {
                     b.Navigation("CommentDislikes");
@@ -379,12 +477,21 @@ namespace DataAccessLayer.Migrations
 
                     b.Navigation("Ratings");
 
+                    b.Navigation("StudiosFilms");
+
                     b.Navigation("TagsFilms");
+
+                    b.Navigation("VoiceoversFilms");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Genre", b =>
                 {
                     b.Navigation("GenresFilms");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
+                {
+                    b.Navigation("StudiosFilms");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
@@ -401,6 +508,11 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Ratings");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Voiceover", b =>
+                {
+                    b.Navigation("Voices");
                 });
 #pragma warning restore 612, 618
         }

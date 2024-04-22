@@ -26,7 +26,6 @@ namespace DataAccessLayer.Migrations
                     Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false),
                     Actors = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StudioName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -47,6 +46,19 @@ namespace DataAccessLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Genres", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Studios",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Studios", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,6 +86,19 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Voiceovers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Voiceovers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GenresFilms",
                 columns: table => new
                 {
@@ -93,6 +118,30 @@ namespace DataAccessLayer.Migrations
                         name: "FK_GenresFilms_Genres_GenreId",
                         column: x => x.GenreId,
                         principalTable: "Genres",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudiosFilms",
+                columns: table => new
+                {
+                    FilmId = table.Column<int>(type: "int", nullable: false),
+                    StudioId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudiosFilms", x => new { x.FilmId, x.StudioId });
+                    table.ForeignKey(
+                        name: "FK_StudiosFilms_Films_FilmId",
+                        column: x => x.FilmId,
+                        principalTable: "Films",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudiosFilms_Studios_StudioId",
+                        column: x => x.StudioId,
+                        principalTable: "Studios",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -182,6 +231,30 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "VoiceoversFilms",
+                columns: table => new
+                {
+                    FilmId = table.Column<int>(type: "int", nullable: false),
+                    VoiceoverId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VoiceoversFilms", x => new { x.FilmId, x.VoiceoverId });
+                    table.ForeignKey(
+                        name: "FK_VoiceoversFilms_Films_FilmId",
+                        column: x => x.FilmId,
+                        principalTable: "Films",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_VoiceoversFilms_Voiceovers_VoiceoverId",
+                        column: x => x.VoiceoverId,
+                        principalTable: "Voiceovers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CommentDislikes",
                 columns: table => new
                 {
@@ -261,9 +334,19 @@ namespace DataAccessLayer.Migrations
                 column: "FilmId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_StudiosFilms_StudioId",
+                table: "StudiosFilms",
+                column: "StudioId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TagsFilms_TagId",
                 table: "TagsFilms",
                 column: "TagId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoiceoversFilms_VoiceoverId",
+                table: "VoiceoversFilms",
+                column: "VoiceoverId");
         }
 
         /// <inheritdoc />
@@ -282,7 +365,13 @@ namespace DataAccessLayer.Migrations
                 name: "Rating");
 
             migrationBuilder.DropTable(
+                name: "StudiosFilms");
+
+            migrationBuilder.DropTable(
                 name: "TagsFilms");
+
+            migrationBuilder.DropTable(
+                name: "VoiceoversFilms");
 
             migrationBuilder.DropTable(
                 name: "Comments");
@@ -291,7 +380,13 @@ namespace DataAccessLayer.Migrations
                 name: "Genres");
 
             migrationBuilder.DropTable(
+                name: "Studios");
+
+            migrationBuilder.DropTable(
                 name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "Voiceovers");
 
             migrationBuilder.DropTable(
                 name: "Films");

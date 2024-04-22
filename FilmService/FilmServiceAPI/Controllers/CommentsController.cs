@@ -2,7 +2,6 @@
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -14,7 +13,6 @@ namespace FilmServiceAPI.Controllers
     {
         private readonly FilmServiceDbContext _dbContext;
         private readonly ICommentService _commentService;
-        private readonly IDataProtectionProvider _protectionProvider;
 
         public CommentsController(FilmServiceDbContext filmServiceDbContext, ICommentService commentService)
         {

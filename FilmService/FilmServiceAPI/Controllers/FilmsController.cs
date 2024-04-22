@@ -1,4 +1,7 @@
-﻿using DataAccessLayer.Context;
+﻿using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Services;
+using DataAccessLayer.Context;
+using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +12,12 @@ namespace FilmServiceAPI.Controllers
     public class FilmsController : ControllerBase
     {
         private readonly FilmServiceDbContext _dbContext;
+        private readonly IFilmService _filmService;
 
-        public FilmsController(FilmServiceDbContext filmServiceDbContext)
+        public FilmsController(FilmServiceDbContext filmServiceDbContext, IFilmService filmService)
         {
             _dbContext = filmServiceDbContext;
+            _filmService = filmService;
         }
 
         [HttpGet]
@@ -21,23 +26,24 @@ namespace FilmServiceAPI.Controllers
             var model = _dbContext.Films
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(f => new
+                .Select(f => new ReturnFilms
                 {
-                    id = f.Id,
+                    Id = f.Id,
                     Poster = f.Poster,
-                    title = f.Title,
+                    Title = f.Title,
                     Description = f.Description,
                     Duration = f.Duration,
                     Year = f.Year,
                     Director = f.Director,
                     Rating = f.Rating,
                     Actors = f.Actors,
-                    StudioName = f.StudioName,
                     TrailerUri = f.TrailerUri,
                     FileName = f.FileName,
                     FileUri = f.FileUri,
-                    genres = f.GenresFilms.Select(gf => new { id = gf.GenreId, name = gf.Genre.Name }),
-                    tags = f.TagsFilms.Select(tf => new { id = tf.TagId, name = tf.Tag.Name })
+                    Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
+                    Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
+                    Voiceovers = f.VoiceoversFilms.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
                 })
                 .ToArray();
 
@@ -67,24 +73,25 @@ namespace FilmServiceAPI.Controllers
         [HttpGet("byid")]
         public async Task<IActionResult> GetFilmById([FromQuery] int id)
         {
-            var model = _dbContext.Films.Select(f => new
+            var model = _dbContext.Films.Select(f => new ReturnFilms
             {
-                id = f.Id,
+                Id = f.Id,
                 Poster = f.Poster,
-                title = f.Title,
+                Title = f.Title,
                 Description = f.Description,
                 Duration = f.Duration,
                 Year = f.Year,
                 Director = f.Director,
                 Rating = f.Rating,
                 Actors = f.Actors,
-                StudioName = f.StudioName,
                 TrailerUri = f.TrailerUri,
                 FileName = f.FileName,
                 FileUri = f.FileUri,
-                genres = f.GenresFilms.Select(gf => new { id = gf.GenreId, name = gf.Genre.Name }),
-                tags = f.TagsFilms.Select(tf => new { id = tf.TagId, name = tf.Tag.Name })
-            }).FirstOrDefault(f => f.id == id);
+                Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
+                Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
+                Voiceovers = f.VoiceoversFilms.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
+            }).FirstOrDefault(f => f.Id == id);
 
             if (model == null)
             {
@@ -98,25 +105,25 @@ namespace FilmServiceAPI.Controllers
         public async Task<IActionResult> GetFilmsByIds([FromBody] int[] ids)
         {
             var model = _dbContext.Films
-                .Where(f => ids
-                .Contains(f.Id))
-                .Select(f => new
+                .Where(f => ids.Contains(f.Id))
+                .Select(f => new ReturnFilms
                 {
-                    id = f.Id,
+                    Id = f.Id,
                     Poster = f.Poster,
-                    title = f.Title,
+                    Title = f.Title,
                     Description = f.Description,
                     Duration = f.Duration,
                     Year = f.Year,
                     Director = f.Director,
                     Rating = f.Rating,
                     Actors = f.Actors,
-                    StudioName = f.StudioName,
                     TrailerUri = f.TrailerUri,
                     FileName = f.FileName,
                     FileUri = f.FileUri,
-                    genres = f.GenresFilms.Select(gf => new { id = gf.GenreId, name = gf.Genre.Name }),
-                    tags = f.TagsFilms.Select(tf => new { id = tf.TagId, name = tf.Tag.Name })
+                    Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
+                    Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
+                    Voiceovers = f.VoiceoversFilms.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
                 })
                 .ToArray();
 
@@ -133,23 +140,24 @@ namespace FilmServiceAPI.Controllers
         {
             var model = _dbContext.Films
                 .Where(f => f.Title.Contains(title))
-                .Select(f => new
+                .Select(f => new ReturnFilms
                 {
-                    id = f.Id,
+                    Id = f.Id,
                     Poster = f.Poster,
-                    title = f.Title,
+                    Title = f.Title,
                     Description = f.Description,
                     Duration = f.Duration,
                     Year = f.Year,
                     Director = f.Director,
                     Rating = f.Rating,
                     Actors = f.Actors,
-                    StudioName = f.StudioName,
                     TrailerUri = f.TrailerUri,
                     FileName = f.FileName,
                     FileUri = f.FileUri,
-                    genres = f.GenresFilms.Select(gf => new { id = gf.GenreId, name = gf.Genre.Name }),
-                    tags = f.TagsFilms.Select(tf => new { id = tf.TagId, name = tf.Tag.Name })
+                    Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
+                    Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Studios = f.StudiosFilms.Select(tf => new Studio {Id = tf.StudioId, Name = tf.Studio.Name }),
+                    Voiceovers = f.VoiceoversFilms.Select(tf => new Voiceover {Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
                 })
                 .ToArray();
 
@@ -161,34 +169,12 @@ namespace FilmServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("bygenres")]
-        public async Task<IActionResult> GetPaggedFilmsByGenres([FromBody] string[] genres, [FromQuery] int pageNumber, [FromQuery] int pageSize)
-        {
-            var model = _dbContext.Films
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(f => genres.All(g => f.GenresFilms.Any(gf => gf.Genre.Name == g)))
-                .Select(f => new
-                {
-                    id = f.Id,
-                    Poster = f.Poster,
-                    title = f.Title,
-                    Description = f.Description,
-                    Duration = f.Duration,
-                    Year = f.Year,
-                    Director = f.Director,
-                    Rating = f.Rating,
-                    Actors = f.Actors,
-                    StudioName = f.StudioName,
-                    TrailerUri = f.TrailerUri,
-                    FileName = f.FileName,
-                    FileUri = f.FileUri,
-                    genres = f.GenresFilms.Select(gf => new { id = gf.GenreId, name = gf.Genre.Name }),
-                    tags = f.TagsFilms.Select(tf => new { id = tf.TagId, name = tf.Tag.Name })
-                })
-                .ToArray();
+        [HttpGet("byfilter")]
+        public async Task<IActionResult> GetPaggedFilmsByFilter([FromBody] string[] items, [FromQuery] string filter, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {            
+            var model = _filmService.GetFilmsByFilter(items, filter, pageNumber, pageSize);
 
-            if (!model.Any())
+            if (model == null || !model.Any())
             {
                 return NotFound();
             }
@@ -196,73 +182,17 @@ namespace FilmServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("bytags")]
-        public async Task<IActionResult> GetPaggedFilmsByTags([FromBody] string[] tags, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("countpagesbyfilter")]
+        public async Task<IActionResult> GetCountPagesFilmsByGenres([FromBody] string[] items, [FromQuery] string filter, [FromQuery] int pageSize)
         {
-            var model = _dbContext.Films
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(f => tags.All(g => f.TagsFilms.Any(gf => gf.Tag.Name == g)))
-                .Select(f => new
-                {
-                    id = f.Id,
-                    Poster = f.Poster,
-                    title = f.Title,
-                    Description = f.Description,
-                    Duration = f.Duration,
-                    Year = f.Year,
-                    Director = f.Director,
-                    Rating = f.Rating,
-                    Actors = f.Actors,
-                    StudioName = f.StudioName,
-                    TrailerUri = f.TrailerUri,
-                    FileName = f.FileName,
-                    FileUri = f.FileUri,
-                    genres = f.GenresFilms.Select(gf => new { id = gf.GenreId, name = gf.Genre.Name }),
-                    tags = f.TagsFilms.Select(tf => new { id = tf.TagId, name = tf.Tag.Name })
-                })
-                .ToArray();
-
-            if (!model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
-        [HttpGet("countpagesbygenres")]
-        public async Task<IActionResult> GetCountPagesFilmsByGenres([FromQuery] int pageSize, [FromBody] string[] genres)
-        {
-            var model = _dbContext.Films
-                .Where(f => genres.All(g => f.GenresFilms.Any(gf => gf.Genre.Name == g)))
-                .Count();
+            var model = _filmService.GetCountPagesFilmsByFilter(items, filter, pageSize);
 
             if (model == 0)
             {
                 return NotFound();
             }
 
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
-        }
-
-        [HttpGet("countpagesbytags")]
-        public async Task<IActionResult> GetCountPagesFilmsByTags([FromQuery] int pageSize, [FromBody] string[] tags)
-        {
-            var model = _dbContext.Films
-                .Where(f => tags.All(g => f.TagsFilms.Any(gf => gf.Tag.Name == g)))
-                .Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
+            return Ok(model);
         }
     }
 }
