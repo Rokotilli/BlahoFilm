@@ -20,7 +20,7 @@ namespace AnimeServiceAPI.Controllers
             _commentService = commentService;
         }
 
-        [HttpGet]
+        [HttpGet("getcommentsforanime")]
         public async Task<IActionResult> GetCommentsForAnime([FromQuery] int animeId)
         {
             var model = _dbContext.Comments.Where(a => a.AnimeId == animeId).ToArray();
@@ -32,7 +32,7 @@ namespace AnimeServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet]
+        [HttpGet("getcommentsforanimepart")]
         public async Task<IActionResult> GetCommentsForAnimePart([FromQuery] int animePartId)
         {
             var model = _dbContext.Comments.Where(a => a.AnimePartId == animePartId).ToArray();
@@ -45,7 +45,7 @@ namespace AnimeServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpPost]
+        [HttpGet("addcommentforanime")]
         [Authorize]
         public async Task<IActionResult> AddCommentForAnime(CommentAddModel commentAddModel)
         {
@@ -59,7 +59,7 @@ namespace AnimeServiceAPI.Controllers
 
             return Ok();
         }
-        [HttpPost]
+        [HttpGet("addcommentforanimepart")]
         [Authorize]
         public async Task<IActionResult> AddCommentForAnimePart(CommentAddModel commentAddModel)
         {

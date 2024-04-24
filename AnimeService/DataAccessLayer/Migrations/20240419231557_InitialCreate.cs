@@ -150,15 +150,15 @@ namespace DataAccessLayer.Migrations
                 name: "AnimeRating",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     AnimeId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Rate = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AnimeRating", x => x.Id);
+                    table.PrimaryKey("PK_AnimeRating", x => new { x.UserId, x.AnimeId });
+                    table.CheckConstraint("CK_Rating_Rate_Range", "[Rate] >= 1 AND [Rate] <= 10");
                     table.ForeignKey(
                         name: "FK_AnimeRating_Animes_AnimeId",
                         column: x => x.AnimeId,
@@ -213,20 +213,18 @@ namespace DataAccessLayer.Migrations
                 name: "CommentDislikes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CommentId = table.Column<int>(type: "int", nullable: false)
+                    CommentId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommentDislikes", x => x.Id);
+                    table.PrimaryKey("PK_CommentDislikes", x => new { x.UserId, x.CommentId });
                     table.ForeignKey(
                         name: "FK_CommentDislikes_Comments_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_CommentDislikes_Users_UserId",
                         column: x => x.UserId,
@@ -238,20 +236,18 @@ namespace DataAccessLayer.Migrations
                 name: "CommentLikes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CommentId = table.Column<int>(type: "int", nullable: false)
+                    CommentId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommentLikes", x => x.Id);
+                    table.PrimaryKey("PK_CommentLikes", x => new { x.UserId, x.CommentId });
                     table.ForeignKey(
                         name: "FK_CommentLikes_Comments_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_CommentLikes_Users_UserId",
                         column: x => x.UserId,
@@ -270,29 +266,14 @@ namespace DataAccessLayer.Migrations
                 column: "AnimeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AnimeRating_UserId",
-                table: "AnimeRating",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CommentDislikes_CommentId",
                 table: "CommentDislikes",
                 column: "CommentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommentDislikes_UserId",
-                table: "CommentDislikes",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CommentLikes_CommentId",
                 table: "CommentLikes",
                 column: "CommentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CommentLikes_UserId",
-                table: "CommentLikes",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_AnimePartId",

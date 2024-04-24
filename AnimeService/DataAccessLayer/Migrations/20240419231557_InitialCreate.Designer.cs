@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AnimeServiceDbContext))]
-    [Migration("20240405220654_InitialCreate")]
+    [Migration("20240419231557_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -123,33 +123,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("AnimeParts");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.AnimeRating", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AnimeId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Rate")
-                        .HasColumnType("float");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AnimeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AnimeRating");
-                });
-
             modelBuilder.Entity("DataAccessLayer.Entities.Comment", b =>
                 {
                     b.Property<int>("Id")
@@ -197,48 +170,36 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.CommentDislike", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("CommentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "CommentId");
 
                     b.HasIndex("CommentId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("CommentDislikes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.CommentLike", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("CommentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "CommentId");
 
                     b.HasIndex("CommentId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("CommentLikes");
                 });
@@ -273,6 +234,30 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("GenreId");
 
                     b.ToTable("GenresAnimes");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Rating", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AnimeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Rate")
+                        .HasColumnType("float");
+
+                    b.HasKey("UserId", "AnimeId");
+
+                    b.HasIndex("AnimeId");
+
+                    b.ToTable("AnimeRating", t =>
+                        {
+                            t.HasCheckConstraint("CK_Rating_Rate_Range", "[Rate] >= 1 AND [Rate] <= 10");
+                        });
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
@@ -328,25 +313,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Anime");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.AnimeRating", b =>
-                {
-                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
-                        .WithMany("AnimeRatings")
-                        .HasForeignKey("AnimeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DataAccessLayer.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Anime");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DataAccessLayer.Entities.Comment", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.AnimePart", "AnimePart")
@@ -375,12 +341,13 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.Entities.Comment", "Comment")
                         .WithMany("CommentDislikes")
                         .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("DataAccessLayer.Entities.User", "User")
                         .WithMany("CommentDislikes")
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Comment");
@@ -393,12 +360,13 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.Entities.Comment", "Comment")
                         .WithMany("CommentLikes")
                         .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("DataAccessLayer.Entities.User", "User")
                         .WithMany("CommentLikes")
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Comment");
@@ -423,6 +391,25 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Anime");
 
                     b.Navigation("Genre");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Rating", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
+                        .WithMany("AnimeRatings")
+                        .HasForeignKey("AnimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Anime");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.TagsAnime", b =>

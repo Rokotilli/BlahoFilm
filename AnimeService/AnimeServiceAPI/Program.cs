@@ -5,13 +5,18 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddControllers();
+var connectionString = builder.Configuration.GetConnectionString("AnimeServiceSqlServer");
 builder.Services.AddDbContext<AnimeServiceDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AnimeServiceSqlServer"));
+    options.UseSqlServer(connectionString);
 });
 
 builder.Services.AddCors(options =>
@@ -68,7 +73,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                        };
                    });
 
-builder.Services.AddControllers();
 
 builder.Services.AddMassTransit(x =>
 {
@@ -83,9 +87,19 @@ builder.Services.AddMassTransit(x =>
         cfg.ConfigureEndpoints(cxt);
     });
 });
+builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
+app.UseCors("AllowOrigin");
 
-app.MapGet("/", () => "Hello World!");
 
+app.MapControllers();
+app.UseSwagger(); 
+app.UseSwaggerUI();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.Services.GetRequiredService<AnimeServiceDbContext>().Database.Migrate();
+}
 app.Run();
