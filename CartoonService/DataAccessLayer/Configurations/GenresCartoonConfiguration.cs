@@ -4,7 +4,7 @@ using DataAccessLayer.Entities;
 
 namespace DataAccessLayer.Configurations
 {
-    public class GenresAnimeConfiguration : IEntityTypeConfiguration<GenresCartoon>
+    public class GenresCartoonConfiguration : IEntityTypeConfiguration<GenresCartoon>
     {
         public void Configure(EntityTypeBuilder<GenresCartoon> builder)
         {

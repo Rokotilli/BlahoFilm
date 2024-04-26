@@ -29,7 +29,8 @@ namespace BusinessLogicLayer.Services
                 byte[] posterBytes = null;
                 var genres = cartoonRegisterModel.Genres.Split(",");
                 var tags = cartoonRegisterModel.Genres.Split(",");
-
+                var studios = cartoonRegisterModel.Studios.Split(",");
+                var voiceovers = cartoonRegisterModel.Voiceovers.Split(",");
                 using (var stream = new MemoryStream())
                 {
                     await cartoonRegisterModel.Poster.CopyToAsync(stream);
@@ -49,14 +50,12 @@ namespace BusinessLogicLayer.Services
                     Year = cartoonRegisterModel.Year,
                     Director = cartoonRegisterModel.Director,
                     Rating = cartoonRegisterModel.Rating,
-                    StudioName = cartoonRegisterModel.StudioName,
                     TrailerUri = cartoonRegisterModel.TrailerUri,
                     AgeRestriction = cartoonRegisterModel.AgeRestriction
                 };
 
                 var cartoon = await _dbContext.Cartoons
                     .FirstOrDefaultAsync(c =>
-                                     c.StudioName == model.StudioName &&
                                      c.Title == model.Title &&
                                      c.Description == model.Description &&
                                      c.Duration == model.Duration &&
@@ -67,7 +66,6 @@ namespace BusinessLogicLayer.Services
                                      c.Year == model.Year &&
                                      c.Director == model.Director &&
                                      c.Rating == model.Rating &&
-                                     c.StudioName == model.StudioName &&
                                      c.AgeRestriction == model.AgeRestriction);
                 if (cartoon != null)
                 {
@@ -81,6 +79,13 @@ namespace BusinessLogicLayer.Services
                 var existingTags = _dbContext.Tags
                     .Select(t => t.Name)
                     .ToArray();
+                var existingStudios= _dbContext.Studios
+                  .Select(g => g.Name)
+                  .ToArray();
+
+                var existingVoiceovers = _dbContext.Voiceovers
+                    .Select(t => t.Name)
+                    .ToArray();
 
                 var missingGenres = genres
                     .Except(existingGenres)
@@ -88,6 +93,13 @@ namespace BusinessLogicLayer.Services
 
                 var missingTags = tags
                     .Except(existingTags)
+                    .ToArray();
+                var missingVoiceovers = voiceovers
+                    .Except(existingVoiceovers)
+                    .ToArray();
+
+                var missingStudios= studios
+                    .Except(existingStudios)
                     .ToArray();
 
                 foreach (var item in missingGenres)
@@ -101,14 +113,23 @@ namespace BusinessLogicLayer.Services
                     var newTag = new Tag { Name = item };
                     _dbContext.Tags.Add(newTag);
                 }
+                foreach (var item in missingStudios)
+                {
+                    var newStudio= new Studio { Name = item };
+                    _dbContext.Studios.Add(newStudio);
+                }
 
+                foreach (var item in missingVoiceovers)
+                {
+                    var newVoiceover = new Voiceover { Name = item };
+                    _dbContext.Voiceovers.Add(newVoiceover);
+                }
                 _dbContext.Cartoons.Add(model);
 
                 await _dbContext.SaveChangesAsync();
 
                 var cartoonid = _dbContext.Cartoons
                     .Where(c =>
-                                     c.StudioName == model.StudioName &&
                                      c.Title == model.Title &&
                                      c.Description == model.Description &&
                                      c.Duration == model.Duration &&
@@ -119,7 +140,6 @@ namespace BusinessLogicLayer.Services
                                      c.Year == model.Year &&
                                      c.Director == model.Director &&
                                      c.Rating == model.Rating &&
-                                     c.StudioName == model.StudioName &&
                                      c.AgeRestriction == model.AgeRestriction)
                     .Select(s => s.Id)
                     .First();

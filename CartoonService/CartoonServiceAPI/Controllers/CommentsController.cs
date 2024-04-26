@@ -1,7 +1,9 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CartoonServiceAPI.Controllers
 {
@@ -44,10 +46,11 @@ namespace CartoonServiceAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddCommentForCartoon(CommentAddModel commentAddModel)
         {
-            //UserId must be from jwt
-            var result = await _commentService.AddComment(commentAddModel, "user1");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _commentService.AddComment(commentAddModel, userId);
 
             if (result != null)
             {
@@ -57,10 +60,11 @@ namespace CartoonServiceAPI.Controllers
             return Ok();
         }
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddCommentForCartoonPart(CommentAddModel commentAddModel)
         {
-            //UserId must be from jwt
-            var result = await _commentService.AddComment(commentAddModel, "user1");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _commentService.AddComment(commentAddModel, userId);
 
             if (result != null)
             {
@@ -70,10 +74,11 @@ namespace CartoonServiceAPI.Controllers
             return Ok();
         }
         [HttpDelete]
+        [Authorize]
         public async Task<IActionResult> DeleteComment([FromQuery] int commentId)
         {
-            //UserId must be from jwt
-            var result = await _commentService.DeleteComment(commentId, "user1");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _commentService.DeleteComment(commentId, userId);
 
             if (result != null)
             {
@@ -84,10 +89,11 @@ namespace CartoonServiceAPI.Controllers
         }
 
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> ChangeComment(ChangeCommentModel changeCommentModel)
         {
-            //UserId must be from jwt
-            var result = await _commentService.ChangeComment(changeCommentModel.Id, "user1", changeCommentModel.Text);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _commentService.ChangeComment(changeCommentModel.Id, userId, changeCommentModel.Text);
 
             if (result != null)
             {
@@ -100,8 +106,8 @@ namespace CartoonServiceAPI.Controllers
         [HttpPost("like")]
         public async Task<IActionResult> Like([FromQuery] int commentId)
         {
-            //UserId must be from jwt
-            var result = await _commentService.Like(commentId, "user1");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _commentService.Like(commentId, userId);
 
             if (result != null)
             {
@@ -114,8 +120,8 @@ namespace CartoonServiceAPI.Controllers
         [HttpPost("dislike")]
         public async Task<IActionResult> Dislike([FromQuery] int commentId)
         {
-            //UserId must be from jwt
-            var result = await _commentService.Dislike(commentId, "user1");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _commentService.Dislike(commentId, userId);
 
             if (result != null)
             {

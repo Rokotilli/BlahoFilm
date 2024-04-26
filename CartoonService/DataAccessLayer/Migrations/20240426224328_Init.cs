@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,6 +51,19 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Studios",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Studios", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tags",
                 columns: table => new
                 {
@@ -75,6 +88,19 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Voiceovers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Voiceovers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Cartoons",
                 columns: table => new
                 {
@@ -91,7 +117,6 @@ namespace DataAccessLayer.Migrations
                     Year = table.Column<int>(type: "int", nullable: false),
                     Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false),
-                    StudioName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -143,15 +168,15 @@ namespace DataAccessLayer.Migrations
                 name: "CartoonRating",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     CartoonId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Rate = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CartoonRating", x => x.Id);
+                    table.PrimaryKey("PK_CartoonRating", x => new { x.UserId, x.CartoonId });
+                    table.CheckConstraint("CK_Rating_Rate_Range", "[Rate] >= 1 AND [Rate] <= 10");
                     table.ForeignKey(
                         name: "FK_CartoonRating_Cartoons_CartoonId",
                         column: x => x.CartoonId,
@@ -191,6 +216,30 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StudiosCartoons",
+                columns: table => new
+                {
+                    CartoonId = table.Column<int>(type: "int", nullable: false),
+                    StudioId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudiosCartoons", x => new { x.CartoonId, x.StudioId });
+                    table.ForeignKey(
+                        name: "FK_StudiosCartoons_Cartoons_CartoonId",
+                        column: x => x.CartoonId,
+                        principalTable: "Cartoons",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudiosCartoons_Studios_StudioId",
+                        column: x => x.StudioId,
+                        principalTable: "Studios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TagsCartoons",
                 columns: table => new
                 {
@@ -210,6 +259,30 @@ namespace DataAccessLayer.Migrations
                         name: "FK_TagsCartoons_Tags_TagId",
                         column: x => x.TagId,
                         principalTable: "Tags",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VoiceoversCartoons",
+                columns: table => new
+                {
+                    CartoonId = table.Column<int>(type: "int", nullable: false),
+                    VoiceoverId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VoiceoversCartoons", x => new { x.CartoonId, x.VoiceoverId });
+                    table.ForeignKey(
+                        name: "FK_VoiceoversCartoons_Cartoons_CartoonId",
+                        column: x => x.CartoonId,
+                        principalTable: "Cartoons",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_VoiceoversCartoons_Voiceovers_VoiceoverId",
+                        column: x => x.VoiceoverId,
+                        principalTable: "Voiceovers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -254,20 +327,18 @@ namespace DataAccessLayer.Migrations
                 name: "CommentDislikes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CommentId = table.Column<int>(type: "int", nullable: false)
+                    CommentId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommentDislikes", x => x.Id);
+                    table.PrimaryKey("PK_CommentDislikes", x => new { x.UserId, x.CommentId });
                     table.ForeignKey(
                         name: "FK_CommentDislikes_Comments_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_CommentDislikes_Users_UserId",
                         column: x => x.UserId,
@@ -279,20 +350,18 @@ namespace DataAccessLayer.Migrations
                 name: "CommentLikes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CommentId = table.Column<int>(type: "int", nullable: false)
+                    CommentId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommentLikes", x => x.Id);
+                    table.PrimaryKey("PK_CommentLikes", x => new { x.UserId, x.CommentId });
                     table.ForeignKey(
                         name: "FK_CommentLikes_Comments_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_CommentLikes_Users_UserId",
                         column: x => x.UserId,
@@ -311,11 +380,6 @@ namespace DataAccessLayer.Migrations
                 column: "CartoonId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartoonRating_UserId",
-                table: "CartoonRating",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Cartoons_AnimationTypeId",
                 table: "Cartoons",
                 column: "AnimationTypeId");
@@ -331,19 +395,9 @@ namespace DataAccessLayer.Migrations
                 column: "CommentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommentDislikes_UserId",
-                table: "CommentDislikes",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CommentLikes_CommentId",
                 table: "CommentLikes",
                 column: "CommentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CommentLikes_UserId",
-                table: "CommentLikes",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_CartoonPartId",
@@ -366,9 +420,19 @@ namespace DataAccessLayer.Migrations
                 column: "GenreId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_StudiosCartoons_StudioId",
+                table: "StudiosCartoons",
+                column: "StudioId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TagsCartoons_TagId",
                 table: "TagsCartoons",
                 column: "TagId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoiceoversCartoons_VoiceoverId",
+                table: "VoiceoversCartoons",
+                column: "VoiceoverId");
         }
 
         /// <inheritdoc />
@@ -387,7 +451,13 @@ namespace DataAccessLayer.Migrations
                 name: "GenresCartoons");
 
             migrationBuilder.DropTable(
+                name: "StudiosCartoons");
+
+            migrationBuilder.DropTable(
                 name: "TagsCartoons");
+
+            migrationBuilder.DropTable(
+                name: "VoiceoversCartoons");
 
             migrationBuilder.DropTable(
                 name: "Comments");
@@ -396,7 +466,13 @@ namespace DataAccessLayer.Migrations
                 name: "Genres");
 
             migrationBuilder.DropTable(
+                name: "Studios");
+
+            migrationBuilder.DropTable(
                 name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "Voiceovers");
 
             migrationBuilder.DropTable(
                 name: "CartoonParts");

@@ -30,17 +30,18 @@ namespace CartoonServiceAPI.Controllers
                     CountParts = c.CountParts,
                     Duration = c.Duration,
                     CategoryId = c.CategoryId,
-                    AnimationTypeId = c.AnimationTypeId,
+                    Animation = c.AnimationType.Name,
                     Year = c.Year,
                     Director = c.Director,
                     Rating = c.Rating,
-                    StudioName = c.StudioName,
                     TrailerUri = c.TrailerUri,
                     FileName = c.FileName,
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                 }
                 )
                 .ToArray();
@@ -116,17 +117,19 @@ namespace CartoonServiceAPI.Controllers
                     CountParts = c.CountParts,
                     Duration = c.Duration,
                     CategoryId = c.CategoryId,
-                    AnimationTypeId = c.AnimationTypeId,
+                    Animation = c.AnimationType.Name,
                     Year = c.Year,
                     Director = c.Director,
                     Rating = c.Rating,
-                    StudioName = c.StudioName,
                     TrailerUri = c.TrailerUri,
                     FileName = c.FileName,
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
+
                 }
                 ).FirstOrDefault(c => c.Id == id);
 
@@ -154,17 +157,19 @@ namespace CartoonServiceAPI.Controllers
                     CountParts = c.CountParts,
                     Duration = c.Duration,
                     CategoryId = c.CategoryId,
-                    AnimationTypeId = c.AnimationTypeId,
+                    Animation = c.AnimationType.Name,
                     Year = c.Year,
                     Director = c.Director,
                     Rating = c.Rating,
-                    StudioName = c.StudioName,
                     TrailerUri = c.TrailerUri,
                     FileName = c.FileName,
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
+
                 }
                 )
                 .ToArray();
@@ -181,7 +186,7 @@ namespace CartoonServiceAPI.Controllers
         public async Task<IActionResult> GetCartoonsByTitle([FromQuery] string title)
         {
             var model = _dbContext.Cartoons
-                .Where(f => f.Title == title)
+                .Where(f => f.Title.Contains(title))
                 .Select(c => new
                 {
                     Id = c.Id,
@@ -192,17 +197,19 @@ namespace CartoonServiceAPI.Controllers
                     CountParts = c.CountParts,
                     Duration = c.Duration,
                     CategoryId = c.CategoryId,
-                    AnimationTypeId = c.AnimationTypeId,
+                    Animation = c.AnimationType.Name,
                     Year = c.Year,
                     Director = c.Director,
                     Rating = c.Rating,
-                    StudioName = c.StudioName,
                     TrailerUri = c.TrailerUri,
                     FileName = c.FileName,
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
+
                 }
                 )
                 .ToArray();
@@ -232,17 +239,19 @@ namespace CartoonServiceAPI.Controllers
                      CountParts = c.CountParts,
                      Duration = c.Duration,
                      CategoryId = c.CategoryId,
-                     AnimationTypeId = c.AnimationTypeId,
+                     Animation = c.AnimationType.Name,
                      Year = c.Year,
                      Director = c.Director,
                      Rating = c.Rating,
-                     StudioName = c.StudioName,
                      TrailerUri = c.TrailerUri,
                      FileName = c.FileName,
                      FileUri = c.FileUri,
                      AgeRestriction = c.AgeRestriction,
                      genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                     Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
+
                  }
                 )
                 .ToArray();
@@ -272,17 +281,19 @@ namespace CartoonServiceAPI.Controllers
                      CountParts = c.CountParts,
                      Duration = c.Duration,
                      CategoryId = c.CategoryId,
-                     AnimationTypeId = c.AnimationTypeId,
                      Year = c.Year,
                      Director = c.Director,
                      Rating = c.Rating,
-                     StudioName = c.StudioName,
                      TrailerUri = c.TrailerUri,
                      FileName = c.FileName,
                      FileUri = c.FileUri,
                      AgeRestriction = c.AgeRestriction,
+                     Animation = c.AnimationType.Name,
                      genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                     Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
+
                  }
                 )
                 .ToArray();

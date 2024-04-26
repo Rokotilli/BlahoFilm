@@ -14,7 +14,6 @@
         public int Year { get; set; }
         public string Director { get; set; }
         public double Rating { get; set; }
-        public string StudioName { get; set; }
         public string TrailerUri { get; set; }
         public string? FileName { get; set; }
         public string? FileUri { get; set; }
@@ -24,6 +23,8 @@
         public ICollection<CartoonPart> Cartoons { get; set; }
         public ICollection<TagsCartoon> TagsCartoons { get; set; }
         public ICollection<GenresCartoon> GenresCartoons { get; set; }
-        public ICollection<CartoonRating> CartoonRatings { get; set; }
+        public ICollection<Rating> CartoonRatings { get; set; }
+        public ICollection<StudiosCartoon> StudiosCartoons { get; set; }
+        public ICollection<VoiceoversCartoon> VoiceoversCartoons { get; set; }
     }
 }

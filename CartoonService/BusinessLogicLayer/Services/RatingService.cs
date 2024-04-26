@@ -22,7 +22,7 @@ namespace BusinessLogicLayer.Services
 
                 if (model == null)
                 {
-                    var rating = new CartoonRating()
+                    var rating = new Rating()
                     {
                         CartoonId = cartoonId,
                         UserId = userid,
