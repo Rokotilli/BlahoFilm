@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AnimeServiceDbContext))]
-    [Migration("20240419231557_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240426214621_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -67,10 +67,6 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<double>("Rating")
                         .HasColumnType("float");
-
-                    b.Property<string>("StudioName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -260,6 +256,43 @@ namespace DataAccessLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AnimeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnimeId");
+
+                    b.ToTable("Studios");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.StudiosAnime", b =>
+                {
+                    b.Property<int>("AnimeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AnimeId", "StudioId");
+
+                    b.HasIndex("StudioId");
+
+                    b.ToTable("StudiosAnimes");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
                 {
                     b.Property<int>("Id")
@@ -300,6 +333,43 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Voiceover", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AnimeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnimeId");
+
+                    b.ToTable("Voiceovers");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.VoiceoversAnime", b =>
+                {
+                    b.Property<int>("AnimeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VoiceoverId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AnimeId", "VoiceoverId");
+
+                    b.HasIndex("VoiceoverId");
+
+                    b.ToTable("VoiceoversAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.AnimePart", b =>
@@ -412,6 +482,32 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Anime", null)
+                        .WithMany("Studios")
+                        .HasForeignKey("AnimeId");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.StudiosAnime", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
+                        .WithMany()
+                        .HasForeignKey("AnimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.Studio", "Studio")
+                        .WithMany("StudiosAnimes")
+                        .HasForeignKey("StudioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Anime");
+
+                    b.Navigation("Studio");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.TagsAnime", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
@@ -431,6 +527,32 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Voiceover", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Anime", null)
+                        .WithMany("Voiceovers")
+                        .HasForeignKey("AnimeId");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.VoiceoversAnime", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
+                        .WithMany()
+                        .HasForeignKey("AnimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.Voiceover", "Voiceover")
+                        .WithMany("Voices")
+                        .HasForeignKey("VoiceoverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Anime");
+
+                    b.Navigation("Voiceover");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Anime", b =>
                 {
                     b.Navigation("AnimeParts");
@@ -439,7 +561,11 @@ namespace DataAccessLayer.Migrations
 
                     b.Navigation("GenresAnimes");
 
+                    b.Navigation("Studios");
+
                     b.Navigation("TagsAnimes");
+
+                    b.Navigation("Voiceovers");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.AnimePart", b =>
@@ -459,6 +585,11 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("GenresAnimes");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
+                {
+                    b.Navigation("StudiosAnimes");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
                 {
                     b.Navigation("TagsAnimes");
@@ -471,6 +602,11 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("CommentLikes");
 
                     b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Voiceover", b =>
+                {
+                    b.Navigation("Voices");
                 });
 #pragma warning restore 612, 618
         }

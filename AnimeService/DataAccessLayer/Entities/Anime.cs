@@ -12,7 +12,6 @@
         public int Year { get; set; }
         public string Director { get; set; }
         public double Rating { get; set; }
-        public string StudioName { get; set; }
         public string TrailerUri { get; set; }
         public int AgeRestriction { get; set; }
         public string FileName { get; set; }
@@ -21,5 +20,7 @@
         public ICollection<GenresAnime> GenresAnimes { get; set; }
         public ICollection<TagsAnime> TagsAnimes { get; set; }
         public ICollection<Rating> AnimeRatings{ get; set; }
+        public ICollection<Studio> Studios { get; set; }
+        public ICollection<Voiceover> Voiceovers { get; set; }
     }
 }

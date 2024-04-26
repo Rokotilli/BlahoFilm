@@ -79,6 +79,7 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<UserReceivedConsumer>();
     x.UsingRabbitMq((cxt, cfg) =>
     {
+        cfg.UseRawJsonDeserializer();
         cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
         {
             h.Username("guest");
@@ -86,20 +87,21 @@ builder.Services.AddMassTransit(x =>
         });
         cfg.ConfigureEndpoints(cxt);
     });
+   
 });
 builder.Services.AddSwaggerGen();
-
 
 var app = builder.Build();
 app.UseCors("AllowOrigin");
 
 
-app.MapControllers();
-app.UseSwagger(); 
-app.UseSwaggerUI();
-
 if (!app.Environment.IsDevelopment())
 {
     app.Services.GetRequiredService<AnimeServiceDbContext>().Database.Migrate();
 }
+
+app.MapControllers();
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.Run();

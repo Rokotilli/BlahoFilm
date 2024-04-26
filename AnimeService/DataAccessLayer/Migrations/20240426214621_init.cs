@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -26,7 +26,6 @@ namespace DataAccessLayer.Migrations
                     Year = table.Column<int>(type: "int", nullable: false),
                     Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false),
-                    StudioName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AgeRestriction = table.Column<int>(type: "int", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -96,6 +95,44 @@ namespace DataAccessLayer.Migrations
                         principalTable: "Animes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Studios",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AnimeId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Studios", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Studios_Animes_AnimeId",
+                        column: x => x.AnimeId,
+                        principalTable: "Animes",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Voiceovers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AnimeId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Voiceovers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Voiceovers_Animes_AnimeId",
+                        column: x => x.AnimeId,
+                        principalTable: "Animes",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -210,6 +247,54 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StudiosAnimes",
+                columns: table => new
+                {
+                    AnimeId = table.Column<int>(type: "int", nullable: false),
+                    StudioId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudiosAnimes", x => new { x.AnimeId, x.StudioId });
+                    table.ForeignKey(
+                        name: "FK_StudiosAnimes_Animes_AnimeId",
+                        column: x => x.AnimeId,
+                        principalTable: "Animes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudiosAnimes_Studios_StudioId",
+                        column: x => x.StudioId,
+                        principalTable: "Studios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VoiceoversAnimes",
+                columns: table => new
+                {
+                    AnimeId = table.Column<int>(type: "int", nullable: false),
+                    VoiceoverId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VoiceoversAnimes", x => new { x.AnimeId, x.VoiceoverId });
+                    table.ForeignKey(
+                        name: "FK_VoiceoversAnimes_Animes_AnimeId",
+                        column: x => x.AnimeId,
+                        principalTable: "Animes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_VoiceoversAnimes_Voiceovers_VoiceoverId",
+                        column: x => x.VoiceoverId,
+                        principalTable: "Voiceovers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CommentDislikes",
                 columns: table => new
                 {
@@ -296,9 +381,29 @@ namespace DataAccessLayer.Migrations
                 column: "GenreId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Studios_AnimeId",
+                table: "Studios",
+                column: "AnimeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudiosAnimes_StudioId",
+                table: "StudiosAnimes",
+                column: "StudioId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TagsAnimes_TagId",
                 table: "TagsAnimes",
                 column: "TagId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Voiceovers_AnimeId",
+                table: "Voiceovers",
+                column: "AnimeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoiceoversAnimes_VoiceoverId",
+                table: "VoiceoversAnimes",
+                column: "VoiceoverId");
         }
 
         /// <inheritdoc />
@@ -317,7 +422,13 @@ namespace DataAccessLayer.Migrations
                 name: "GenresAnimes");
 
             migrationBuilder.DropTable(
+                name: "StudiosAnimes");
+
+            migrationBuilder.DropTable(
                 name: "TagsAnimes");
+
+            migrationBuilder.DropTable(
+                name: "VoiceoversAnimes");
 
             migrationBuilder.DropTable(
                 name: "Comments");
@@ -326,7 +437,13 @@ namespace DataAccessLayer.Migrations
                 name: "Genres");
 
             migrationBuilder.DropTable(
+                name: "Studios");
+
+            migrationBuilder.DropTable(
                 name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "Voiceovers");
 
             migrationBuilder.DropTable(
                 name: "AnimeParts");

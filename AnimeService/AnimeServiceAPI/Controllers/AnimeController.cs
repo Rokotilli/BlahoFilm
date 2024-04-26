@@ -31,13 +31,14 @@ namespace AnimeServiceAPI.Controllers
                     Year = a.Year,
                     Director = a.Director,
                     Rating = a.Rating,
-                    StudioName = a.StudioName,
                     TrailerUri = a.TrailerUri,
                     AgeRestriction = a.AgeRestriction,
                     FileName = a.FileName,
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    studios = a.Studios.Select(st=>new {id=st.Id, name = st.Name}),
+                    voiceovers =  a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
                 }
                 )
                 .ToArray();
@@ -114,13 +115,14 @@ namespace AnimeServiceAPI.Controllers
                     Year = a.Year,
                     Director = a.Director,
                     Rating = a.Rating,
-                    StudioName = a.StudioName,
                     TrailerUri = a.TrailerUri,
                     AgeRestriction = a.AgeRestriction,
                     FileName = a.FileName,
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    studios = a.Studios.Select(st => new { id = st.Id, name = st.Name }),
+                    voiceovers = a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
                 }
                 ).FirstOrDefault(a => a.Id == id);
 
@@ -149,13 +151,14 @@ namespace AnimeServiceAPI.Controllers
                     Year = a.Year,
                     Director = a.Director,
                     Rating = a.Rating,
-                    StudioName = a.StudioName,
                     TrailerUri = a.TrailerUri,
                     AgeRestriction = a.AgeRestriction,
                     FileName = a.FileName,
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    studios = a.Studios.Select(st => new { id = st.Id, name = st.Name }),
+                    voiceovers = a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
                 }
                 )
                 .ToArray();
@@ -184,13 +187,14 @@ namespace AnimeServiceAPI.Controllers
                     Year = a.Year,
                     Director = a.Director,
                     Rating = a.Rating,
-                    StudioName = a.StudioName,
                     TrailerUri = a.TrailerUri,
                     AgeRestriction = a.AgeRestriction,
                     FileName = a.FileName,
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    studios = a.Studios.Select(st => new { id = st.Id, name = st.Name }),
+                    voiceovers = a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
                 }
                 )
                 .ToArray();
@@ -221,13 +225,14 @@ namespace AnimeServiceAPI.Controllers
                      Year = a.Year,
                      Director = a.Director,
                      Rating = a.Rating,
-                     StudioName = a.StudioName,
                      TrailerUri = a.TrailerUri,
                      AgeRestriction = a.AgeRestriction,
                      FileName = a.FileName,
                      FileUri = a.FileUri,
                      genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                     studios = a.Studios.Select(st => new { id = st.Id, name = st.Name }),
+                     voiceovers = a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
                  }
                 )
                 .ToArray();
@@ -258,13 +263,14 @@ namespace AnimeServiceAPI.Controllers
                      Year = a.Year,
                      Director = a.Director,
                      Rating = a.Rating,
-                     StudioName = a.StudioName,
                      TrailerUri = a.TrailerUri,
                      AgeRestriction = a.AgeRestriction,
                      FileName = a.FileName,
                      FileUri = a.FileUri,
                      genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name })
+                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                     studios = a.Studios.Select(st => new { id = st.Id, name = st.Name }),
+                     voiceovers = a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
                  }
                 )
                 .ToArray();
