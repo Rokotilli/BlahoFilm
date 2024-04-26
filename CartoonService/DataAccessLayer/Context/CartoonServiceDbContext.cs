@@ -26,11 +26,6 @@ namespace DataAccessLayer.Context
             modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Cartoon>().HasMany(c => c.CartoonRatings).WithOne(c => c.Cartoon).HasForeignKey(cr => cr.CartoonId).OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<CommentDislike>().HasOne(c => c.User).WithMany(c => c.CommentDislikes).HasForeignKey(cr => cr.UserId).OnDelete(DeleteBehavior.ClientSetNull);
-            modelBuilder.Entity<CommentLike>().HasOne(c => c.User).WithMany(c => c.CommentLikes).HasForeignKey(cr => cr.UserId).OnDelete(DeleteBehavior.ClientSetNull);
-            modelBuilder.Entity<Comment>().HasMany(c => c.CommentDislikes).WithOne(c => c.Comment).HasForeignKey(cr => cr.CommentId).OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<Comment>().HasMany(c => c.CommentLikes).WithOne(c => c.Comment).HasForeignKey(cr => cr.CommentId).OnDelete(DeleteBehavior.Cascade);
 
         }
     }
