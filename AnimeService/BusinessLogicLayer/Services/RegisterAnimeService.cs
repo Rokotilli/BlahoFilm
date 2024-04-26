@@ -105,7 +105,17 @@ namespace BusinessLogicLayer.Services
                     var newTag = new Tag { Name = item };
                     _dbContext.Tags.Add(newTag);
                 }
+                foreach (var item in missingStudios)
+                {
+                    var newStudio = new Studio { Name = item };
+                    _dbContext.Studios.Add(newStudio);
+                }
 
+                foreach (var item in missingVoiceovers)
+                {
+                    var newVoiceover = new Voiceover { Name = item };
+                    _dbContext.Voiceovers.Add(newVoiceover);
+                }
                 _dbContext.Animes.Add(model);
 
                 await _dbContext.SaveChangesAsync();

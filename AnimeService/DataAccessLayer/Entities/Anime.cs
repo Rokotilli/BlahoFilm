@@ -20,7 +20,7 @@
         public ICollection<GenresAnime> GenresAnimes { get; set; }
         public ICollection<TagsAnime> TagsAnimes { get; set; }
         public ICollection<Rating> AnimeRatings{ get; set; }
-        public ICollection<Studio> Studios { get; set; }
-        public ICollection<Voiceover> Voiceovers { get; set; }
+        public ICollection<StudiosAnime> StudiosAnime { get; set; }
+        public ICollection<VoiceoversAnime> VoiceoversAnime { get; set; }
     }
 }

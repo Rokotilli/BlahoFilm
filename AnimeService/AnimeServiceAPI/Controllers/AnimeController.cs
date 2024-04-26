@@ -35,10 +35,11 @@ namespace AnimeServiceAPI.Controllers
                     AgeRestriction = a.AgeRestriction,
                     FileName = a.FileName,
                     FileUri = a.FileUri,
+
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                    studios = a.Studios.Select(st=>new {id=st.Id, name = st.Name}),
-                    voiceovers =  a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
+                    Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                 }
                 )
                 .ToArray();
@@ -121,8 +122,8 @@ namespace AnimeServiceAPI.Controllers
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                    studios = a.Studios.Select(st => new { id = st.Id, name = st.Name }),
-                    voiceovers = a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
+                    Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                 }
                 ).FirstOrDefault(a => a.Id == id);
 
@@ -157,8 +158,8 @@ namespace AnimeServiceAPI.Controllers
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                    studios = a.Studios.Select(st => new { id = st.Id, name = st.Name }),
-                    voiceovers = a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
+                    Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                 }
                 )
                 .ToArray();
@@ -193,8 +194,8 @@ namespace AnimeServiceAPI.Controllers
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                    studios = a.Studios.Select(st => new { id = st.Id, name = st.Name }),
-                    voiceovers = a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
+                    Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                 }
                 )
                 .ToArray();
@@ -231,8 +232,8 @@ namespace AnimeServiceAPI.Controllers
                      FileUri = a.FileUri,
                      genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                      tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                     studios = a.Studios.Select(st => new { id = st.Id, name = st.Name }),
-                     voiceovers = a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
+                     Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                     Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                  }
                 )
                 .ToArray();
@@ -269,8 +270,8 @@ namespace AnimeServiceAPI.Controllers
                      FileUri = a.FileUri,
                      genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                      tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                     studios = a.Studios.Select(st => new { id = st.Id, name = st.Name }),
-                     voiceovers = a.Voiceovers.Select(vo => new { id = vo.Id, name = vo.Name }),
+                     Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                     Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                  }
                 )
                 .ToArray();
