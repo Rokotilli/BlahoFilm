@@ -22,7 +22,7 @@ namespace SeriesServiceAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRating([FromQuery] int seriesId)
         {
-            var result = _dbContext.Series.FirstOrDefault(f => f.Id == seriesId);
+            var result = _dbContext.Series.FirstOrDefault(s => s.Id == seriesId);
 
             if (result == null)
             {

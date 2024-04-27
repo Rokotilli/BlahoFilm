@@ -1,5 +1,6 @@
 ﻿using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
+using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SeriesServiceAPI.Controllers
@@ -30,9 +31,12 @@ namespace SeriesServiceAPI.Controllers
                     Year = s.Year,
                     Director = s.Director,
                     Rating = s.Rating,
-                    StudioName = s.StudioName,
                     TrailerUri = s.TrailerUri,
-                    AgeRestriction = s.AgeRestriction
+                    AgeRestriction = s.AgeRestriction,
+                    Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
+                    Tags = s.TagsSeries.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
+                    Voiceovers = s.VoiceoversSeries.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
                 })
                 .ToArray();
 
@@ -137,9 +141,13 @@ namespace SeriesServiceAPI.Controllers
                     Year = s.Year,
                     Director = s.Director,
                     Rating = s.Rating,
-                    StudioName = s.StudioName,
                     TrailerUri = s.TrailerUri,
-                    AgeRestriction = s.AgeRestriction
+                    AgeRestriction = s.AgeRestriction,
+                    Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
+                    Tags = s.TagsSeries.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
+                    Voiceovers = s.VoiceoversSeries.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
+
                 })
                 .ToArray();
 
@@ -168,9 +176,13 @@ namespace SeriesServiceAPI.Controllers
                     Year = s.Year,
                     Director = s.Director,
                     Rating = s.Rating,
-                    StudioName = s.StudioName,
                     TrailerUri = s.TrailerUri,
-                    AgeRestriction = s.AgeRestriction
+                    AgeRestriction = s.AgeRestriction,
+                    Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
+                    Tags = s.TagsSeries.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
+                    Voiceovers = s.VoiceoversSeries.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
+
                 })
                 .ToArray();
 
@@ -199,9 +211,13 @@ namespace SeriesServiceAPI.Controllers
                     Year = s.Year,
                     Director = s.Director,
                     Rating = s.Rating,
-                    StudioName = s.StudioName,
                     TrailerUri = s.TrailerUri,
-                    AgeRestriction = s.AgeRestriction
+                    AgeRestriction = s.AgeRestriction,
+                    Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
+                    Tags = s.TagsSeries.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
+                    Voiceovers = s.VoiceoversSeries.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
+
                 })
                 .ToArray();
             if (!model.Any())

@@ -29,6 +29,8 @@ namespace BusinessLogicLayer.Services
                 byte[] posterBytes = null;
                 var genres = seriesRegisterModel.Genres.Split(",");
                 var tags = seriesRegisterModel.Genres.Split(",");
+                var studios = seriesRegisterModel.Studios.Split(",");
+                var voiceovers = seriesRegisterModel.Voiceovers.Split(",");
 
                 using (var stream = new MemoryStream())
                 {
@@ -46,7 +48,6 @@ namespace BusinessLogicLayer.Services
                     Year = seriesRegisterModel.Year,
                     Director = seriesRegisterModel.Director,
                     Rating = seriesRegisterModel.Rating,
-                    StudioName = seriesRegisterModel.StudioName,
                     TrailerUri = seriesRegisterModel.TrailerUri,
                     AgeRestriction = seriesRegisterModel.AgeRestriction
                 };
@@ -62,7 +63,6 @@ namespace BusinessLogicLayer.Services
                           s.Director == model.Director &&
                        s.Rating == model.Rating &&
                           s.Actors == model.Actors &&
-                          s.StudioName == model.StudioName &&
                           s.TrailerUri == model.TrailerUri &&
                           s.AgeRestriction == model.AgeRestriction);
                 if (series != null)
@@ -77,7 +77,13 @@ namespace BusinessLogicLayer.Services
                 var existingTags = _dbContext.Tags
                     .Select(t => t.Name)
                     .ToArray();
+                var existingStudios = _dbContext.Studios
+                 .Select(g => g.Name)
+                 .ToArray();
 
+                var existingVoceovers = _dbContext.Voiceovers
+                    .Select(t => t.Name)
+                    .ToArray();
                 var missingGenres = genres
                     .Except(existingGenres)
                     .ToArray();
@@ -85,7 +91,13 @@ namespace BusinessLogicLayer.Services
                 var missingTags = tags
                     .Except(existingTags)
                     .ToArray();
+                var missingStudios = studios
+                   .Except(existingStudios)
+                   .ToArray();
 
+                var missingVoiceovers = voiceovers
+                    .Except(existingVoceovers)
+                    .ToArray();
                 foreach (var item in missingGenres)
                 {
                     var newGenre = new Genre { Name = item };
@@ -113,7 +125,6 @@ namespace BusinessLogicLayer.Services
                           s.Director == model.Director &&
                        s.Rating == model.Rating &&
                           s.Actors == model.Actors &&
-                          s.StudioName == model.StudioName &&
                           s.TrailerUri == model.TrailerUri &&
                           s.AgeRestriction == model.AgeRestriction)
                     .Select(s => s.Id)
@@ -133,7 +144,20 @@ namespace BusinessLogicLayer.Services
 
                     _dbContext.TagsSeries.Add(new TagsSeries() { SeriesId = seriesid, TagId = tag.Id });
                 }
+                foreach (var item in studios)
+                {
+                    var studio = await _dbContext.Studios.FirstOrDefaultAsync(g => g.Name == item);
 
+                    _dbContext.StudiosSeries.Add(new StudiosSeries() { SeriesId = seriesid, StudioId = studio.Id });
+                }
+
+                foreach (var item in voiceovers)
+                {
+
+                    var voiceover = await _dbContext.Voiceovers.FirstOrDefaultAsync(t => t.Name == item);
+
+                    _dbContext.VoiceoversSeries.Add(new VoiceoversSeries() { SeriesId = seriesid, VoiceoverId = voiceover.Id });
+                }
                 await _dbContext.SaveChangesAsync();
 
                 await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = seriesid, MediaType = MediaTypes.Series });
