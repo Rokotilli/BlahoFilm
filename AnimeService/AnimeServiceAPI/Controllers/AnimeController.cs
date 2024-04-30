@@ -100,6 +100,39 @@ namespace AnimeServiceAPI.Controllers
 
             return Ok(countPages);
         }
+        [HttpGet("countpagesbystudios")]
+        public async Task<IActionResult> GetCountPagesAnimesByStudios([FromQuery] int pageSize, [FromBody] string[] studios)
+        {
+            var model = _dbContext.Animes
+                .Where(a => studios.All(g => a.StudiosAnime.Any(gc => gc.Studio.Name == g)))
+                .Count();
+
+            if (model == 0)
+            {
+                return NotFound();
+            }
+
+            var countPages = Math.Ceiling((double)model / pageSize);
+
+            return Ok(countPages);
+        }
+
+        [HttpGet("countpagesbyvoiceovers")]
+        public async Task<IActionResult> GetCountPagesAnimesByVoiceovers([FromQuery] int pageSize, [FromBody] string[] voiceovers)
+        {
+            var model = _dbContext.Animes
+                .Where(a => voiceovers.All(g => a.VoiceoversAnime.Any(gc => gc.Voiceover.Name == g)))
+                .Count();
+
+            if (model == 0)
+            {
+                return NotFound();
+            }
+
+            var countPages = Math.Ceiling((double)model / pageSize);
+
+            return Ok(countPages);
+        }
 
         [HttpGet("byid")]
         public async Task<IActionResult> GetAnimeById([FromQuery] int id)

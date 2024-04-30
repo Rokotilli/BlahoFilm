@@ -21,7 +21,6 @@ namespace BusinessLogicLayer.Services
             _dbContext = animeServiceDbContext;
             _publishEndpoint = publishEndpoint;
         }
-
         public async Task<string> RegisterAnime(AnimeRegisterModel animeRegisterModel)
         {
             try
@@ -146,7 +145,20 @@ namespace BusinessLogicLayer.Services
                     var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Name == item);
                     _dbContext.TagsAnimes.Add(new TagsAnime() { AnimeId = animeid, TagId = tag.Id });
                 }
+                foreach (var item in studios)
+                {
+                    var studio = await _dbContext.Studios.FirstOrDefaultAsync(g => g.Name == item);
 
+                    _dbContext.StudiosAnimes.Add(new StudiosAnime() { AnimeId = animeid, StudioId = studio.Id });
+                }
+
+                foreach (var item in voiceovers)
+                {
+
+                    var voiceover = await _dbContext.Voiceovers.FirstOrDefaultAsync(t => t.Name == item);
+
+                    _dbContext.VoiceoversAnimes.Add(new VoiceoversAnime() { AnimeId = animeid, VoiceoverId = voiceover.Id });
+                }
                 await _dbContext.SaveChangesAsync();
 
                 await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = animeid, MediaType = MediaTypes.Anime });
