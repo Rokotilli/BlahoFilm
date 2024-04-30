@@ -26,9 +26,7 @@ namespace DataAccessLayer.Migrations
                     Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false),
                     Actors = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -235,7 +233,8 @@ namespace DataAccessLayer.Migrations
                 columns: table => new
                 {
                     FilmId = table.Column<int>(type: "int", nullable: false),
-                    VoiceoverId = table.Column<int>(type: "int", nullable: false)
+                    VoiceoverId = table.Column<int>(type: "int", nullable: false),
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

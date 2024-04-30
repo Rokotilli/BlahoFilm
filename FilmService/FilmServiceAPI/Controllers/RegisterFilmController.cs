@@ -1,5 +1,7 @@
-﻿using BusinessLogicLayer.Interfaces;
+﻿using Azure.Storage.Sas;
+using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
+using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,29 +14,26 @@ namespace FilmServiceAPI.Controllers
     {
         private readonly IGetSaSService _getSaSService;
         private readonly IFilmService _filmService;
-        private readonly IUploadedFilmService _uploadedFilmService;
-        private readonly IConfiguration _configuration;
+        private readonly IUploadedVoiceoverService _uploadedVoiceoverService;
 
         public RegisterFilmController(
             IGetSaSService getSaSService,
-            IConfiguration configuration,
             IFilmService filmService,
-            IUploadedFilmService uploadedFilmService)
+            IUploadedVoiceoverService uploadedFilmService)
         {
             _getSaSService = getSaSService;
-            _configuration = configuration;
             _filmService = filmService;
-            _uploadedFilmService = uploadedFilmService;
+            _uploadedVoiceoverService = uploadedFilmService;
         }
 
         [HttpGet("getsas")]
         public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
-            var result = await _getSaSService.GetSaS(_configuration, _configuration["AzureStorageContainerName"], blobName);
+            var result = await _getSaSService.GetSaS(blobName, BlobSasPermissions.Write);
 
             if (result != null)
             {
-                return Ok(result);
+                return Ok();
             }
 
             return BadRequest("Can't get a SaS");
@@ -53,10 +52,10 @@ namespace FilmServiceAPI.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost("uploadedfilm")]
-        public async Task<IActionResult> UploadedFilm(FilmUploadedModel filmUploadedModel)
+        [HttpPost("uploadedvoiceover")]
+        public async Task<IActionResult> UploadedVoiceover(VoiceoversFilm uploadedVoiceover)
         {
-            var result = await _uploadedFilmService.UploadedFilm(filmUploadedModel);
+            var result = await _uploadedVoiceoverService.UploadedVoiceover(uploadedVoiceover);
 
             if (result == null)
             {

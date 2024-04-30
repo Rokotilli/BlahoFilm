@@ -115,12 +115,6 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileUri")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<byte[]>("Poster")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
@@ -296,6 +290,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("VoiceoverId")
                         .HasColumnType("int");
 
+                    b.Property<string>("FileUri")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("FilmId", "VoiceoverId");
 
                     b.HasIndex("VoiceoverId");
@@ -451,7 +448,7 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.HasOne("DataAccessLayer.Entities.Voiceover", "Voiceover")
-                        .WithMany("Voices")
+                        .WithMany("VoiceoversFilms")
                         .HasForeignKey("VoiceoverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -509,7 +506,7 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.Voiceover", b =>
                 {
-                    b.Navigation("Voices");
+                    b.Navigation("VoiceoversFilms");
                 });
 #pragma warning restore 612, 618
         }

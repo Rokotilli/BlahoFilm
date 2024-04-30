@@ -2,6 +2,7 @@
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
+using DataAccessLayer.Interfaces;
 using MassTransit;
 using MassTransit.Initializers;
 using MassTransit.Testing;
@@ -34,7 +35,7 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                byte[] posterBytes = null;
+                byte[] posterBytes;
                 var genres = filmRegisterModel.Genres.Split(",");
                 var tags = filmRegisterModel.Tags.Split(",");
                 var studios = filmRegisterModel.Studios.Split(",");
@@ -70,109 +71,24 @@ namespace BusinessLogicLayer.Services
                 if (film != null)
                 {
                     return "This film is already exist!";
-                }                
-
-                var existingGenres = _dbContext.Genres
-                    .Select(g => g.Name)
-                    .ToArray();
-
-                var existingTags = _dbContext.Tags
-                    .Select(t => t.Name)
-                    .ToArray();
-
-                var existingStudios = _dbContext.Studios
-                    .Select(t => t.Name)
-                    .ToArray();
-
-                var existingVoiceovers = _dbContext.Voiceovers
-                    .Select(t => t.Name)
-                    .ToArray();
-
-                var missingGenres = genres
-                    .Except(existingGenres)
-                    .ToArray();
-
-                var missingTags = tags
-                    .Except(existingTags)
-                    .ToArray();
-
-                var missingStudios = studios
-                    .Except(existingStudios)
-                    .ToArray();
-
-                var missingVoiceovers = voiceovers
-                    .Except(existingVoiceovers)
-                    .ToArray();
-
-                foreach (var item in missingGenres)
-                {
-                    var newGenre = new Genre { Name = item };
-                    _dbContext.Genres.Add(newGenre);
                 }
 
-                foreach (var item in missingTags)
-                {
-                    var newTag = new Tag { Name = item };
-                    _dbContext.Tags.Add(newTag);
-                }
+                await AddMissingEntitiesAsync<Genre>(genres);
+                await AddMissingEntitiesAsync<Tag>(tags);
+                await AddMissingEntitiesAsync<Studio>(studios);
+                await AddMissingEntitiesAsync<Voiceover>(voiceovers);
 
-                foreach (var item in missingStudios)
-                {
-                    var newStudio = new Studio { Name = item };
-                    _dbContext.Studios.Add(newStudio);
-                }
+                var newFilm = _dbContext.Films.Add(model);
+                await _dbContext.SaveChangesAsync();
 
-                foreach (var item in missingVoiceovers)
-                {
-                    var newVoiceover = new Voiceover { Name = item };
-                    _dbContext.Voiceovers.Add(newVoiceover);
-                }
-
-                _dbContext.Films.Add(model);
+                await AddEntityForManyToMany<Genre, GenresFilm>(newFilm.Entity.Id, genres);
+                await AddEntityForManyToMany<Tag, TagsFilm>(newFilm.Entity.Id, tags);
+                await AddEntityForManyToMany<Studio, StudiosFilm>(newFilm.Entity.Id, studios);
+                await AddEntityForManyToMany<Voiceover, VoiceoversFilm>(newFilm.Entity.Id, voiceovers);
 
                 await _dbContext.SaveChangesAsync();
 
-                var filmid = _dbContext.Films
-                    .Where(f => f.Title == model.Title
-                        && f.Description == model.Description
-                        && f.Duration == model.Duration
-                        && f.Year == model.Year
-                        && f.Director == model.Director
-                        && f.Actors == model.Actors)
-                    .Select(f => f.Id)
-                    .First();
-
-                foreach (var item in genres)
-                {
-                    var genre = await _dbContext.Genres.FirstOrDefaultAsync(g => g.Name == item);
-
-                    _dbContext.GenresFilms.Add(new GenresFilm() { FilmId = filmid, GenreId = genre.Id});
-                }
-
-                foreach (var item in tags)
-                {
-                    var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Name == item);
-
-                    _dbContext.TagsFilms.Add(new TagsFilm() { FilmId = filmid, TagId = tag.Id });
-                }
-
-                foreach (var item in studios)
-                {
-                    var studio = await _dbContext.Studios.FirstOrDefaultAsync(t => t.Name == item);
-
-                    _dbContext.StudiosFilms.Add(new StudiosFilm() { FilmId = filmid, StudioId = studio.Id });
-                }
-
-                foreach (var item in voiceovers)
-                {
-                    var voiceover = await _dbContext.Voiceovers.FirstOrDefaultAsync(t => t.Name == item);
-
-                    _dbContext.VoiceoversFilms.Add(new VoiceoversFilm() { FilmId = filmid, VoiceoverId = voiceover.Id });
-                }
-
-                await _dbContext.SaveChangesAsync();
-
-                await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = filmid, MediaType = MediaTypes.Film });
+                await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = newFilm.Entity.Id, MediaType = MediaTypes.Film });
 
                 return null;
             }
@@ -199,8 +115,6 @@ namespace BusinessLogicLayer.Services
                     Rating = f.Rating,
                     Actors = f.Actors,
                     TrailerUri = f.TrailerUri,
-                    FileName = f.FileName,
-                    FileUri = f.FileUri,
                     Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                     Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
                     Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
@@ -261,6 +175,32 @@ namespace BusinessLogicLayer.Services
             }
 
             return Math.Ceiling((double)count / pageSize);
+        }
+
+        private async Task AddMissingEntitiesAsync<TEntity>(string[] items)
+            where TEntity : class, IEntityWithName, new()
+        {
+            foreach (var item in items)
+            {
+                if (!_dbContext.Set<TEntity>().Any(e => e.Name == item))
+                {
+                    var newEntity = new TEntity { Name = item };
+                    _dbContext.Set<TEntity>().Add(newEntity);
+                }
+            }
+            await _dbContext.SaveChangesAsync();
+        }
+
+        private async Task AddEntityForManyToMany<TEntity, TEntityMapping>(int filmId, string[] items)
+            where TEntity : class, IEntityWithName, new()
+            where TEntityMapping : class, IEntityManyToMany, new()
+        {
+            foreach (var item in items)
+            {
+                var entityId = await _dbContext.Set<TEntity>().FirstOrDefaultAsync(e => e.Name == item).Select(e => e.Id);
+                _dbContext.Set<TEntityMapping>().Add(new TEntityMapping { FilmId = filmId, EntityId = entityId });
+            }
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

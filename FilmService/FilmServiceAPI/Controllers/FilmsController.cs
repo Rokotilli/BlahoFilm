@@ -1,4 +1,5 @@
-﻿using BusinessLogicLayer.Interfaces;
+﻿using Azure.Storage.Sas;
+using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Services;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
@@ -13,11 +14,13 @@ namespace FilmServiceAPI.Controllers
     {
         private readonly FilmServiceDbContext _dbContext;
         private readonly IFilmService _filmService;
+        private readonly IGetSaSService _getSaSService;
 
-        public FilmsController(FilmServiceDbContext filmServiceDbContext, IFilmService filmService)
+        public FilmsController(FilmServiceDbContext filmServiceDbContext, IFilmService filmService, IGetSaSService getSaSService)
         {
             _dbContext = filmServiceDbContext;
             _filmService = filmService;
+            _getSaSService = getSaSService;
         }
 
         [HttpGet]
@@ -38,8 +41,6 @@ namespace FilmServiceAPI.Controllers
                     Rating = f.Rating,
                     Actors = f.Actors,
                     TrailerUri = f.TrailerUri,
-                    FileName = f.FileName,
-                    FileUri = f.FileUri,
                     Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                     Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
                     Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
@@ -85,8 +86,6 @@ namespace FilmServiceAPI.Controllers
                 Rating = f.Rating,
                 Actors = f.Actors,
                 TrailerUri = f.TrailerUri,
-                FileName = f.FileName,
-                FileUri = f.FileUri,
                 Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                 Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
                 Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
@@ -118,8 +117,6 @@ namespace FilmServiceAPI.Controllers
                     Rating = f.Rating,
                     Actors = f.Actors,
                     TrailerUri = f.TrailerUri,
-                    FileName = f.FileName,
-                    FileUri = f.FileUri,
                     Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                     Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
                     Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
@@ -152,8 +149,6 @@ namespace FilmServiceAPI.Controllers
                     Rating = f.Rating,
                     Actors = f.Actors,
                     TrailerUri = f.TrailerUri,
-                    FileName = f.FileName,
-                    FileUri = f.FileUri,
                     Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                     Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
                     Studios = f.StudiosFilms.Select(tf => new Studio {Id = tf.StudioId, Name = tf.Studio.Name }),
@@ -193,6 +188,32 @@ namespace FilmServiceAPI.Controllers
             }
 
             return Ok(model);
+        }
+
+        [HttpGet("fileuri")]
+        public async Task<IActionResult> GetVoiceoverFileUri([FromQuery] int filmId, [FromQuery] int voiceoverId)
+        {
+            var model = await _dbContext.VoiceoversFilms.FirstOrDefaultAsync(vf => vf.FilmId == filmId && vf.VoiceoverId == voiceoverId);
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+
+        [HttpGet("getsas")]
+        public async Task<IActionResult> GetSaS([FromQuery] string blobName)
+        {
+            var result = await _getSaSService.GetSaS(blobName, BlobSasPermissions.Read);
+
+            if (result != null)
+            {
+                return Ok();
+            }
+
+            return BadRequest("Can't get a SaS");
         }
     }
 }
