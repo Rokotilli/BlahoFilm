@@ -1,5 +1,4 @@
 ﻿using BusinessLogicLayer.Interfaces;
-using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,9 +36,9 @@ namespace TransactionServiceAPI.Controllers
 
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
-        public async Task<IActionResult> CreateFundraising(FundraisingModel fundraisingModel)
+        public async Task<IActionResult> CreateFundraising([FromQuery] string fundraisingUrl)
         {
-            var result = await _fundraisingService.CreateFundraising(fundraisingModel);
+            var result = await _fundraisingService.CreateFundraising(fundraisingUrl);
 
             if (result != null)
             {
@@ -51,9 +50,9 @@ namespace TransactionServiceAPI.Controllers
 
         [Authorize(Roles = "ADMIN")]
         [HttpPut]
-        public async Task<IActionResult> ChangeFundraising([FromQuery] int fundraisingId, FundraisingModel fundraisingModel)
+        public async Task<IActionResult> ChangeStatusFundraising([FromQuery] int fundraisingId)
         {
-            var result = await _fundraisingService.ChangeFundraising(fundraisingId, fundraisingModel);
+            var result = await _fundraisingService.ChangeStatus(fundraisingId);
 
             if (result != null)
             {

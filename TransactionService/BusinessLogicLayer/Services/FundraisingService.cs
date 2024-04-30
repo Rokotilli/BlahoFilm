@@ -1,5 +1,4 @@
 ﻿using BusinessLogicLayer.Interfaces;
-using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 
@@ -14,15 +13,13 @@ namespace BusinessLogicLayer.Services
             _dbContext = transactionServiceDbContext;
         }
 
-        public async Task<string> CreateFundraising(FundraisingModel fundraisingModel)
+        public async Task<string> CreateFundraising(string fundraisingUrl)
         {
             try
             {
                 var model = new Fundraising()
                 {
-                    Title = fundraisingModel.Title,
-                    Description = fundraisingModel.Description,
-                    Total = fundraisingModel.TotalAmount
+                    FundraisingUrl = fundraisingUrl
                 };
 
                 _dbContext.Fundraisings.Add(model);
@@ -36,7 +33,7 @@ namespace BusinessLogicLayer.Services
             }
         }
 
-        public async Task<string> ChangeFundraising(int fundraisingId, FundraisingModel fundraisingModel)
+        public async Task<string> ChangeStatus(int fundraisingId)
         {
             try
             {
@@ -47,9 +44,7 @@ namespace BusinessLogicLayer.Services
                     return "Fundraising was not found!";
                 }
 
-                model.Title = fundraisingModel.Title;
-                model.Description = fundraisingModel.Description;
-                model.Total = fundraisingModel.TotalAmount;
+                model.IsClosed = !model.IsClosed;
 
                 await _dbContext.SaveChangesAsync();
 
