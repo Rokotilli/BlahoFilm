@@ -215,5 +215,57 @@ namespace FilmServiceAPI.Controllers
 
             return BadRequest("Can't get a SaS");
         }
+
+        [HttpGet("genres")]
+        public async Task<IActionResult> GetAllGenres()
+        {
+            var model = await _dbContext.Genres.ToArrayAsync();
+
+            if (!model.Any())
+            { 
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+
+        [HttpGet("tags")]
+        public async Task<IActionResult> GetAllTags()
+        {
+            var model = await _dbContext.Tags.ToArrayAsync();
+
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+
+        [HttpGet("voiceovers")]
+        public async Task<IActionResult> GetAllVoiceovers()
+        {
+            var model = await _dbContext.Voiceovers.ToArrayAsync();
+
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+
+        [HttpGet("studios")]
+        public async Task<IActionResult> GetAllStudios()
+        {
+            var model = await _dbContext.Studios.ToArrayAsync();
+
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
     }
 }

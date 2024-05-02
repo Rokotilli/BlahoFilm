@@ -53,9 +53,9 @@ namespace BusinessLogicLayer.Services
 
                 return null;
             }
-            catch (Exception ex)
+            catch
             {
-                return ex.ToString();
+                return "Rating film failed!";
             }
         }
     }

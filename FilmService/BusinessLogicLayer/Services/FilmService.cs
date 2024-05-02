@@ -94,7 +94,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return ex.ToString();
+                return "Adding film failed!";
             }
         }
 

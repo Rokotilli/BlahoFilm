@@ -31,9 +31,9 @@ namespace BusinessLogicLayer.Services
 
                 return null;
             }
-            catch (Exception ex)
+            catch
             {
-                return ex.ToString();
+                return "Adding comment failed!";
             }
         }
 
@@ -59,9 +59,9 @@ namespace BusinessLogicLayer.Services
 
                 return "Your comment by inputed id, not found!";
             }
-            catch (Exception ex)
+            catch
             {
-                return ex.ToString();
+                return "Deleting comment failed!";
             }
         }
 
@@ -83,9 +83,9 @@ namespace BusinessLogicLayer.Services
 
                 return "Your comment by inputed id, not found!";
             }
-            catch (Exception ex)
+            catch
             {
-                return ex.ToString();
+                return "Changing comment failed!";
             }
         }
 
@@ -112,9 +112,9 @@ namespace BusinessLogicLayer.Services
                 await _dbContext.SaveChangesAsync();
                 return null;
             }
-            catch (Exception ex)
+            catch
             {
-                return ex.ToString();
+                return "Adding or removing like failed!";
             }
         }
 
@@ -141,9 +141,9 @@ namespace BusinessLogicLayer.Services
                 await _dbContext.SaveChangesAsync();
                 return null;
             }
-            catch (Exception ex)
+            catch
             {
-                return ex.ToString();
+                return "Adding or removing dislike failed!";
             }
         }
     }
