@@ -77,7 +77,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return new RegisterResponse { Exception = ex.ToString() };
+                return new RegisterResponse { Exception = "Adding user failed!" };
             }
 
             string getUniqueUserName()
@@ -130,7 +130,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return new AuthResponse() { Exception = ex.ToString() };
+                return new AuthResponse() { Exception = "Authentication user failed!" };
             }
         }
 
@@ -174,7 +174,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return new AuthResponse() { Exception = ex.ToString() };
+                return new AuthResponse() { Exception = "Refreshing JWT failed!" };
             }
         }
 

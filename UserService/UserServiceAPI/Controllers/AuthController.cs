@@ -9,7 +9,6 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using BusinessLogicLayer.Models.Enums;
-using MassTransit.Initializers;
 
 namespace UserServiceAPI.Controllers
 {
@@ -83,7 +82,7 @@ namespace UserServiceAPI.Controllers
 
             if (user.PasswordHash == null)
             {
-                return BadRequest("User is registered through a remote provider");
+                return BadRequest("User is registered through a remote provider!");
             }
 
             if (!BCrypt.Net.BCrypt.Verify(userModel.Password, user.PasswordHash))

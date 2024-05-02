@@ -47,7 +47,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return ex.ToString();
+                return "Adding or removing bookmark failed!";
             }
         }
     }

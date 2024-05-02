@@ -48,7 +48,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.ToString());
+                throw new Exception("Sending email failed!");
             }
         }
     }

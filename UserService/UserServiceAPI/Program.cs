@@ -21,8 +21,8 @@ builder.Services.AddHttpClient("google", opt =>
 
 builder.Services.AddStackExchangeRedisCache(opt =>
 {
-    opt.Configuration = "localhost:6379";
-    opt.InstanceName = "userservice";
+    opt.Configuration = builder.Configuration["Redis:Host"];
+    opt.InstanceName = builder.Configuration["Redis:InstanceName"];
 });
 
 builder.Services.AddDataProtection(opt =>

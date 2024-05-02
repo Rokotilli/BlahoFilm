@@ -42,7 +42,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return ex.ToString();
+                return "Changing avatar failed!";
             }
         }
 
@@ -62,7 +62,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return ex.ToString();
+                return "Changing total time failed!";
             }
         }
 
@@ -87,7 +87,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return ex.ToString();
+                return "Changing username failed!";
             }
         }
     }
