@@ -3,6 +3,7 @@ using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Models.AdditionalModels;
 using BusinessLogicLayer.Models.Enums;
 using DataAccessLayer.Context;
+using DataAccessLayer.Entities;
 using MassTransit.Initializers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -46,7 +47,17 @@ namespace UserServiceAPI.Controllers
         [HttpGet("byid")]
         public async Task<IActionResult> GetUserById([FromQuery] string id)
         {
-            var model = _dbContext.Users.FirstOrDefault(u => u.Id == id);
+            var model = await _dbContext.Users.Select(u => new
+            {
+                Id = u.Id,
+                UserName = u.UserName,
+                Email = u.Email,
+                EmailConfirmed = u.EmailConfirmed,
+                Avatar = u.Avatar,
+                TotalTime = u.TotalTime,
+                RegisterDate = u.RegisterDate,
+                Roles = u.UserRoles.Select(ur => new Role { Id = ur.RoleId, Name = ur.Role.Name})
+            }).FirstOrDefaultAsync(u => u.Id == id);
 
             if (model == null)
             {
@@ -61,7 +72,17 @@ namespace UserServiceAPI.Controllers
         {
             var model = _dbContext.Users
                 .Where(u => ids
-                .Contains(u.Id))
+                .Contains(u.Id)).Select(u => new
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    EmailConfirmed = u.EmailConfirmed,
+                    Avatar = u.Avatar,
+                    TotalTime = u.TotalTime,
+                    RegisterDate = u.RegisterDate,
+                    Roles = u.UserRoles.Select(ur => new Role { Id = ur.RoleId, Name = ur.Role.Name })
+                })
                 .ToArray();
 
             if (!model.Any())
@@ -80,6 +101,11 @@ namespace UserServiceAPI.Controllers
             if (user == null)
             {
                 return NotFound("User not found!");
+            }
+
+            if (user.ExternalId != null)
+            {
+                return BadRequest("Account is managed by Google!");
             }
 
             var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
@@ -197,6 +223,11 @@ namespace UserServiceAPI.Controllers
             }
 
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user.ExternalId != null)
+            {
+                return BadRequest("Account is managed by Google!");
+            }
 
             if (!BCrypt.Net.BCrypt.Verify(userModel.Password, user.PasswordHash))
             {
