@@ -2,7 +2,7 @@
 
 namespace BusinessLogicLayer.Interfaces
 {
-    public interface ITransactionService
+    public interface ISubscriptionService
     {
         Task<string> AddSubscription(SubscriptionModel subscriptionModel, string userId);
         Task<string> ChangeStatusSubscription(string userId, string reason);

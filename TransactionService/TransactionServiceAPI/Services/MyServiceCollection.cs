@@ -8,7 +8,7 @@ namespace TransactionServiceAPI.Services
         public static IServiceCollection AddMyServices(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IFundraisingService, FundraisingService>();
-            serviceCollection.AddScoped<ITransactionService, TransactionService>();
+            serviceCollection.AddScoped<ISubscriptionService, SubscriptionService>();
             serviceCollection.AddHostedService<SubscriptionBackgroundService>();
 
             return serviceCollection;

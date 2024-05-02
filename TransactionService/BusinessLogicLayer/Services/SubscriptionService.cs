@@ -14,14 +14,14 @@ using System.Text.Json.Nodes;
 
 namespace BusinessLogicLayer.Services
 {
-    public class TransactionService : ITransactionService
+    public class SubscriptionService : ISubscriptionService
     {
         private readonly TransactionServiceDbContext _dbContext;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
         private readonly IPublishEndpoint _publishEndpoint;
 
-        public TransactionService(TransactionServiceDbContext transactionServiceDbContext, IConfiguration configuration, IHttpClientFactory httpClientFactory, IPublishEndpoint publishEndpoint)
+        public SubscriptionService(TransactionServiceDbContext transactionServiceDbContext, IConfiguration configuration, IHttpClientFactory httpClientFactory, IPublishEndpoint publishEndpoint)
         {
             _dbContext = transactionServiceDbContext;
             _configuration = configuration;
@@ -33,6 +33,13 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
+                var existSubscription = await _dbContext.Subscriptions.FirstOrDefaultAsync(s => s.UserId == userId);
+
+                if (existSubscription != null)
+                {
+                    return "You already have a subscription!";
+                }
+
                 var accessToken = await GetPayPalAccessToken();
 
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -77,9 +84,9 @@ namespace BusinessLogicLayer.Services
 
                 return response.ReasonPhrase;
             }
-            catch (Exception ex)
-            { 
-                return ex.ToString();
+            catch
+            {
+                return "Adding subscription failed!";
             }
         }
 
@@ -95,9 +102,18 @@ namespace BusinessLogicLayer.Services
                 }                
 
                 string url = $"v1/billing/subscriptions/{model.Id}/";
-                url += model.IsActive ? "suspend" : "activate";                
+                url += model.IsActive ? "suspend" : "activate";
 
-                var response = await SendHttpRequest(url, reason);
+                var accessToken = await GetPayPalAccessToken();
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Content = new StringContent("{\"reason\": \"" + reason + "\"}", Encoding.UTF8, "application/json")
+                };
+
+                var response = await _httpClient.SendAsync(httpRequest);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -112,22 +128,8 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return ex.ToString();
+                return "Changing subscription status failed!";
             }
-        }
-
-        private async Task<HttpResponseMessage> SendHttpRequest(string url, string reason)
-        {
-            var accessToken = await GetPayPalAccessToken();
-
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
-            {
-                Content = new StringContent("{\"reason\": \"" + reason + "\"}", Encoding.UTF8, "application/json")
-            };
-
-            return await _httpClient.SendAsync(httpRequest);
         }
 
         private async Task<string> GetPayPalAccessToken()

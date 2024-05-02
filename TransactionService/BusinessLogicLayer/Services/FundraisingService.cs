@@ -29,7 +29,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return ex.ToString();
+                return "Creating fundrsising failed!";
             }
         }
 
@@ -52,7 +52,7 @@ namespace BusinessLogicLayer.Services
             }
             catch (Exception ex)
             {
-                return ex.ToString();
+                return "Changing fundraising status failed!";
             }
         }
     }
