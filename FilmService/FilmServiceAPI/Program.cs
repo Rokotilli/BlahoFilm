@@ -10,6 +10,14 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddAzureAppConfiguration(config =>
+    {
+        config.Connect(builder.Configuration["ConnectionStrings:AzureAppConfiguration"]);
+    });
+}
+
 builder.Services.AddControllers();
 
 builder.Services.AddMyServices();
@@ -21,14 +29,15 @@ builder.Services.AddDataProtection(opt =>
 
 builder.Services.AddDbContext<FilmServiceDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("FilmServiceSqlServer"));
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:FilmServiceSqlServer"]);
 });
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin", opt =>
     {
-        opt.WithOrigins(builder.Configuration.GetSection("Security:AllowedOrigins").Get<string[]>())
+        var origins = builder.Configuration["AllowedOrigins"].Split(",");
+        opt.WithOrigins(origins)
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();
