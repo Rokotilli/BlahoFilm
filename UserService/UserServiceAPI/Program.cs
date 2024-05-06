@@ -10,6 +10,14 @@ using UserServiceAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddAzureAppConfiguration(config =>
+    {
+        config.Connect(builder.Configuration["ConnectionStrings:AzureAppConfiguration"]);
+    });
+}
+
 builder.Services.AddControllers();
 
 builder.Services.AddMyServices();
@@ -34,7 +42,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin", opt =>
     {
-        opt.WithOrigins(builder.Configuration.GetSection("Security:AllowedOrigins").Get<string[]>())
+        var origins = builder.Configuration["AllowedOrigins"].Split(",");
+        opt.WithOrigins(origins)
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();
@@ -43,7 +52,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<UserServiceDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("UserServiceSqlServer"));
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:UserServiceSqlServer"]);
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
