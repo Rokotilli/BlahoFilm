@@ -10,6 +10,14 @@ using TransactionServiceAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddAzureAppConfiguration(config =>
+    {
+        config.Connect(builder.Configuration["ConnectionStrings:AzureAppConfiguration"]);
+    });
+}
+
 builder.Services.AddControllers();
 
 builder.Services.AddMyServices();
@@ -26,14 +34,15 @@ builder.Services.AddDataProtection(opt =>
 
 builder.Services.AddDbContext<TransactionServiceDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("TransactionServiceSqlServer"));
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:TransactionServiceSqlServer"]);
 });
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin", opt =>
     {
-        opt.WithOrigins(builder.Configuration.GetSection("Security:AllowedOrigins").Get<string[]>())
+        var origins = builder.Configuration["AllowedOrigins"].Split(",");
+        opt.WithOrigins(origins)
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();
@@ -83,7 +92,7 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<UserReceivedConsumer>();
     x.UsingRabbitMq((cxt, cfg) =>
     {
-        cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
+        cfg.Host(builder.Configuration["RabbitMqHost"], "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
