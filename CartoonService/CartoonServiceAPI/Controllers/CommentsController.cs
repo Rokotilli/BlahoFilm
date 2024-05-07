@@ -32,7 +32,7 @@ namespace CartoonServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet]
+        [HttpGet("forpart")]
         public async Task<IActionResult> GetCommentsForCartoonPart([FromQuery] int cartoonPartId)
         {
             var model = _dbContext.Comments.Where(c => c.CartoonPartId == cartoonPartId).ToArray();
@@ -59,7 +59,7 @@ namespace CartoonServiceAPI.Controllers
 
             return Ok();
         }
-        [HttpPost]
+        [HttpPost("forpart")]
         [Authorize]
         public async Task<IActionResult> AddCommentForCartoonPart(CommentAddModel commentAddModel)
         {
