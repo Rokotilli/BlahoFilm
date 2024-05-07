@@ -31,21 +31,6 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok(model);
         }
-
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> AddCommentForSeries(CommentAddModel commentAddModel)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _commentService.AddComment(commentAddModel, userId);
-
-            if (result != null)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok();
-        }
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> AddCommentForSeriesPart(CommentAddModel commentAddModel)
