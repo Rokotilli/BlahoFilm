@@ -40,7 +40,32 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok(model);
         }
+        [HttpGet("byseriesid")]
+        public async Task<IActionResult> GetPaggedSeriesPartsBySeriesId([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int seriesId)
+        {
+            var model = _dbContext.SeriesParts
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize).Where(sp => sp.SeriesId == seriesId)
+                .Select(sp => new
+                {
+                    Id = sp.Id,
+                    SeriesId = sp.SeriesId,
+                    SeasonNumber = sp.SeasonNumber,
+                    PartNumber = sp.PartNumber,
+                    Duration = sp.Duration,
+                    FileName = sp.FileName,
+                    FileUri = sp.FileUri,
+                    Series = sp.Series.Title,
+                })
+                .ToArray();
 
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
         [HttpGet("countpages")]
         public async Task<IActionResult> GetCountPagesSeriesParts([FromQuery] int pageSize)
         {
