@@ -6,6 +6,9 @@ namespace BusinessLogicLayer.Models
     public class FilmRegisterModel
     {
         public IFormFile Poster { get; set; }
+        public IFormFile? PosterPartOne { get; set; }
+        public IFormFile? PosterPartTwo { get; set; }
+        public IFormFile? PosterPartThree { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
 

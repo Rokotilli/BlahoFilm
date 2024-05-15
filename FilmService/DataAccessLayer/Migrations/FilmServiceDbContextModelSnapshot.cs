@@ -120,6 +120,15 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<byte[]>("PosterPartOne")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PosterPartThree")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PosterPartTwo")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<double>("Rating")
                         .HasColumnType("float");
 

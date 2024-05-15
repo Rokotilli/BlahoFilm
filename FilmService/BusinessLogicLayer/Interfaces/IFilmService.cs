@@ -6,7 +6,7 @@ namespace BusinessLogicLayer.Interfaces
     public interface IFilmService
     {
         Task<string> RegisterFilm(FilmRegisterModel filmRegisterModel);
-        List<ReturnFilms> GetFilmsByFilter(string[] items, string filter, int pageNumber, int pageSize);
-        double GetCountPagesFilmsByFilter(string[] items, string filter, int pageSize);
+        List<ReturnFilms> GetFilmsByFilter(Dictionary<string, string[]> filters, int pageNumber, int pageSize);
+        double GetCountPagesFilmsByFilter(Dictionary<string, string[]> filters, int pageSize);
     }
 }

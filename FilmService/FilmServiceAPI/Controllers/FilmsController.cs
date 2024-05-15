@@ -33,6 +33,9 @@ namespace FilmServiceAPI.Controllers
                 {
                     Id = f.Id,
                     Poster = f.Poster,
+                    PosterPartOne = f.PosterPartOne,
+                    PosterPartTwo = f.PosterPartTwo,
+                    PosterPartThree = f.PosterPartThree,
                     Title = f.Title,
                     Description = f.Description,
                     Duration = f.Duration,
@@ -78,6 +81,9 @@ namespace FilmServiceAPI.Controllers
             {
                 Id = f.Id,
                 Poster = f.Poster,
+                PosterPartOne = f.PosterPartOne,
+                PosterPartTwo = f.PosterPartTwo,
+                PosterPartThree = f.PosterPartThree,
                 Title = f.Title,
                 Description = f.Description,
                 Duration = f.Duration,
@@ -109,6 +115,9 @@ namespace FilmServiceAPI.Controllers
                 {
                     Id = f.Id,
                     Poster = f.Poster,
+                    PosterPartOne = f.PosterPartOne,
+                    PosterPartTwo = f.PosterPartTwo,
+                    PosterPartThree = f.PosterPartThree,
                     Title = f.Title,
                     Description = f.Description,
                     Duration = f.Duration,
@@ -141,6 +150,9 @@ namespace FilmServiceAPI.Controllers
                 {
                     Id = f.Id,
                     Poster = f.Poster,
+                    PosterPartOne = f.PosterPartOne,
+                    PosterPartTwo = f.PosterPartTwo,
+                    PosterPartThree = f.PosterPartThree,
                     Title = f.Title,
                     Description = f.Description,
                     Duration = f.Duration,
@@ -164,10 +176,10 @@ namespace FilmServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("byfilter")]
-        public async Task<IActionResult> GetPaggedFilmsByFilter([FromBody] string[] items, [FromQuery] string filter, [FromQuery] int pageNumber, [FromQuery] int pageSize)
-        {            
-            var model = _filmService.GetFilmsByFilter(items, filter, pageNumber, pageSize);
+        [HttpGet("byfilters")]
+        public async Task<IActionResult> GetPaggedFilmsByFilter([FromBody] Dictionary<string, string[]> filters, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            var model = _filmService.GetFilmsByFilter(filters, pageNumber, pageSize);
 
             if (model == null || !model.Any())
             {
@@ -177,10 +189,10 @@ namespace FilmServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("countpagesbyfilter")]
-        public async Task<IActionResult> GetCountPagesFilmsByGenres([FromBody] string[] items, [FromQuery] string filter, [FromQuery] int pageSize)
+        [HttpGet("countpagesbyfilters")]
+        public async Task<IActionResult> GetCountPagesFilmsByGenres([FromBody] Dictionary<string, string[]> filters, [FromQuery] int pageSize)
         {
-            var model = _filmService.GetCountPagesFilmsByFilter(items, filter, pageSize);
+            var model = _filmService.GetCountPagesFilmsByFilter(filters, pageSize);
 
             if (model == 0)
             {

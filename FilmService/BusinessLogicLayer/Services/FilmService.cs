@@ -35,7 +35,10 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                byte[] posterBytes;
+                byte[] posterBytes = null;
+                byte[] posterPartOneBytes = null;
+                byte[] posterPartTwoBytes = null;
+                byte[] posterPartThreeBytes = null;
                 var genres = filmRegisterModel.Genres.Split(",");
                 var tags = filmRegisterModel.Tags.Split(",");
                 var studios = filmRegisterModel.Studios.Split(",");
@@ -45,11 +48,23 @@ namespace BusinessLogicLayer.Services
                 {
                     await filmRegisterModel.Poster.CopyToAsync(stream);
                     posterBytes = stream.ToArray();
+                    if (filmRegisterModel.PosterPartOne != null && filmRegisterModel.PosterPartTwo != null && filmRegisterModel.PosterPartThree != null)
+                    {
+                        await filmRegisterModel.PosterPartOne.CopyToAsync(stream);
+                        posterPartOneBytes = stream.ToArray();
+                        await filmRegisterModel.PosterPartTwo.CopyToAsync(stream);
+                        posterPartTwoBytes = stream.ToArray();
+                        await filmRegisterModel.PosterPartThree.CopyToAsync(stream);
+                        posterPartThreeBytes = stream.ToArray();
+                    }                    
                 }
 
                 var model = new Film()
                 {
                     Poster = posterBytes,
+                    PosterPartOne = posterPartOneBytes,
+                    PosterPartTwo = posterPartTwoBytes,
+                    PosterPartThree = posterPartThreeBytes,
                     Title = filmRegisterModel.Title,
                     Description = filmRegisterModel.Description,
                     Duration = filmRegisterModel.Duration,    
@@ -98,15 +113,39 @@ namespace BusinessLogicLayer.Services
             }
         }
 
-        public List<ReturnFilms> GetFilmsByFilter(string[] items, string filter, int pageNumber, int pageSize)
+        public List<ReturnFilms> GetFilmsByFilter(Dictionary<string, string[]> filters, int pageNumber, int pageSize)
         {
-            var query = _dbContext.Films
+            var query = _dbContext.Films.AsQueryable();
+
+            foreach (var filter in filters)
+            {
+                switch (filter.Key)
+                {
+                    case "Genres":
+                        query = query.Where(f => filter.Value.All(g => f.GenresFilms.Any(gf => gf.Genre.Name == g)));
+                        break;
+                    case "Tags":
+                        query = query.Where(f => filter.Value.All(t => f.TagsFilms.Any(tf => tf.Tag.Name == t)));
+                        break;
+                    case "Studios":
+                        query = query.Where(f => filter.Value.All(s => f.StudiosFilms.Any(sf => sf.Studio.Name == s)));
+                        break;
+                    case "Voiceovers":
+                        query = query.Where(f => filter.Value.All(v => f.VoiceoversFilms.Any(vf => vf.Voiceover.Name == v)));
+                        break;
+                }
+            }
+
+            var result = query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(f => new ReturnFilms
                 {
                     Id = f.Id,
                     Poster = f.Poster,
+                    PosterPartOne = f.PosterPartOne,
+                    PosterPartTwo = f.PosterPartTwo,
+                    PosterPartThree = f.PosterPartThree,
                     Title = f.Title,
                     Description = f.Description,
                     Duration = f.Duration,
@@ -117,57 +156,37 @@ namespace BusinessLogicLayer.Services
                     TrailerUri = f.TrailerUri,
                     Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                     Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
-                    Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-                    Voiceovers = f.VoiceoversFilms.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
-                });
+                    Studios = f.StudiosFilms.Select(sf => new Studio { Id = sf.StudioId, Name = sf.Studio.Name }),
+                    Voiceovers = f.VoiceoversFilms.Select(vf => new Voiceover { Id = vf.VoiceoverId, Name = vf.Voiceover.Name }),
+                }).ToList();
 
-            if (filter == "Genres")
-            {
-                return query.Where(f => items.All(g => f.Genres.Any(gf => gf.Name == g))).ToList();
-            }
-
-            if (filter == "Tags")
-            {
-                return query.Where(f => items.All(g => f.Tags.Any(gf => gf.Name == g))).ToList();
-            }
-
-            if (filter == "Studios")
-            {
-                return query.Where(f => items.All(g => f.Studios.Any(gf => gf.Name == g))).ToList();
-            }
-
-            if (filter == "Voiceovers")
-            {
-                return query.Where(f => items.All(g => f.Voiceovers.Any(gf => gf.Name == g))).ToList();
-            }
-
-            return null;
+            return result;
         }
 
-        public double GetCountPagesFilmsByFilter(string[] items, string filter, int pageSize)
+        public double GetCountPagesFilmsByFilter(Dictionary<string, string[]> filters, int pageSize)
         {
             var query = _dbContext.Films.AsQueryable();
-            double count = 0;
 
-            if (filter == "Genres")
+            foreach (var filter in filters)
             {
-                count = query.Where(f => items.All(g => f.GenresFilms.Any(gf => gf.Genre.Name == g))).Count();
+                switch (filter.Key)
+                {
+                    case "Genres":
+                        query = query.Where(f => filter.Value.All(g => f.GenresFilms.Any(gf => gf.Genre.Name == g)));
+                        break;
+                    case "Tags":
+                        query = query.Where(f => filter.Value.All(t => f.TagsFilms.Any(tf => tf.Tag.Name == t)));
+                        break;
+                    case "Studios":
+                        query = query.Where(f => filter.Value.All(s => f.StudiosFilms.Any(sf => sf.Studio.Name == s)));
+                        break;
+                    case "Voiceovers":
+                        query = query.Where(f => filter.Value.All(v => f.VoiceoversFilms.Any(vf => vf.Voiceover.Name == v)));
+                        break;
+                }
             }
 
-            if (filter == "Tags")
-            {
-                count = query.Where(f => items.All(g => f.TagsFilms.Any(gf => gf.Tag.Name == g))).Count();
-            }
-
-            if (filter == "Studios")
-            {
-                count = query.Where(f => items.All(g => f.StudiosFilms.Any(gf => gf.Studio.Name == g))).Count();
-            }
-
-            if (filter == "Voiceovers")
-            {
-                count = query.Where(f => items.All(g => f.VoiceoversFilms.Any(gf => gf.Voiceover.Name == g))).Count();
-            }
+            var count = query.Count();
 
             if (count == 0)
             {
