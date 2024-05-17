@@ -56,7 +56,7 @@ namespace BusinessLogicLayer.Services
                         {
                             item.IsExpired = true;
                             item.IsActive = false;
-                            await publishEndpoint.Publish(new PremiumReceivedMessage { UserId = item.UserId});
+                            await publishEndpoint.Publish(new PremiumRemovedMessage { UserId = item.UserId});
                         }
                         else
                         {
