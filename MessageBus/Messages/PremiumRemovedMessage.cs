@@ -1,6 +1,6 @@
 ﻿namespace MessageBus.Messages
 {
-    public class PremiumReceivedMessage : IntegrationBaseEvent
+    public class PremiumRemovedMessage : IntegrationBaseEvent
     {
         public string UserId { get; set; }
     }

@@ -6,16 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace UserServiceAPI.Consumers
 {
-    public class PremiumReceivedConsumer : IConsumer<PremiumReceivedMessage>
+    public class PremiumRemovedConsumer : IConsumer<PremiumRemovedMessage>
     {
         private readonly UserServiceDbContext _dbContext;
 
-        public PremiumReceivedConsumer(UserServiceDbContext userServiceDbContext)
+        public PremiumRemovedConsumer(UserServiceDbContext userServiceDbContext)
         {
             _dbContext = userServiceDbContext;
         }
 
-        public async Task Consume(ConsumeContext<PremiumReceivedMessage> consumeContext)
+        public async Task Consume(ConsumeContext<PremiumRemovedMessage> consumeContext)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == consumeContext.Message.UserId);
 
@@ -23,9 +23,9 @@ namespace UserServiceAPI.Consumers
             {
                 var existPremium = await _dbContext.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == user.Id && ur.RoleId == 2);
 
-                if (existPremium == null)
+                if (existPremium != null)
                 {
-                    await _dbContext.UserRoles.AddAsync(new UserRole { UserId = user.Id, RoleId = 2 });
+                    _dbContext.UserRoles.Remove(new UserRole { UserId = user.Id, RoleId = 2 });
                     await _dbContext.SaveChangesAsync();
                     return;
                 }
