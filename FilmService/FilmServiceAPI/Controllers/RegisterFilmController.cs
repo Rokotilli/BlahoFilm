@@ -1,7 +1,6 @@
 ﻿using Azure.Storage.Sas;
 using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
-using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,16 +13,16 @@ namespace FilmServiceAPI.Controllers
     {
         private readonly IGetSaSService _getSaSService;
         private readonly IFilmService _filmService;
-        private readonly IUploadedVoiceoverService _uploadedVoiceoverService;
+        private readonly IUploadedFilmService _uploadedFilmService;
 
         public RegisterFilmController(
             IGetSaSService getSaSService,
             IFilmService filmService,
-            IUploadedVoiceoverService uploadedFilmService)
+            IUploadedFilmService uploadedFilmService)
         {
             _getSaSService = getSaSService;
             _filmService = filmService;
-            _uploadedVoiceoverService = uploadedFilmService;
+            _uploadedFilmService = uploadedFilmService;
         }
 
         [HttpGet("getsas")]
@@ -52,10 +51,10 @@ namespace FilmServiceAPI.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost("uploadedvoiceover")]
-        public async Task<IActionResult> UploadedVoiceover(VoiceoversFilm uploadedVoiceover)
+        [HttpPost("uploadedfilm")]
+        public async Task<IActionResult> UploadedVoiceover(FilmUploadedModel uploadedVoiceover)
         {
-            var result = await _uploadedVoiceoverService.UploadedVoiceover(uploadedVoiceover);
+            var result = await _uploadedFilmService.UploadedFilm(uploadedVoiceover);
 
             if (result == null)
             {

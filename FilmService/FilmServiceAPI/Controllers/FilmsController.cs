@@ -47,7 +47,6 @@ namespace FilmServiceAPI.Controllers
                     Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                     Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
                     Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-                    Voiceovers = f.VoiceoversFilms.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
                 })
                 .ToArray();
 
@@ -95,7 +94,6 @@ namespace FilmServiceAPI.Controllers
                 Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                 Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
                 Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-                Voiceovers = f.VoiceoversFilms.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
             }).FirstOrDefault(f => f.Id == id);
 
             if (model == null)
@@ -129,7 +127,6 @@ namespace FilmServiceAPI.Controllers
                     Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                     Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
                     Studios = f.StudiosFilms.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-                    Voiceovers = f.VoiceoversFilms.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
                 })
                 .ToArray();
 
@@ -164,7 +161,6 @@ namespace FilmServiceAPI.Controllers
                     Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                     Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
                     Studios = f.StudiosFilms.Select(tf => new Studio {Id = tf.StudioId, Name = tf.Studio.Name }),
-                    Voiceovers = f.VoiceoversFilms.Select(tf => new Voiceover {Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
                 })
                 .ToArray();
 
@@ -202,19 +198,6 @@ namespace FilmServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("fileuri")]
-        public async Task<IActionResult> GetVoiceoverFileUri([FromQuery] int filmId, [FromQuery] int voiceoverId)
-        {
-            var model = await _dbContext.VoiceoversFilms.FirstOrDefaultAsync(vf => vf.FilmId == filmId && vf.VoiceoverId == voiceoverId);
-
-            if (model == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
         [HttpGet("getsas")]
         public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
@@ -245,19 +228,6 @@ namespace FilmServiceAPI.Controllers
         public async Task<IActionResult> GetAllTags()
         {
             var model = await _dbContext.Tags.ToArrayAsync();
-
-            if (!model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
-        [HttpGet("voiceovers")]
-        public async Task<IActionResult> GetAllVoiceovers()
-        {
-            var model = await _dbContext.Voiceovers.ToArrayAsync();
 
             if (!model.Any())
             {

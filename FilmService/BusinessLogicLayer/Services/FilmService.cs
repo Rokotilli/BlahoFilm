@@ -17,7 +17,6 @@ namespace BusinessLogicLayer.Services
         public IEnumerable<Genre> Genres { get; set; }
         public IEnumerable<Tag> Tags { get; set; }
         public IEnumerable<Studio> Studios { get; set; }
-        public IEnumerable<Voiceover> Voiceovers { get; set; }
     }
 
     public class FilmService : IFilmService
@@ -42,7 +41,6 @@ namespace BusinessLogicLayer.Services
                 var genres = filmRegisterModel.Genres.Split(",");
                 var tags = filmRegisterModel.Tags.Split(",");
                 var studios = filmRegisterModel.Studios.Split(",");
-                var voiceovers = filmRegisterModel.Voiceovers.Split(",");
 
                 using (var stream = new MemoryStream())
                 {
@@ -91,7 +89,6 @@ namespace BusinessLogicLayer.Services
                 await AddMissingEntitiesAsync<Genre>(genres);
                 await AddMissingEntitiesAsync<Tag>(tags);
                 await AddMissingEntitiesAsync<Studio>(studios);
-                await AddMissingEntitiesAsync<Voiceover>(voiceovers);
 
                 var newFilm = _dbContext.Films.Add(model);
                 await _dbContext.SaveChangesAsync();
@@ -99,7 +96,6 @@ namespace BusinessLogicLayer.Services
                 await AddEntityForManyToMany<Genre, GenresFilm>(newFilm.Entity.Id, genres);
                 await AddEntityForManyToMany<Tag, TagsFilm>(newFilm.Entity.Id, tags);
                 await AddEntityForManyToMany<Studio, StudiosFilm>(newFilm.Entity.Id, studios);
-                await AddEntityForManyToMany<Voiceover, VoiceoversFilm>(newFilm.Entity.Id, voiceovers);
 
                 await _dbContext.SaveChangesAsync();
 
@@ -130,9 +126,6 @@ namespace BusinessLogicLayer.Services
                     case "Studios":
                         query = query.Where(f => filter.Value.All(s => f.StudiosFilms.Any(sf => sf.Studio.Name == s)));
                         break;
-                    case "Voiceovers":
-                        query = query.Where(f => filter.Value.All(v => f.VoiceoversFilms.Any(vf => vf.Voiceover.Name == v)));
-                        break;
                 }
             }
 
@@ -157,7 +150,6 @@ namespace BusinessLogicLayer.Services
                     Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                     Tags = f.TagsFilms.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
                     Studios = f.StudiosFilms.Select(sf => new Studio { Id = sf.StudioId, Name = sf.Studio.Name }),
-                    Voiceovers = f.VoiceoversFilms.Select(vf => new Voiceover { Id = vf.VoiceoverId, Name = vf.Voiceover.Name }),
                 }).ToList();
 
             return result;
@@ -179,9 +171,6 @@ namespace BusinessLogicLayer.Services
                         break;
                     case "Studios":
                         query = query.Where(f => filter.Value.All(s => f.StudiosFilms.Any(sf => sf.Studio.Name == s)));
-                        break;
-                    case "Voiceovers":
-                        query = query.Where(f => filter.Value.All(v => f.VoiceoversFilms.Any(vf => vf.Voiceover.Name == v)));
                         break;
                 }
             }

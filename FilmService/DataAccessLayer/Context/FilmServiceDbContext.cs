@@ -19,8 +19,6 @@ namespace DataAccessLayer.Context
         public DbSet<Rating> Rating { get; set; }
         public DbSet<Studio> Studios { get; set; }
         public DbSet<StudiosFilm> StudiosFilms { get; set; }
-        public DbSet<Voiceover> Voiceovers { get; set; }
-        public DbSet<VoiceoversFilm> VoiceoversFilms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

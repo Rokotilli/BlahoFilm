@@ -9,7 +9,7 @@ namespace FilmServiceAPI.Services
         {
             serviceCollection.AddScoped<IGetSaSService, GetSaSService>();
             serviceCollection.AddScoped<IFilmService, FilmService>();
-            serviceCollection.AddScoped<IUploadedVoiceoverService, UploadedVoiceoverService>();
+            serviceCollection.AddScoped<IUploadedFilmService, UploadedFilmService>();
             serviceCollection.AddScoped<ICommentService, CommentService>();
             serviceCollection.AddScoped<IRatingService, RatingService>();
 

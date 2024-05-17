@@ -18,7 +18,7 @@ namespace BusinessLogicLayer.Services
         public async Task<string> GetSaS(string blobName, BlobSasPermissions permission)
         {
             var connectionString = _configuration["AzureStorageConnectionString"];
-            var containerName = _configuration["AzureStorageContainerName"];
+            var containerName = _configuration["AzureStorageFilmsContainerName"];
             var accountName = _configuration["AzureStorageAccountName"];
             var accountKey = _configuration["AzureStorageAccountKey"];
 
