@@ -62,6 +62,18 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<byte[]>("PosterPartOne")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PosterPartThree")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PosterPartTwo")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<double>("Rating")
                         .HasColumnType("float");
 
@@ -261,16 +273,11 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AnimeId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AnimeId");
 
                     b.ToTable("Studios");
                 });
@@ -330,43 +337,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.Voiceover", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AnimeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AnimeId");
-
-                    b.ToTable("Voiceovers");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.VoiceoversAnime", b =>
-                {
-                    b.Property<int>("AnimeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VoiceoverId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AnimeId", "VoiceoverId");
-
-                    b.HasIndex("VoiceoverId");
-
-                    b.ToTable("VoiceoversAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.AnimePart", b =>
@@ -479,17 +449,10 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
-                {
-                    b.HasOne("DataAccessLayer.Entities.Anime", null)
-                        .WithMany("Studios")
-                        .HasForeignKey("AnimeId");
-                });
-
             modelBuilder.Entity("DataAccessLayer.Entities.StudiosAnime", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
-                        .WithMany()
+                        .WithMany("StudiosAnime")
                         .HasForeignKey("AnimeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -524,32 +487,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Tag");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Voiceover", b =>
-                {
-                    b.HasOne("DataAccessLayer.Entities.Anime", null)
-                        .WithMany("Voiceovers")
-                        .HasForeignKey("AnimeId");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.VoiceoversAnime", b =>
-                {
-                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
-                        .WithMany()
-                        .HasForeignKey("AnimeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DataAccessLayer.Entities.Voiceover", "Voiceover")
-                        .WithMany("Voices")
-                        .HasForeignKey("VoiceoverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Anime");
-
-                    b.Navigation("Voiceover");
-                });
-
             modelBuilder.Entity("DataAccessLayer.Entities.Anime", b =>
                 {
                     b.Navigation("AnimeParts");
@@ -558,11 +495,9 @@ namespace DataAccessLayer.Migrations
 
                     b.Navigation("GenresAnimes");
 
-                    b.Navigation("Studios");
+                    b.Navigation("StudiosAnime");
 
                     b.Navigation("TagsAnimes");
-
-                    b.Navigation("Voiceovers");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.AnimePart", b =>
@@ -599,11 +534,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("CommentLikes");
 
                     b.Navigation("Comments");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.Voiceover", b =>
-                {
-                    b.Navigation("Voices");
                 });
 #pragma warning restore 612, 618
         }

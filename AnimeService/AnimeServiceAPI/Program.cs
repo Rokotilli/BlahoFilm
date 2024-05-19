@@ -5,18 +5,36 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
-var connectionString = builder.Configuration.GetConnectionString("AnimeServiceSqlServer");
-builder.Services.AddDbContext<AnimeServiceDbContext>(options =>
+
+if (!builder.Environment.IsDevelopment())
 {
-    options.UseSqlServer(connectionString);
+    builder.Configuration.AddAzureAppConfiguration(config =>
+    {
+        config.Connect(builder.Configuration["ConnectionStrings:AzureAppConfiguration"]);
+    });
+}
+
+builder.Services.AddControllers();
+
+builder.Services.AddMyServices();
+
+builder.Services.AddHttpClient("google", opt =>
+{
+    opt.BaseAddress = new Uri(builder.Configuration["OAuthGoogleApi"]);
+});
+
+builder.Services.AddStackExchangeRedisCache(opt =>
+{
+    opt.Configuration = builder.Configuration["Redis:Host"];
+    opt.InstanceName = builder.Configuration["Redis:InstanceName"];
+});
+
+builder.Services.AddDataProtection(opt =>
+{
+    opt.ApplicationDiscriminator = builder.Configuration["Security:CookieProtectKey"];
 });
 
 builder.Services.AddCors(options =>
@@ -29,12 +47,12 @@ builder.Services.AddCors(options =>
                .AllowCredentials();
     });
 });
-builder.Services.AddMyServices();
 
-builder.Services.AddDataProtection(opt =>
+builder.Services.AddDbContext<AnimeServiceDbContext>(options =>
 {
-    opt.ApplicationDiscriminator = builder.Configuration["Security:CookieProtectKey"];
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:AnimeServiceSqlServer"]);
 });
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                    .AddJwtBearer(options =>
                    {
@@ -43,8 +61,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                            ValidateIssuer = true,
                            ValidateAudience = false,
                            ValidateLifetime = true,
-                           ClockSkew = TimeSpan.Zero,
                            ValidateIssuerSigningKey = true,
+                           ClockSkew = TimeSpan.Zero,
                            ValidIssuer = builder.Configuration["Security:JwtIssuer"],
                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Security:JwtSecretKey"]))
                        };
@@ -63,45 +81,40 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                        var token = protector.Unprotect(encryptedToken);
                                        context.Token = token;
                                    }
-                                   catch (Exception ex)
-                                   {
-                                       Console.WriteLine(ex);
-                                   };
+                                   catch { };
                                }
                                return Task.CompletedTask;
                            }
                        };
                    });
 
-
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UserReceivedConsumer>();
     x.UsingRabbitMq((cxt, cfg) =>
     {
-        cfg.UseRawJsonDeserializer();
-        cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
+        cfg.Host(builder.Configuration["RabbitMqHost"], "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
         });
         cfg.ConfigureEndpoints(cxt);
     });
-   
 });
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-app.UseCors("AllowOrigin");
-
 
 if (!app.Environment.IsDevelopment())
 {
     app.Services.GetRequiredService<AnimeServiceDbContext>().Database.Migrate();
 }
 
+app.UseCors("AllowOrigin");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
-app.UseSwagger();
-app.UseSwaggerUI();
+
 
 app.Run();

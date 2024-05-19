@@ -4,6 +4,9 @@
     {
         public int Id { get; set; }
         public byte[] Poster { get; set; }
+        public byte[] PosterPartOne { get; set; }
+        public byte[] PosterPartTwo { get; set; }
+        public byte[] PosterPartThree { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public int? CountSeasons { get; set; }
@@ -21,6 +24,5 @@
         public ICollection<TagsAnime> TagsAnimes { get; set; }
         public ICollection<Rating> AnimeRatings{ get; set; }
         public ICollection<StudiosAnime> StudiosAnime { get; set; }
-        public ICollection<VoiceoversAnime> VoiceoversAnime { get; set; }
     }
 }

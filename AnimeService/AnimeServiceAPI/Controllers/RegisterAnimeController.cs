@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeServiceAPI.Controllers
 {
+    [Authorize(Roles = "ADMIN")]
     [Route("api/[controller]")]
     [ApiController]
     public class RegisterAnimeController : ControllerBase
@@ -27,7 +28,7 @@ namespace AnimeServiceAPI.Controllers
         }
 
         [HttpGet("getsas")]
-        [Authorize(Roles = "ADMIN")]
+       
         public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
             var result = await _getSaSService.GetSaS(_configuration, _configuration["AzureStorageContainerName"], blobName);
@@ -41,7 +42,6 @@ namespace AnimeServiceAPI.Controllers
         }
 
         [HttpPost("registeranime")]
-        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> RegisterAnime(AnimeRegisterModel animeRegisterModel)
         {
             var result = await _registerAnimeService.RegisterAnime(animeRegisterModel);
@@ -54,7 +54,6 @@ namespace AnimeServiceAPI.Controllers
             return BadRequest(result);
         }
         [HttpPost("registeranimepart")]
-        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> RegisterAnimePart(AnimePartRegisterModel animePartRegisterModel)
         {
             var result = await _registerAnimeService.RegisterAnimePart(animePartRegisterModel);
@@ -68,7 +67,6 @@ namespace AnimeServiceAPI.Controllers
         }
 
         [HttpPost("uploadedanime")]
-        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UploadedAnime(AnimeUploadedModel animeUploadedModel)
         {
             var result = await _uploadedAnimeService.UploadedAnime(animeUploadedModel);
@@ -81,7 +79,6 @@ namespace AnimeServiceAPI.Controllers
             return BadRequest(result);
         }
         [HttpPost("uploadedanimepart")]
-        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UploadedAnimePart(AnimePartUploadedModel animePartUploadedModel)
         {
             var result = await _uploadedAnimeService.UploadedAnimePart(animePartUploadedModel);

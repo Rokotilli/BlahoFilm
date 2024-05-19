@@ -6,6 +6,9 @@ namespace BusinessLogicLayer.Models
     public class AnimeRegisterModel
     {       
         public IFormFile Poster { get; set; }
+        public IFormFile PosterPartOne { get; set; }
+        public IFormFile PosterPartTwo { get; set; }
+        public IFormFile PosterPartThree { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public int? CountSeasons { get; set; }
@@ -20,9 +23,9 @@ namespace BusinessLogicLayer.Models
         public string Director { get; set; }
         public int Rating { get; set; }
         public string Studios { get; set; }
-        public string Voiceovers { get; set; }
         public string TrailerUri { get; set; }
         public string Genres { get; set; }
+        public string Tags { get; set; }
         public int AgeRestriction { get; set; }
     }
 }

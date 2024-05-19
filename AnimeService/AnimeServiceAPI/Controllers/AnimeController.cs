@@ -24,6 +24,9 @@ namespace AnimeServiceAPI.Controllers
                 {
                     Id = a.Id,
                     Poster = a.Poster,
+                    PosterPartOne = a.PosterPartOne,
+                    PosterPartTwo = a.PosterPartTwo,
+                    PosterPartThree = a.PosterPartThree,
                     Title = a.Title,
                     Description = a.Description,
                     CountSeasons = a.CountSeasons,
@@ -35,11 +38,9 @@ namespace AnimeServiceAPI.Controllers
                     AgeRestriction = a.AgeRestriction,
                     FileName = a.FileName,
                     FileUri = a.FileUri,
-
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
                     Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                    Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                 }
                 )
                 .ToArray();
@@ -117,23 +118,6 @@ namespace AnimeServiceAPI.Controllers
             return Ok(countPages);
         }
 
-        [HttpGet("countpagesbyvoiceovers")]
-        public async Task<IActionResult> GetCountPagesAnimesByVoiceovers([FromQuery] int pageSize, [FromBody] string[] voiceovers)
-        {
-            var model = _dbContext.Animes
-                .Where(a => voiceovers.All(g => a.VoiceoversAnime.Any(gc => gc.Voiceover.Name == g)))
-                .Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
-        }
-
         [HttpGet("byid")]
         public async Task<IActionResult> GetAnimeById([FromQuery] int id)
         {
@@ -142,6 +126,9 @@ namespace AnimeServiceAPI.Controllers
                 {
                     Id = a.Id,
                     Poster = a.Poster,
+                    PosterPartOne = a.PosterPartOne,
+                    PosterPartTwo = a.PosterPartTwo,
+                    PosterPartThree = a.PosterPartThree,
                     Title = a.Title,
                     Description = a.Description,
                     CountSeasons = a.CountSeasons,
@@ -156,7 +143,6 @@ namespace AnimeServiceAPI.Controllers
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
                     Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                    Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                 }
                 ).FirstOrDefault(a => a.Id == id);
 
@@ -178,6 +164,9 @@ namespace AnimeServiceAPI.Controllers
                 {
                     Id = a.Id,
                     Poster = a.Poster,
+                    PosterPartOne = a.PosterPartOne,
+                    PosterPartTwo = a.PosterPartTwo,
+                    PosterPartThree = a.PosterPartThree,
                     Title = a.Title,
                     Description = a.Description,
                     CountSeasons = a.CountSeasons,
@@ -192,7 +181,6 @@ namespace AnimeServiceAPI.Controllers
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
                     Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                    Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                 }
                 )
                 .ToArray();
@@ -214,6 +202,9 @@ namespace AnimeServiceAPI.Controllers
                 {
                     Id = a.Id,
                     Poster = a.Poster,
+                    PosterPartOne = a.PosterPartOne,
+                    PosterPartTwo = a.PosterPartTwo,
+                    PosterPartThree = a.PosterPartThree,
                     Title = a.Title,
                     Description = a.Description,
                     CountSeasons = a.CountSeasons,
@@ -228,7 +219,6 @@ namespace AnimeServiceAPI.Controllers
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
                     Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                    Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                 }
                 )
                 .ToArray();
@@ -252,6 +242,9 @@ namespace AnimeServiceAPI.Controllers
                  {
                      Id = a.Id,
                      Poster = a.Poster,
+                     PosterPartOne = a.PosterPartOne,
+                     PosterPartTwo = a.PosterPartTwo,
+                     PosterPartThree = a.PosterPartThree,
                      Title = a.Title,
                      Description = a.Description,
                      CountSeasons = a.CountSeasons,
@@ -266,7 +259,6 @@ namespace AnimeServiceAPI.Controllers
                      genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                      tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
                      Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                     Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                  }
                 )
                 .ToArray();
@@ -290,6 +282,9 @@ namespace AnimeServiceAPI.Controllers
                  {
                      Id = a.Id,
                      Poster = a.Poster,
+                     PosterPartOne = a.PosterPartOne,
+                     PosterPartTwo = a.PosterPartTwo,
+                     PosterPartThree = a.PosterPartThree,
                      Title = a.Title,
                      Description = a.Description,
                      CountSeasons = a.CountSeasons,
@@ -304,7 +299,6 @@ namespace AnimeServiceAPI.Controllers
                      genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
                      tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
                      Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                     Voiceovers = a.VoiceoversAnime.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                  }
                 )
                 .ToArray();

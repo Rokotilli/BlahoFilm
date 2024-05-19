@@ -26,19 +26,39 @@ namespace BusinessLogicLayer.Services
             try
             {
                 byte[] posterBytes = null;
+                byte[] posterPartOneBytes = null;
+                byte[] posterPartTwoBytes = null;
+                byte[] posterPartThreeBytes = null;
                 var genres = animeRegisterModel.Genres.Split(",");
-                var tags = animeRegisterModel.Genres.Split(",");
+                var tags = animeRegisterModel.Tags.Split(",");
                 var studios = animeRegisterModel.Studios.Split(",");
-                var voiceovers = animeRegisterModel.Voiceovers.Split(",");
                 using (var stream = new MemoryStream())
                 {
                     await animeRegisterModel.Poster.CopyToAsync(stream);
                     posterBytes = stream.ToArray();
                 }
-
+                using (var stream = new MemoryStream())
+                {
+                    await animeRegisterModel.PosterPartOne.CopyToAsync(stream);
+                    posterPartOneBytes = stream.ToArray();
+                }
+                using (var stream = new MemoryStream())
+                {
+                    await animeRegisterModel.PosterPartTwo.CopyToAsync(stream);
+                    posterPartTwoBytes = stream.ToArray();
+                }
+                using (var stream = new MemoryStream())
+                {
+                    await animeRegisterModel.PosterPartThree.CopyToAsync(stream);
+                    posterPartThreeBytes = stream.ToArray();
+                }
                 var model = new Anime()
                 {
                     Poster = posterBytes,
+                    PosterPartOne = posterPartOneBytes,
+                    Duration = animeRegisterModel.Duration,
+                    PosterPartTwo = posterPartTwoBytes,
+                    PosterPartThree = posterPartThreeBytes,
                     Title = animeRegisterModel.Title,
                     Description = animeRegisterModel.Description,
                     CountSeasons = animeRegisterModel.CountSeasons,
@@ -47,7 +67,9 @@ namespace BusinessLogicLayer.Services
                     Director = animeRegisterModel.Director,
                     Rating = animeRegisterModel.Rating,
                     TrailerUri = animeRegisterModel.TrailerUri,
-                    AgeRestriction = animeRegisterModel.AgeRestriction
+                    AgeRestriction = animeRegisterModel.AgeRestriction,
+                    FileName = "",
+                    FileUri = "",
                 };
 
                 var anime = await _dbContext.Animes
@@ -58,7 +80,7 @@ namespace BusinessLogicLayer.Services
                     a.CountParts == model.CountParts &&
                     a.Year == model.Year &&
                     a.Director == model.Director &&
-                    a.Rating == model.Rating  &&
+                    a.Rating == model.Rating &&
                     a.TrailerUri == model.TrailerUri &&
                     a.AgeRestriction == model.AgeRestriction);
                 if (anime != null)
@@ -90,9 +112,6 @@ namespace BusinessLogicLayer.Services
                   .Except(existingStudios)
                   .ToArray();
 
-                var missingVoiceovers = voiceovers
-                    .Except(existingVoiceovers)
-                    .ToArray();
                 foreach (var item in missingGenres)
                 {
                     var newGenre = new Genre { Name = item };
@@ -110,11 +129,6 @@ namespace BusinessLogicLayer.Services
                     _dbContext.Studios.Add(newStudio);
                 }
 
-                foreach (var item in missingVoiceovers)
-                {
-                    var newVoiceover = new Voiceover { Name = item };
-                    _dbContext.Voiceovers.Add(newVoiceover);
-                }
                 _dbContext.Animes.Add(model);
 
                 await _dbContext.SaveChangesAsync();
@@ -152,13 +166,6 @@ namespace BusinessLogicLayer.Services
                     _dbContext.StudiosAnimes.Add(new StudiosAnime() { AnimeId = animeid, StudioId = studio.Id });
                 }
 
-                foreach (var item in voiceovers)
-                {
-
-                    var voiceover = await _dbContext.Voiceovers.FirstOrDefaultAsync(t => t.Name == item);
-
-                    _dbContext.VoiceoversAnimes.Add(new VoiceoversAnime() { AnimeId = animeid, VoiceoverId = voiceover.Id });
-                }
                 await _dbContext.SaveChangesAsync();
 
                 await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = animeid, MediaType = MediaTypes.Anime });
@@ -180,7 +187,9 @@ namespace BusinessLogicLayer.Services
                     AnimeId = animePartRegisterModel.AnimeId,
                     SeasonNumber = animePartRegisterModel.SeasonNumber,
                     PartNumber = animePartRegisterModel.PartNumber,
-                    Duration = animePartRegisterModel.Duration
+                    Duration = animePartRegisterModel.Duration,
+                    FileName = "",
+                    FileUri = "",
                 };
 
                 var animePart = await _dbContext.AnimeParts

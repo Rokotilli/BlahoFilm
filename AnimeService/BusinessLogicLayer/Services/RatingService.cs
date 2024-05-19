@@ -35,7 +35,6 @@ namespace BusinessLogicLayer.Services
                 else
                 {
                     model.Rate = rate;
-
                     _dbContext.AnimeRating.Update(model);
                     await _dbContext.SaveChangesAsync();
                 }

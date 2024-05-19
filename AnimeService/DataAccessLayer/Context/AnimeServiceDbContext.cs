@@ -19,9 +19,7 @@ namespace DataAccessLayer.Context
         public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<CommentDislike> CommentDislikes { get; set; }
         public DbSet<Studio> Studios { get; set; }
-        public DbSet<Voiceover> Voiceovers{ get; set; }
         public DbSet<StudiosAnime> StudiosAnimes { get; set; }
-        public DbSet<VoiceoversAnime> VoiceoversAnimes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {        
