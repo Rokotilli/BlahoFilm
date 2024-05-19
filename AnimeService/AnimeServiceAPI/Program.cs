@@ -21,36 +21,26 @@ builder.Services.AddControllers();
 
 builder.Services.AddMyServices();
 
-builder.Services.AddHttpClient("google", opt =>
-{
-    opt.BaseAddress = new Uri(builder.Configuration["OAuthGoogleApi"]);
-});
-
-builder.Services.AddStackExchangeRedisCache(opt =>
-{
-    opt.Configuration = builder.Configuration["Redis:Host"];
-    opt.InstanceName = builder.Configuration["Redis:InstanceName"];
-});
-
 builder.Services.AddDataProtection(opt =>
 {
     opt.ApplicationDiscriminator = builder.Configuration["Security:CookieProtectKey"];
+});
+
+builder.Services.AddDbContext<AnimeServiceDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:AnimeServiceSqlServer"]);
 });
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin", opt =>
     {
-        opt.WithOrigins(builder.Configuration.GetSection("Security:AllowedOrigins").Get<string[]>())
+        var origins = builder.Configuration.GetSection("Security:AllowedOrigins").Get<string[]>();
+        opt.WithOrigins(origins)
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();
     });
-});
-
-builder.Services.AddDbContext<AnimeServiceDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration["ConnectionStrings:AnimeServiceSqlServer"]);
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -61,8 +51,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                            ValidateIssuer = true,
                            ValidateAudience = false,
                            ValidateLifetime = true,
-                           ValidateIssuerSigningKey = true,
                            ClockSkew = TimeSpan.Zero,
+                           ValidateIssuerSigningKey = true,
                            ValidIssuer = builder.Configuration["Security:JwtIssuer"],
                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Security:JwtSecretKey"]))
                        };
@@ -81,7 +71,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                                        var token = protector.Unprotect(encryptedToken);
                                        context.Token = token;
                                    }
-                                   catch { };
+                                   catch (Exception ex)
+                                   {
+                                       Console.WriteLine(ex);
+                                   };
                                }
                                return Task.CompletedTask;
                            }
@@ -93,7 +86,7 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<UserReceivedConsumer>();
     x.UsingRabbitMq((cxt, cfg) =>
     {
-        cfg.Host(builder.Configuration["RabbitMqHost"], "/", h =>
+        cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
@@ -104,17 +97,13 @@ builder.Services.AddMassTransit(x =>
 
 var app = builder.Build();
 
+app.UseCors("AllowOrigin");
+
 if (!app.Environment.IsDevelopment())
 {
     app.Services.GetRequiredService<AnimeServiceDbContext>().Database.Migrate();
 }
 
-app.UseCors("AllowOrigin");
-
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.MapControllers();
-
 
 app.Run();
