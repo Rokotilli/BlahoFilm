@@ -10,7 +10,6 @@
         public bool EmailConfirmed { get; set; }
         public string? PasswordHash { get; set; }
         public byte[]? Avatar { get; set; }
-        public string TotalTime { get; set; } = "0.00:00:00";
         public DateTime RegisterDate { get; set; } = DateTime.UtcNow;
 
         public ICollection<History> Histories { get; set; }

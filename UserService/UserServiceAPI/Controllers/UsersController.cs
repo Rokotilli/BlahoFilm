@@ -54,7 +54,6 @@ namespace UserServiceAPI.Controllers
                 Email = u.Email,
                 EmailConfirmed = u.EmailConfirmed,
                 Avatar = u.Avatar,
-                TotalTime = u.TotalTime,
                 RegisterDate = u.RegisterDate,
                 Roles = u.UserRoles.Select(ur => new Role { Id = ur.RoleId, Name = ur.Role.Name})
             }).FirstOrDefaultAsync(u => u.Id == id);
@@ -79,7 +78,6 @@ namespace UserServiceAPI.Controllers
                     Email = u.Email,
                     EmailConfirmed = u.EmailConfirmed,
                     Avatar = u.Avatar,
-                    TotalTime = u.TotalTime,
                     RegisterDate = u.RegisterDate,
                     Roles = u.UserRoles.Select(ur => new Role { Id = ur.RoleId, Name = ur.Role.Name })
                 })
@@ -168,21 +166,6 @@ namespace UserServiceAPI.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _usersService.ChangeAvatar(userId, avatar);
-
-            if (result != null)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok();
-        }
-
-        [Authorize]
-        [HttpPut("totaltime")]
-        public async Task<IActionResult> ChangeTotalTime([FromQuery] int seconds)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _usersService.ChangeTotalTime(userId, seconds);
 
             if (result != null)
             {

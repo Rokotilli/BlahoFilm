@@ -2,12 +2,6 @@
 using DataAccessLayer.Context;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Configuration;
-using DataAccessLayer.Entities;
-using System.Security.Cryptography;
-using System.Text.Json;
-using BusinessLogicLayer.Models;
 
 namespace BusinessLogicLayer.Services
 {
@@ -43,26 +37,6 @@ namespace BusinessLogicLayer.Services
             catch (Exception ex)
             {
                 return "Changing avatar failed!";
-            }
-        }
-
-        public async Task<string> ChangeTotalTime(string userid, int timeInSeconds)
-        {
-            try
-            {
-                var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userid);
-
-                var totalSeconds = TimeSpan.Parse(user.TotalTime).TotalSeconds + timeInSeconds;
-
-                user.TotalTime = TimeSpan.FromSeconds(totalSeconds).ToString();
-
-                await _dbContext.SaveChangesAsync();
-
-                return null;
-            }
-            catch (Exception ex)
-            {
-                return "Changing total time failed!";
             }
         }
 

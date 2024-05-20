@@ -69,10 +69,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("SeasonNumber")
                         .HasColumnType("int");
 
-                    b.Property<string>("TimeCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -239,10 +235,6 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<DateTime>("RegisterDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("TotalTime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
                         .IsRequired()

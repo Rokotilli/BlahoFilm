@@ -42,7 +42,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin", opt =>
     {
-        var origins = builder.Configuration["AllowedOrigins"].Split(",");
+        var origins = builder.Configuration["Security:AllowedOrigins"].Split(",");
         opt.WithOrigins(origins)
                .AllowAnyHeader()
                .AllowAnyMethod()

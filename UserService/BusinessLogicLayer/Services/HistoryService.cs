@@ -2,7 +2,6 @@
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
-using MessageBus.Enums;
 
 namespace BusinessLogicLayer.Services
 {
@@ -30,23 +29,18 @@ namespace BusinessLogicLayer.Services
                 var existingHistory = _dbContext.Histories
                     .FirstOrDefault(h => h.UserId == userId && h.MediaWithTypeId == media.Id);
 
-                if (existingHistory != null)
-                {
-                    existingHistory.TimeCode = historyModel.TimeCode;
-                }
-                else
+                if (existingHistory == null)
                 {
                     var model = new History()
                     {
                         UserId = userId,
                         MediaWithTypeId = media.Id,
-                        TimeCode = historyModel.TimeCode
                     };
 
                     _dbContext.Histories.Add(model);
-                }
 
-                await _dbContext.SaveChangesAsync();
+                    await _dbContext.SaveChangesAsync();
+                }                
 
                 return null;
             }
@@ -71,11 +65,7 @@ namespace BusinessLogicLayer.Services
                 var existingHistory = _dbContext.Histories
                         .FirstOrDefault(h => h.UserId == userId && h.MediaWithTypeId == media.Id && h.PartNumber == historyModel.PartNumber && h.SeasonNumber == historyModel.SeasonNumber);
 
-                if (existingHistory != null)
-                {
-                    existingHistory.TimeCode = historyModel.TimeCode;
-                }
-                else
+                if (existingHistory == null)
                 {
                     var model = new History()
                     {
@@ -83,13 +73,12 @@ namespace BusinessLogicLayer.Services
                         MediaWithTypeId = media.Id,
                         PartNumber = historyModel.PartNumber,
                         SeasonNumber = historyModel.SeasonNumber,
-                        TimeCode = historyModel.TimeCode
                     };
 
                     _dbContext.Histories.Add(model);
-                }
 
-                await _dbContext.SaveChangesAsync();
+                    await _dbContext.SaveChangesAsync();
+                }                
 
                 return null;
             }

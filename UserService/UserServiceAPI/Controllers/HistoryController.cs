@@ -37,7 +37,7 @@ namespace UserServiceAPI.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> ChangeHistory(HistoryModel historyModel)
+        public async Task<IActionResult> AddHistory(HistoryModel historyModel)
         {
             string result = "";
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

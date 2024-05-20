@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(UserServiceDbContext))]
-    [Migration("20240415202909_Initial")]
+    [Migration("20240520151021_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -71,10 +71,6 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<int?>("SeasonNumber")
                         .HasColumnType("int");
-
-                    b.Property<string>("TimeCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -242,10 +238,6 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<DateTime>("RegisterDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("TotalTime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
