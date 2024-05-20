@@ -2,18 +2,18 @@
 
 namespace DataAccessLayer.Entities
 {
-    public class TagsFilm : IEntityManyToMany
+    public class CategoriesFilm : IEntityManyToMany
     {
         public int FilmId { get; set; }
-        public int TagId { get; set; }
+        public int CategoryId { get; set; }
 
         int IEntityManyToMany.EntityId
         {
-            get { return TagId; }
-            set { TagId = value; }
+            get { return CategoryId; }
+            set { CategoryId = value; }
         }
 
         public Film Film { get; set; }
-        public Tag Tag { get; set; }
+        public Category Category { get; set; }
     }
 }

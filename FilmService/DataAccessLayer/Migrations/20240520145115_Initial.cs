@@ -12,6 +12,19 @@ namespace DataAccessLayer.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Films",
                 columns: table => new
                 {
@@ -24,10 +37,12 @@ namespace DataAccessLayer.Migrations
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Duration = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AgeRestriction = table.Column<int>(type: "int", nullable: false),
-                    Year = table.Column<int>(type: "int", nullable: false),
+                    DateOfPublish = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false),
+                    Views = table.Column<int>(type: "int", nullable: false),
                     Actors = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -65,19 +80,6 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tags",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tags", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -86,6 +88,30 @@ namespace DataAccessLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CategoriesFilms",
+                columns: table => new
+                {
+                    FilmId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CategoriesFilms", x => new { x.FilmId, x.CategoryId });
+                    table.ForeignKey(
+                        name: "FK_CategoriesFilms_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CategoriesFilms_Films_FilmId",
+                        column: x => x.FilmId,
+                        principalTable: "Films",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -132,30 +158,6 @@ namespace DataAccessLayer.Migrations
                         name: "FK_StudiosFilms_Studios_StudioId",
                         column: x => x.StudioId,
                         principalTable: "Studios",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TagsFilms",
-                columns: table => new
-                {
-                    FilmId = table.Column<int>(type: "int", nullable: false),
-                    TagId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TagsFilms", x => new { x.FilmId, x.TagId });
-                    table.ForeignKey(
-                        name: "FK_TagsFilms_Films_FilmId",
-                        column: x => x.FilmId,
-                        principalTable: "Films",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TagsFilms_Tags_TagId",
-                        column: x => x.TagId,
-                        principalTable: "Tags",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -265,6 +267,11 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_CategoriesFilms_CategoryId",
+                table: "CategoriesFilms",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CommentDislikes_CommentId",
                 table: "CommentDislikes",
                 column: "CommentId");
@@ -303,16 +310,14 @@ namespace DataAccessLayer.Migrations
                 name: "IX_StudiosFilms_StudioId",
                 table: "StudiosFilms",
                 column: "StudioId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TagsFilms_TagId",
-                table: "TagsFilms",
-                column: "TagId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "CategoriesFilms");
+
             migrationBuilder.DropTable(
                 name: "CommentDislikes");
 
@@ -329,7 +334,7 @@ namespace DataAccessLayer.Migrations
                 name: "StudiosFilms");
 
             migrationBuilder.DropTable(
-                name: "TagsFilms");
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Comments");
@@ -339,9 +344,6 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Studios");
-
-            migrationBuilder.DropTable(
-                name: "Tags");
 
             migrationBuilder.DropTable(
                 name: "Films");
