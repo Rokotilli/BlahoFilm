@@ -1,6 +1,6 @@
 # FilmService
 ## RegisterFilmController
-- **GET /api/RegisterFilm/getsas** Отримати SaS токен для загрузки файла в сховище. Результати: Ok, BadRequest(текст помилки), Forbidden, Unauthorized  
+- **GET /api/RegisterFilm/getsas** - Отримати SaS токен для загрузки файла в сховище. Результати: Ok, BadRequest(текст помилки), Forbidden, Unauthorized  
 
 Параметри запиту:
 
@@ -8,7 +8,7 @@ blobName (string): Назва об'єкта Blob.
 
 - **POST /api/RegisterFilm/register** - Зареєструвати новий фільм. Результати: Ok, BadRequest(текст помилки), Forbidden, Unauthorized  
 
-Поля тіла запиту (application/json):
+Поля тіла запиту (multipart/form-data):
 
 Poster (file): Постер фільму.  
 PosterPartOne (file)?: Перша частина розділеного простеру фільму (необов'язково).  
@@ -17,23 +17,22 @@ PosterPartThree (file)?: Третя частина розділеного про
 Title (string): Назва фільму.  
 Description (string): Опис фільму.    
 Duration (string): Тривалість фільму.  
+Country (string): Країна фільму.
 AgeRestriction (int): Вікове обмеження
-Year (int): Рік випуску фільму.  
+DateOfPublish (int): Дата публікації фільму.  
 Director (string): Режисер фільму.  
-Rating (int): Рейтинг фільму.  
 Actors (string): Актори фільму.  
 TrailerUri (string): Посилання на трейлер фільму.  
 Studios (string): Студії фільму (через кому).  
-Voiceovers (string): Озвучки фільму (через кому).  
 Genres (string): Жанри фільму (через кому).  
-Tags (string): Теги фільму (через кому).  
+Categories (string): Категорії фільму (через кому).  
 
-- **POST /api/RegisterFilm/uploadedvoiceover** - Додати в базу данних лінк на файл в сховищі. Результати: Ok, BadRequest(текст помилки), Forbidden, Unauthorized  
+- **POST /api/RegisterFilm/uploadedfilm** - Додати в базу данних лінк на файл в сховищі. Результати: Ok, BadRequest(текст помилки), Forbidden, Unauthorized  
   
 Поля тіла запиту (application/json):
 
 FilmId (int): Ідентифікатор фільму.  
-VoiceoverId (string): Ідентифікатор озвучки.  
+FileName (string): Назва файлу.  
 FileUri (string): URI файлу.  
 
 ## RatingController
@@ -51,24 +50,13 @@ filmId (int): Ідентифікатор фільму.
 rate (int): Оцінка фільму.  
 
 ## FilmsController
-- **GET /api/Films** - Отримати відпагінований список фільмів. Результати: Ok(результат), NotFound
-
-Параметри запиту:
-
-pageNumber (int): Номер сторінки.  
-pageSize (int): Розмір сторінки.  
-
-- **GET /api/Films/countpages** - Отримати кількість сторінок. Результати: Ok(результат), NotFound
-  
-Параметри запиту:
-
-pageSize (int): Розмір сторінки.
-
-- **GET /api/Films/countpagesbyfilters** - Отримати кількість сторінок за фільтрами
+- **GET /api/Films/countpagesbyfiltersandsorting** - Отримати кількість сторінок за довільною кількість фільтрів та відсортувати. Результати: Ok(результат), NotFound  
 
 Параметри запиту:  
 
 pageSize (int): Розмір сторінки.  
+sortByDate (string)?: Сортування за датою (не обов'язкого). Варіанти: "asc", "desc"  
+sortByPopularity (string)?: Сортування за популярністю (не обов'язкого). Варіанти: "rating", "discussing"  
 
 Поля тіла запиту (application/json):  
 
@@ -100,11 +88,13 @@ ids (масив int): Масив ідентифікаторів фільмів.
 
 title (string): Назва фільму.
 
-- **GET /api/Films/byfilters** - Отримати фільми за довільною кількість фільтрів. Результати: Ok(результат), NotFound
+- **GET /api/Films/byfiltersandsorting** - Отримати фільми за довільною кількість фільтрів та відсортувати. Результати: Ok(результат), NotFound
   
 Параметри запиту:  
 
 pageSize (int): Розмір сторінки.  
+sortByDate (string)?: Сортування за датою (не обов'язкого). Варіанти: "asc", "desc"  
+sortByPopularity (string)?: Сортування за популярністю (не обов'язкого). Варіанти: "rating", "discussing"  
 
 Поля тіла запиту (application/json):  
 
@@ -118,13 +108,6 @@ pageSize (int): Розмір сторінки.
     "Voiceovers": ["English", "Ukrainian"]  
 }  
 
-- **GET /api/Films/fileuri** - Отримати лінк на файл. Результати: Ok(результат), NotFound
-  
-Параметри запиту:  
-
-filmId (int): Ідентифікатор фільму.  
-voiceoverId (int): Ідентифікатор озвучки.  
-
 - **GET /api/Films/getsas** - Отримати SaS токен для завантажування файлу зі сховища. Результати: Ok, BadRequest(текст помилки)
   
 Параметри запиту:  
@@ -133,9 +116,7 @@ blobName (string): Назва файлу в сховищі.
 
 - **GET /api/Films/genres** - Отримати всі жанри. Результати: Ok(результат), NotFound  
 
-- **GET /api/Films/tags** - Отримати всі теги. Результати: Ok(результат), NotFound  
- 
-- **GET /api/Films/voiceovers** - Отримати всі озвучки. Результати: Ok(результат), NotFound  
+- **GET /api/Films/categories** - Отримати всі теги. Результати: Ok(результат), NotFound  
 
 - **GET /api/Films/studios** - Отримати всі студії. Результати: Ok(результат), NotFound  
 
@@ -263,13 +244,7 @@ email (string): Новий поштовий адрес користувача
 
 Параметри запиту:  
 
-token (string): Токен виданий сервісом для зміни пошти    
-
-- **PUT /api/Users/totaltime** - Змінити загальний час перегляду користувача. Результати: Ok, BadRequest(текст помилки), Unauthorized  
-
-Параметри запиту:  
-
-seconds (int): Кількість секунд за сеанс перегляду  
+token (string): Токен виданий сервісом для зміни пошти  
 
 - **PUT /api/Users/changenusername** - Змінити ім'я користувача. Результати: Ok, BadRequest(текст помилки), Unauthorized  
 
