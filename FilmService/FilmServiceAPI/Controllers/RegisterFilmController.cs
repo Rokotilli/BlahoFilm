@@ -32,7 +32,7 @@ namespace FilmServiceAPI.Controllers
 
             if (result != null)
             {
-                return Ok();
+                return Ok(result);
             }
 
             return BadRequest("Can't get a SaS");

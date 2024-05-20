@@ -15,8 +15,8 @@
         public string Director { get; set; }
         public double Rating { get; set; } = 0;
         public string Actors { get; set; }
-        public string FileUri { get; set; }
-        public string FileName { get; set; }
+        public string? FileUri { get; set; }
+        public string? FileName { get; set; }
         public string TrailerUri { get; set; }
 
         public ICollection<GenresFilm> GenresFilms { get; set; }
