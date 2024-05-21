@@ -38,7 +38,7 @@ namespace CartoonServiceAPI.Controllers
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                    categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
                 }
                 )
@@ -84,11 +84,11 @@ namespace CartoonServiceAPI.Controllers
             return Ok(countPages);
         }
 
-        [HttpGet("countpagesbytags")]
-        public async Task<IActionResult> GetCountPagesCartoonsByCategories([FromQuery] int pageSize, [FromBody] string[] tags)
+        [HttpGet("countpagesbycategories")]
+        public async Task<IActionResult> GetCountPagesCartoonsByCategories([FromQuery] int pageSize, [FromBody] string[] categories)
         {
             var model = _dbContext.Cartoons
-                .Where(c => tags.All(g => c.CategoriesCartoons.Any(gc => gc.Category.Name == g)))
+                .Where(c => categories.All(g => c.CategoriesCartoons.Any(gc => gc.Category.Name == g)))
                 .Count();
 
             if (model == 0)
@@ -100,7 +100,38 @@ namespace CartoonServiceAPI.Controllers
 
             return Ok(countPages);
         }
+        [HttpGet("countpagesbystudios")]
+        public async Task<IActionResult> GetCountPagesCartoonsByStudios([FromQuery] int pageSize, [FromBody] string[] studios)
+        {
+            var model = _dbContext.Cartoons
+                .Where(c => studios.All(g => c.StudiosCartoons.Any(gc => gc.Studio.Name == g)))
+                .Count();
 
+            if (model == 0)
+            {
+                return NotFound();
+            }
+
+            var countPages = Math.Ceiling((double)model / pageSize);
+
+            return Ok(countPages);
+        }
+        [HttpGet("countpagesbyanimationtype")]
+        public async Task<IActionResult> GetCountPagesCartoonsByAnymationtype([FromQuery] int pageSize, [FromBody] string animationType)
+        {
+            var model = _dbContext.Cartoons
+                .Where(c => c.AnimationType.Name == animationType)
+                .Count();
+
+            if (model == 0)
+            {
+                return NotFound();
+            }
+
+            var countPages = Math.Ceiling((double)model / pageSize);
+
+            return Ok(countPages);
+        }
         [HttpGet("byid")]
         public async Task<IActionResult> GetCartoonById([FromQuery] int id)
         {
@@ -123,7 +154,7 @@ namespace CartoonServiceAPI.Controllers
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                    categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
 
                 }
@@ -161,7 +192,7 @@ namespace CartoonServiceAPI.Controllers
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                    categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
 
                 }
@@ -199,7 +230,7 @@ namespace CartoonServiceAPI.Controllers
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                    categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
 
                 }
@@ -239,7 +270,7 @@ namespace CartoonServiceAPI.Controllers
                      FileUri = c.FileUri,
                      AgeRestriction = c.AgeRestriction,
                      genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                     categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                      Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
 
                  }
@@ -254,13 +285,13 @@ namespace CartoonServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("bytags")]
-        public async Task<IActionResult> GetPaggedCartoonsByCategories([FromBody] string[] tags, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("bycategories")]
+        public async Task<IActionResult> GetPaggedCartoonsByCategories([FromBody] string[] categories, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var model = _dbContext.Cartoons
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(c => tags.All(g => c.CategoriesCartoons.Any(gc => gc.Category.Name == g)))
+                .Where(c => categories.All(g => c.CategoriesCartoons.Any(gc => gc.Category.Name == g)))
                  .Select(c => new
                  {
                      Id = c.Id,
@@ -279,7 +310,83 @@ namespace CartoonServiceAPI.Controllers
                      AgeRestriction = c.AgeRestriction,
                      Animation = c.AnimationType.Name,
                      genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                     categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+
+                 }
+                )
+                .ToArray();
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+        [HttpGet("bystudios")]
+        public async Task<IActionResult> GetPaggedCartoonsByStudios([FromBody] string[] studios, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            var model = _dbContext.Cartoons
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Where(c => studios.All(g => c.StudiosCartoons.Any(gc => gc.Studio.Name == g)))
+                 .Select(c => new
+                 {
+                     Id = c.Id,
+                     Poster = c.Poster,
+                     Title = c.Title,
+                     Description = c.Description,
+                     CountSeasons = c.CountSeasons,
+                     CountParts = c.CountParts,
+                     Duration = c.Duration,
+                     Year = c.Year,
+                     Director = c.Director,
+                     Rating = c.Rating,
+                     TrailerUri = c.TrailerUri,
+                     FileName = c.FileName,
+                     FileUri = c.FileUri,
+                     AgeRestriction = c.AgeRestriction,
+                     Animation = c.AnimationType.Name,
+                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
+                     categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+
+                 }
+                )
+                .ToArray();
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+        [HttpGet("byanimationtype")]
+        public async Task<IActionResult> GetPaggedCartoonsByAnimationType([FromBody] string animationType, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            var model = _dbContext.Cartoons
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Where(c => c.AnimationType.Name == animationType)
+                 .Select(c => new
+                 {
+                     Id = c.Id,
+                     Poster = c.Poster,
+                     Title = c.Title,
+                     Description = c.Description,
+                     CountSeasons = c.CountSeasons,
+                     CountParts = c.CountParts,
+                     Duration = c.Duration,
+                     Year = c.Year,
+                     Director = c.Director,
+                     Rating = c.Rating,
+                     TrailerUri = c.TrailerUri,
+                     FileName = c.FileName,
+                     FileUri = c.FileUri,
+                     AgeRestriction = c.AgeRestriction,
+                     Animation = c.AnimationType.Name,
+                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
+                     categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                      Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
 
                  }
