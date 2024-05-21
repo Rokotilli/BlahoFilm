@@ -27,26 +27,43 @@ namespace BusinessLogicLayer.Services
             try
             {
                 byte[] posterBytes = null;
+                byte[] posterPartOneBytes = null;
+                byte[] posterPartTwoBytes = null;
+                byte[] posterPartThreeBytes = null;
                 var genres = cartoonRegisterModel.Genres.Split(",");
-                var tags = cartoonRegisterModel.Genres.Split(",");
+                var Categories = cartoonRegisterModel.Genres.Split(",");
                 var studios = cartoonRegisterModel.Studios.Split(",");
-                var voiceovers = cartoonRegisterModel.Voiceovers.Split(",");
                 using (var stream = new MemoryStream())
                 {
                     await cartoonRegisterModel.Poster.CopyToAsync(stream);
                     posterBytes = stream.ToArray();
                 }
-
+                using (var stream = new MemoryStream())
+                {
+                    await cartoonRegisterModel.PosterPartOne.CopyToAsync(stream);
+                    posterPartOneBytes = stream.ToArray();
+                }
+                using (var stream = new MemoryStream())
+                {
+                    await cartoonRegisterModel.PosterPartTwo.CopyToAsync(stream);
+                    posterPartTwoBytes = stream.ToArray();
+                }
+                using (var stream = new MemoryStream())
+                {
+                    await cartoonRegisterModel.PosterPartThree.CopyToAsync(stream);
+                    posterPartThreeBytes = stream.ToArray();
+                }
                 var model = new Cartoon()
                 {
                     Poster = posterBytes,
+                    PosterPartOne = posterPartOneBytes,
+                    PosterPartTwo = posterPartTwoBytes,
+                    PosterPartThree = posterPartThreeBytes,
                     Title = cartoonRegisterModel.Title,
                     Description = cartoonRegisterModel.Description,
                     Duration = cartoonRegisterModel.Duration,
                     CountSeasons = cartoonRegisterModel.CountSeasons,
                     CountParts = cartoonRegisterModel.CountParts,
-                    CategoryId = cartoonRegisterModel.CategoryId,
-                    AnimationTypeId = cartoonRegisterModel.AnimationTypeId,
                     Year = cartoonRegisterModel.Year,
                     Director = cartoonRegisterModel.Director,
                     Rating = cartoonRegisterModel.Rating,
@@ -61,8 +78,6 @@ namespace BusinessLogicLayer.Services
                                      c.Duration == model.Duration &&
                                      c.CountSeasons == model.CountSeasons &&
                                      c.CountParts == model.CountParts &&
-                                     c.CategoryId == model.CategoryId &&
-                                     c.AnimationTypeId == model.AnimationTypeId &&
                                      c.Year == model.Year &&
                                      c.Director == model.Director &&
                                      c.Rating == model.Rating &&
@@ -72,33 +87,40 @@ namespace BusinessLogicLayer.Services
                     return "This cartoon already exists!";
                 }
 
+                var existingAnimationType = await _dbContext.AnimationTypes
+                    .FirstOrDefaultAsync(g => g.Name == cartoonRegisterModel.AnimationType);
+
+                if (existingAnimationType == null)
+                {
+                    existingAnimationType = new AnimationType()
+                    {
+                        Name = cartoonRegisterModel.AnimationType,
+                    };
+                    _dbContext.AnimationTypes.Add(existingAnimationType);
+                    _dbContext.SaveChanges();
+                }
+                existingAnimationType = await
+                    _dbContext.AnimationTypes.FirstAsync(g => g.Name == cartoonRegisterModel.AnimationType);
+                model.AnimationType = existingAnimationType;
                 var existingGenres = _dbContext.Genres
                     .Select(g => g.Name)
                     .ToArray();
 
-                var existingTags = _dbContext.Tags
+                var existingCategories = _dbContext.Categories
                     .Select(t => t.Name)
                     .ToArray();
-                var existingStudios= _dbContext.Studios
+                var existingStudios = _dbContext.Studios
                   .Select(g => g.Name)
                   .ToArray();
-
-                var existingVoiceovers = _dbContext.Voiceovers
-                    .Select(t => t.Name)
-                    .ToArray();
 
                 var missingGenres = genres
                     .Except(existingGenres)
                     .ToArray();
 
-                var missingTags = tags
-                    .Except(existingTags)
+                var missingCategories = Categories
+                    .Except(existingCategories)
                     .ToArray();
-                var missingVoiceovers = voiceovers
-                    .Except(existingVoiceovers)
-                    .ToArray();
-
-                var missingStudios= studios
+                var missingStudios = studios
                     .Except(existingStudios)
                     .ToArray();
 
@@ -108,21 +130,15 @@ namespace BusinessLogicLayer.Services
                     _dbContext.Genres.Add(newGenre);
                 }
 
-                foreach (var item in missingTags)
+                foreach (var item in missingCategories)
                 {
-                    var newTag = new Tag { Name = item };
-                    _dbContext.Tags.Add(newTag);
+                    var newCategory = new Category { Name = item };
+                    _dbContext.Categories.Add(newCategory);
                 }
                 foreach (var item in missingStudios)
                 {
-                    var newStudio= new Studio { Name = item };
+                    var newStudio = new Studio { Name = item };
                     _dbContext.Studios.Add(newStudio);
-                }
-
-                foreach (var item in missingVoiceovers)
-                {
-                    var newVoiceover = new Voiceover { Name = item };
-                    _dbContext.Voiceovers.Add(newVoiceover);
                 }
                 _dbContext.Cartoons.Add(model);
 
@@ -135,7 +151,6 @@ namespace BusinessLogicLayer.Services
                                      c.Duration == model.Duration &&
                                      c.CountSeasons == model.CountSeasons &&
                                      c.CountParts == model.CountParts &&
-                                     c.CategoryId == model.CategoryId &&
                                      c.AnimationTypeId == model.AnimationTypeId &&
                                      c.Year == model.Year &&
                                      c.Director == model.Director &&
@@ -151,10 +166,10 @@ namespace BusinessLogicLayer.Services
                     _dbContext.GenresCartoons.Add(new GenresCartoon() { CartoonId = cartoonid, GenreId = genre.Id });
                 }
 
-                foreach (var item in tags)
+                foreach (var item in Categories)
                 {
-                    var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Name == item);
-                    _dbContext.TagsCartoons.Add(new TagsCartoon() { CartoonId = cartoonid, TagId = tag.Id });
+                    var category = await _dbContext.Categories.FirstOrDefaultAsync(t => t.Name == item);
+                    _dbContext.CategoriesCartoons.Add(new CategoriesCartoon() { CartoonId = cartoonid, CategoryId = category.Id });
                 }
 
                 await _dbContext.SaveChangesAsync();

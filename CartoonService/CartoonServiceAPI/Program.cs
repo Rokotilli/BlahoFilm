@@ -8,38 +8,41 @@ using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<CartoonServiceDbContext>(options =>
+
+if (!builder.Environment.IsDevelopment())
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CartoonServiceSqlServer"));
-}); builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowOrigin", opt =>
+    builder.Configuration.AddAzureAppConfiguration(config =>
     {
-        opt.WithOrigins(builder.Configuration.GetSection("Security:AllowedOrigins").Get<string[]>())
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .AllowCredentials();
+        config.Connect(builder.Configuration["ConnectionStrings:AzureAppConfiguration"]);
     });
-}); 
+}
+
+builder.Services.AddControllers();
+
+builder.Services.AddMyServices();
+
 builder.Services.AddDataProtection(opt =>
 {
     opt.ApplicationDiscriminator = builder.Configuration["Security:CookieProtectKey"];
 });
-builder.Services.AddControllers();
-builder.Services.AddMyServices();
-builder.Services.AddMassTransit(x =>
+
+builder.Services.AddDbContext<CartoonServiceDbContext>(options =>
 {
-    x.AddConsumer<UserReceivedConsumer>();
-    x.UsingRabbitMq((cxt, cfg) =>
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:CartoonServiceSqlServer"]);
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin", opt =>
     {
-        cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
-        {
-            h.Username("guest");  
-            h.Password("guest");
-        });
-        cfg.ConfigureEndpoints(cxt);
+        var origins = builder.Configuration.GetSection("Security:AllowedOrigins").Get<string[]>();
+        opt.WithOrigins(origins)
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
     });
 });
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                    .AddJwtBearer(options =>
                    {
@@ -78,7 +81,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                        };
                    });
 
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<UserReceivedConsumer>();
+    x.UsingRabbitMq((cxt, cfg) =>
+    {
+        cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+        cfg.ConfigureEndpoints(cxt);
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors("AllowOrigin");
 
 if (!app.Environment.IsDevelopment())
 {
@@ -86,4 +105,5 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+
 app.Run();

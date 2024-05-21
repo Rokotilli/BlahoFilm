@@ -29,7 +29,6 @@ namespace CartoonServiceAPI.Controllers
                     CountSeasons = c.CountSeasons,
                     CountParts = c.CountParts,
                     Duration = c.Duration,
-                    CategoryId = c.CategoryId,
                     Animation = c.AnimationType.Name,
                     Year = c.Year,
                     Director = c.Director,
@@ -39,9 +38,8 @@ namespace CartoonServiceAPI.Controllers
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                    Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
                 }
                 )
                 .ToArray();
@@ -87,10 +85,10 @@ namespace CartoonServiceAPI.Controllers
         }
 
         [HttpGet("countpagesbytags")]
-        public async Task<IActionResult> GetCountPagesCartoonsByTags([FromQuery] int pageSize, [FromBody] string[] tags)
+        public async Task<IActionResult> GetCountPagesCartoonsByCategories([FromQuery] int pageSize, [FromBody] string[] tags)
         {
             var model = _dbContext.Cartoons
-                .Where(c => tags.All(g => c.TagsCartoons.Any(gc => gc.Tag.Name == g)))
+                .Where(c => tags.All(g => c.CategoriesCartoons.Any(gc => gc.Category.Name == g)))
                 .Count();
 
             if (model == 0)
@@ -116,7 +114,6 @@ namespace CartoonServiceAPI.Controllers
                     CountSeasons = c.CountSeasons,
                     CountParts = c.CountParts,
                     Duration = c.Duration,
-                    CategoryId = c.CategoryId,
                     Animation = c.AnimationType.Name,
                     Year = c.Year,
                     Director = c.Director,
@@ -126,9 +123,8 @@ namespace CartoonServiceAPI.Controllers
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                    Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
 
                 }
                 ).FirstOrDefault(c => c.Id == id);
@@ -156,7 +152,6 @@ namespace CartoonServiceAPI.Controllers
                     CountSeasons = c.CountSeasons,
                     CountParts = c.CountParts,
                     Duration = c.Duration,
-                    CategoryId = c.CategoryId,
                     Animation = c.AnimationType.Name,
                     Year = c.Year,
                     Director = c.Director,
@@ -166,9 +161,8 @@ namespace CartoonServiceAPI.Controllers
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                    Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
 
                 }
                 )
@@ -196,7 +190,6 @@ namespace CartoonServiceAPI.Controllers
                     CountSeasons = c.CountSeasons,
                     CountParts = c.CountParts,
                     Duration = c.Duration,
-                    CategoryId = c.CategoryId,
                     Animation = c.AnimationType.Name,
                     Year = c.Year,
                     Director = c.Director,
@@ -206,9 +199,8 @@ namespace CartoonServiceAPI.Controllers
                     FileUri = c.FileUri,
                     AgeRestriction = c.AgeRestriction,
                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                    Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
 
                 }
                 )
@@ -238,7 +230,6 @@ namespace CartoonServiceAPI.Controllers
                      CountSeasons = c.CountSeasons,
                      CountParts = c.CountParts,
                      Duration = c.Duration,
-                     CategoryId = c.CategoryId,
                      Animation = c.AnimationType.Name,
                      Year = c.Year,
                      Director = c.Director,
@@ -248,9 +239,8 @@ namespace CartoonServiceAPI.Controllers
                      FileUri = c.FileUri,
                      AgeRestriction = c.AgeRestriction,
                      genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                     tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                      Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                     Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
 
                  }
                 )
@@ -265,12 +255,12 @@ namespace CartoonServiceAPI.Controllers
         }
 
         [HttpGet("bytags")]
-        public async Task<IActionResult> GetPaggedCartoonsByTags([FromBody] string[] tags, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<IActionResult> GetPaggedCartoonsByCategories([FromBody] string[] tags, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var model = _dbContext.Cartoons
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(c => tags.All(g => c.TagsCartoons.Any(gc => gc.Tag.Name == g)))
+                .Where(c => tags.All(g => c.CategoriesCartoons.Any(gc => gc.Category.Name == g)))
                  .Select(c => new
                  {
                      Id = c.Id,
@@ -280,7 +270,6 @@ namespace CartoonServiceAPI.Controllers
                      CountSeasons = c.CountSeasons,
                      CountParts = c.CountParts,
                      Duration = c.Duration,
-                     CategoryId = c.CategoryId,
                      Year = c.Year,
                      Director = c.Director,
                      Rating = c.Rating,
@@ -290,9 +279,8 @@ namespace CartoonServiceAPI.Controllers
                      AgeRestriction = c.AgeRestriction,
                      Animation = c.AnimationType.Name,
                      genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     tags = c.TagsCartoons.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                     tags = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                      Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                     Voiceovers = c.VoiceoversCartoons.Select(va => new Voiceover { Id = va.VoiceoverId, Name = va.Voiceover.Name }),
 
                  }
                 )
