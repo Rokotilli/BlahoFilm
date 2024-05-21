@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.Confiturations
 {
-    public class TagsAnimeConfiguration : IEntityTypeConfiguration<TagsAnime>
+    public class CategoriesAnimeConfiguration : IEntityTypeConfiguration<CategoriesAnime>
     {
-        public void Configure(EntityTypeBuilder<TagsAnime> builder)
+        public void Configure(EntityTypeBuilder<CategoriesAnime> builder)
         {
-            builder.HasKey(ta => new { ta.AnimeId, ta.TagId });
+            builder.HasKey(ta => new { ta.AnimeId, ta.CategoryId });
         }
     }
 }

@@ -51,7 +51,7 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tags",
+                name: "Categories",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -60,7 +60,7 @@ namespace DataAccessLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tags", x => x.Id);
+                    table.PrimaryKey("PK_Categories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -160,25 +160,25 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TagsCartoons",
+                name: "CategoriesCartoons",
                 columns: table => new
                 {
                     CartoonId = table.Column<int>(type: "int", nullable: false),
-                    TagId = table.Column<int>(type: "int", nullable: false)
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TagsCartoons", x => new { x.CartoonId, x.TagId });
+                    table.PrimaryKey("PK_CategoriesCartoons", x => new { x.CartoonId, x.CategoryId });
                     table.ForeignKey(
-                        name: "FK_TagsCartoons_Cartoons_CartoonId",
+                        name: "FK_CategoriesCartoons_Cartoons_CartoonId",
                         column: x => x.CartoonId,
                         principalTable: "Cartoons",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TagsCartoons_Tags_TagId",
-                        column: x => x.TagId,
-                        principalTable: "Tags",
+                        name: "FK_CategoriesCartoons_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -254,9 +254,9 @@ namespace DataAccessLayer.Migrations
                 column: "GenreId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TagsCartoons_TagId",
-                table: "TagsCartoons",
-                column: "TagId");
+                name: "IX_CategoriesCartoons_CategoryId",
+                table: "CategoriesCartoons",
+                column: "CategoryId");
         }
 
         /// <inheritdoc />
@@ -269,7 +269,7 @@ namespace DataAccessLayer.Migrations
                 name: "GenresCartoons");
 
             migrationBuilder.DropTable(
-                name: "TagsCartoons");
+                name: "CategoriesCartoons");
 
             migrationBuilder.DropTable(
                 name: "CartoonParts");
@@ -281,7 +281,7 @@ namespace DataAccessLayer.Migrations
                 name: "Genres");
 
             migrationBuilder.DropTable(
-                name: "Tags");
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Cartoons");

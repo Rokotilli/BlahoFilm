@@ -25,7 +25,7 @@ namespace BusinessLogicLayer.Models
         public string Studios { get; set; }
         public string TrailerUri { get; set; }
         public string Genres { get; set; }
-        public string Tags { get; set; }
+        public string Categories { get; set; }
         public int AgeRestriction { get; set; }
     }
 }

@@ -300,7 +300,7 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("StudiosAnimes");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -314,22 +314,22 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.TagsAnime", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesAnime", b =>
                 {
                     b.Property<int>("AnimeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TagId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.HasKey("AnimeId", "TagId");
+                    b.HasKey("AnimeId", "CategoryId");
 
-                    b.HasIndex("TagId");
+                    b.HasIndex("CategoryId");
 
-                    b.ToTable("TagsAnimes");
+                    b.ToTable("CategoriesAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.User", b =>
@@ -471,23 +471,23 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Studio");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.TagsAnime", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesAnime", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
-                        .WithMany("TagsAnimes")
+                        .WithMany("CategoriesAnimes")
                         .HasForeignKey("AnimeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataAccessLayer.Entities.Tag", "Tag")
-                        .WithMany("TagsAnimes")
-                        .HasForeignKey("TagId")
+                    b.HasOne("DataAccessLayer.Entities.Category", "Category")
+                        .WithMany("CategoriesAnimes")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Anime");
 
-                    b.Navigation("Tag");
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Anime", b =>
@@ -500,7 +500,7 @@ namespace DataAccessLayer.Migrations
 
                     b.Navigation("StudiosAnime");
 
-                    b.Navigation("TagsAnimes");
+                    b.Navigation("CategoriesAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.AnimePart", b =>
@@ -525,9 +525,9 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("StudiosAnimes");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
                 {
-                    b.Navigation("TagsAnimes");
+                    b.Navigation("CategoriesAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.User", b =>

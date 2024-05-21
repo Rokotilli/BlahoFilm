@@ -16,6 +16,6 @@
         public string FileUri { get; set; }
 
         public ICollection<GenresFilm> GenresFilms { get; set; }
-        public ICollection<TagsFilm> TagsFilms { get; set; }
+        public ICollection<CategoriesFilm> CategoriesFilms { get; set; }
     }
 }

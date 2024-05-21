@@ -21,7 +21,7 @@
         public string FileUri { get; set; }
         public ICollection<AnimePart> AnimeParts { get; set; }
         public ICollection<GenresAnime> GenresAnimes { get; set; }
-        public ICollection<TagsAnime> TagsAnimes { get; set; }
+        public ICollection<CategoriesAnime> CategoriesAnimes { get; set; }
         public ICollection<Rating> AnimeRatings{ get; set; }
         public ICollection<StudiosAnime> StudiosAnime { get; set; }
     }

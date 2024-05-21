@@ -4,11 +4,11 @@ using DataAccessLayer.Entities;
 
 namespace DataAccessLayer.Configurations
 {
-    public class TagsFilmConfiguration : IEntityTypeConfiguration<TagsFilm>
+    public class CategoriesFilmConfiguration : IEntityTypeConfiguration<CategoriesFilm>
     {
-        public void Configure(EntityTypeBuilder<TagsFilm> builder)
+        public void Configure(EntityTypeBuilder<CategoriesFilm> builder)
         {
-            builder.HasKey(tf => new { tf.FilmId, tf.TagId });
+            builder.HasKey(tf => new { tf.FilmId, tf.CategoryId });
         }
     }
 }

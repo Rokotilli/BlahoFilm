@@ -13,8 +13,8 @@ namespace DataAccessLayer.Context
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<GenresSeries> GenresSeries { get; set; }
-        public DbSet<Tag> Tags { get; set; }
-        public DbSet<TagsSeries> TagsSeries { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<CategoriesSeries> CategoriesSeries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

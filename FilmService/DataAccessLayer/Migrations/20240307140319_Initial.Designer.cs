@@ -149,7 +149,7 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("GenresFilms");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -163,22 +163,22 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.TagsFilm", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesFilm", b =>
                 {
                     b.Property<int>("FilmId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TagId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.HasKey("FilmId", "TagId");
+                    b.HasKey("FilmId", "CategoryId");
 
-                    b.HasIndex("TagId");
+                    b.HasIndex("CategoryId");
 
-                    b.ToTable("TagsFilms");
+                    b.ToTable("CategoriesFilms");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.User", b =>
@@ -235,30 +235,30 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Genre");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.TagsFilm", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesFilm", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Film", "Film")
-                        .WithMany("TagsFilms")
+                        .WithMany("CategoriesFilms")
                         .HasForeignKey("FilmId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataAccessLayer.Entities.Tag", "Tag")
-                        .WithMany("TagsFilms")
-                        .HasForeignKey("TagId")
+                    b.HasOne("DataAccessLayer.Entities.Category", "Category")
+                        .WithMany("CategoriesFilms")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Film");
 
-                    b.Navigation("Tag");
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Film", b =>
                 {
                     b.Navigation("GenresFilms");
 
-                    b.Navigation("TagsFilms");
+                    b.Navigation("CategoriesFilms");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Genre", b =>
@@ -266,9 +266,9 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("GenresFilms");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
                 {
-                    b.Navigation("TagsFilms");
+                    b.Navigation("CategoriesFilms");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.User", b =>

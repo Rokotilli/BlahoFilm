@@ -48,7 +48,7 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tags",
+                name: "Categories",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -57,7 +57,7 @@ namespace DataAccessLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tags", x => x.Id);
+                    table.PrimaryKey("PK_Categories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -120,25 +120,25 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TagsSeries",
+                name: "CategoriesSeries",
                 columns: table => new
                 {
                     SeriesId = table.Column<int>(type: "int", nullable: false),
-                    TagId = table.Column<int>(type: "int", nullable: false)
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TagsSeries", x => new { x.SeriesId, x.TagId });
+                    table.PrimaryKey("PK_CategoriesSeries", x => new { x.SeriesId, x.CategoryId });
                     table.ForeignKey(
-                        name: "FK_TagsSeries_Series_SeriesId",
+                        name: "FK_CategoriesSeries_Series_SeriesId",
                         column: x => x.SeriesId,
                         principalTable: "Series",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TagsSeries_Tags_TagId",
-                        column: x => x.TagId,
-                        principalTable: "Tags",
+                        name: "FK_CategoriesSeries_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -204,9 +204,9 @@ namespace DataAccessLayer.Migrations
                 column: "SeriesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TagsSeries_TagId",
-                table: "TagsSeries",
-                column: "TagId");
+                name: "IX_CategoriesSeries_CategoryId",
+                table: "CategoriesSeries",
+                column: "CategoryId");
         }
 
         /// <inheritdoc />
@@ -219,7 +219,7 @@ namespace DataAccessLayer.Migrations
                 name: "GenresSeries");
 
             migrationBuilder.DropTable(
-                name: "TagsSeries");
+                name: "CategoriesSeries");
 
             migrationBuilder.DropTable(
                 name: "SeriesParts");
@@ -231,7 +231,7 @@ namespace DataAccessLayer.Migrations
                 name: "Genres");
 
             migrationBuilder.DropTable(
-                name: "Tags");
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Series");

@@ -1,11 +1,11 @@
 ﻿namespace DataAccessLayer.Entities
 {
-    public class TagsSeries
+    public class CategoriesSeries
     {
         public int SeriesId { get; set; }
-        public int TagId { get; set; }
+        public int CategoryId { get; set; }
 
         public Series Series { get; set; }
-        public Tag Tag { get; set; }
+        public Category Category { get; set; }
     }
 }

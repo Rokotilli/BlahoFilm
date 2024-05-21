@@ -4,11 +4,11 @@ using DataAccessLayer.Entities;
 
 namespace DataAccessLayer.Configurations
 {
-    public class TagsCartoonConfiguration : IEntityTypeConfiguration<TagsCartoon>
+    public class CategoriesCartoonConfiguration : IEntityTypeConfiguration<CategoriesCartoon>
     {
-        public void Configure(EntityTypeBuilder<TagsCartoon> builder)
+        public void Configure(EntityTypeBuilder<CategoriesCartoon> builder)
         {
-            builder.HasKey(tc => new { tc.CartoonId, tc.TagId });
+            builder.HasKey(tc => new { tc.CartoonId, tc.CategoryId });
         }
     }
 }

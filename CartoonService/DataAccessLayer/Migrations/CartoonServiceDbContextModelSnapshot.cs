@@ -223,7 +223,7 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("GenresCartoons");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -237,22 +237,22 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.TagsCartoon", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesCartoon", b =>
                 {
                     b.Property<int>("CartoonId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TagId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.HasKey("CartoonId", "TagId");
+                    b.HasKey("CartoonId", "CategoryId");
 
-                    b.HasIndex("TagId");
+                    b.HasIndex("CategoryId");
 
-                    b.ToTable("TagsCartoons");
+                    b.ToTable("CategoriesCartoons");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.User", b =>
@@ -339,23 +339,23 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Genre");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.TagsCartoon", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesCartoon", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Cartoon", "Cartoon")
-                        .WithMany("TagsCartoons")
+                        .WithMany("CategoriesCartoons")
                         .HasForeignKey("CartoonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataAccessLayer.Entities.Tag", "Tag")
-                        .WithMany("TagsCartoons")
-                        .HasForeignKey("TagId")
+                    b.HasOne("DataAccessLayer.Entities.Category", "Category")
+                        .WithMany("CategoriesCartoons")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Cartoon");
 
-                    b.Navigation("Tag");
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.AnimationType", b =>
@@ -369,7 +369,7 @@ namespace DataAccessLayer.Migrations
 
                     b.Navigation("GenresCartoons");
 
-                    b.Navigation("TagsCartoons");
+                    b.Navigation("CategoriesCartoons");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
@@ -382,9 +382,9 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("GenresCartoons");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
                 {
-                    b.Navigation("TagsCartoons");
+                    b.Navigation("CategoriesCartoons");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.User", b =>

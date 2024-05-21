@@ -20,7 +20,7 @@
         public Category Category { get; set; }
         public AnimationType AnimationType { get; set; }
         public ICollection<CartoonPart> Cartoons { get; set; }
-        public ICollection<TagsCartoon> TagsCartoons { get; set; }
+        public ICollection<CategoriesCartoon> CategoriesCartoons { get; set; }
         public ICollection<GenresCartoon> GenresCartoons { get; set; }
     }
 }

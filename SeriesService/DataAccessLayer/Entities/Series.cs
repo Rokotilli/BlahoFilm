@@ -17,6 +17,6 @@
 
         public ICollection<GenresSeries> GenresSeries { get; set; }
         public ICollection<SeriesPart> SeriesParts { get; set; }
-        public ICollection<TagsSeries> TagsSeries { get; set; }
+        public ICollection<CategoriesSeries> CategoriesSeries { get; set; }
     }
 }

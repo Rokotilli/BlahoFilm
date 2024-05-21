@@ -2,12 +2,12 @@
 
 namespace DataAccessLayer.Entities
 {
-    public class TagsAnime
+    public class CategoriesAnime
     {
         public int AnimeId { get; set; }
-        public int TagId { get; set; }
+        public int CategoryId { get; set; }
 
         public Anime Anime { get; set; }
-        public Tag Tag { get; set; }
+        public Category Category { get; set; }
     }
 }

@@ -39,7 +39,7 @@ namespace AnimeServiceAPI.Controllers
                     FileName = a.FileName,
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
+                    categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
                     Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
                 }
                 )
@@ -85,11 +85,11 @@ namespace AnimeServiceAPI.Controllers
             return Ok(countPages);
         }
 
-        [HttpGet("countpagesbytags")]
-        public async Task<IActionResult> GetCountPagesAnimesByTags([FromQuery] int pageSize, [FromBody] string[] tags)
+        [HttpGet("countpagesbycategories")]
+        public async Task<IActionResult> GetCountPagesAnimesByCategories([FromQuery] int pageSize, [FromBody] string[] categories)
         {
             var model = _dbContext.Animes
-                .Where(a => tags.All(g => a.TagsAnimes.Any(gc => gc.Tag.Name == g)))
+                .Where(a => categories.All(g => a.CategoriesAnimes.Any(gc => gc.Category.Name == g)))
                 .Count();
 
             if (model == 0)
@@ -141,8 +141,8 @@ namespace AnimeServiceAPI.Controllers
                     FileName = a.FileName,
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                    Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                    studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
                 }
                 ).FirstOrDefault(a => a.Id == id);
 
@@ -179,8 +179,8 @@ namespace AnimeServiceAPI.Controllers
                     FileName = a.FileName,
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                    Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                    studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
                 }
                 )
                 .ToArray();
@@ -217,8 +217,8 @@ namespace AnimeServiceAPI.Controllers
                     FileName = a.FileName,
                     FileUri = a.FileUri,
                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                    Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                    categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                    studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
                 }
                 )
                 .ToArray();
@@ -257,8 +257,8 @@ namespace AnimeServiceAPI.Controllers
                      FileName = a.FileName,
                      FileUri = a.FileUri,
                      genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                     Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                     categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                     studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
                  }
                 )
                 .ToArray();
@@ -271,13 +271,13 @@ namespace AnimeServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("bytags")]
-        public async Task<IActionResult> GetPaggedAnimesByTags([FromBody] string[] tags, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("bycategories")]
+        public async Task<IActionResult> GetPaggedAnimesByCategories([FromBody] string[] categories, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var model = _dbContext.Animes
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(a => tags.All(g => a.TagsAnimes.Any(gc => gc.Tag.Name == g)))
+                .Where(a => categories.All(g => a.CategoriesAnimes.Any(gc => gc.Category.Name == g)))
                  .Select(a => new
                  {
                      Id = a.Id,
@@ -297,8 +297,46 @@ namespace AnimeServiceAPI.Controllers
                      FileName = a.FileName,
                      FileUri = a.FileUri,
                      genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     tags = a.TagsAnimes.Select(tc => new { id = tc.TagId, name = tc.Tag.Name }),
-                     Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                     categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                     studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                 }
+                )
+                .ToArray();
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+        [HttpGet("bystudios")]
+        public async Task<IActionResult> GetPaggedAnimesByStudios([FromBody] string[] studios, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            var model = _dbContext.Animes
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Where(a => studios.All(g => a.StudiosAnime.Any(gc => gc.Studio.Name == g)))
+                 .Select(a => new
+                 {
+                     Id = a.Id,
+                     Poster = a.Poster,
+                     PosterPartOne = a.PosterPartOne,
+                     PosterPartTwo = a.PosterPartTwo,
+                     PosterPartThree = a.PosterPartThree,
+                     Title = a.Title,
+                     Description = a.Description,
+                     CountSeasons = a.CountSeasons,
+                     CountParts = a.CountParts,
+                     Year = a.Year,
+                     Director = a.Director,
+                     Rating = a.Rating,
+                     TrailerUri = a.TrailerUri,
+                     AgeRestriction = a.AgeRestriction,
+                     FileName = a.FileName,
+                     FileUri = a.FileUri,
+                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
+                     categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
+                     studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
                  }
                 )
                 .ToArray();

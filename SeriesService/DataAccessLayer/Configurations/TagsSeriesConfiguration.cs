@@ -4,11 +4,11 @@ using DataAccessLayer.Entities;
 
 namespace DataAccessLayer.Configurations
 {
-    public class TagsSeriesConfiguration : IEntityTypeConfiguration<TagsSeries>
+    public class CategoriesSeriesConfiguration : IEntityTypeConfiguration<CategoriesSeries>
     {
-        public void Configure(EntityTypeBuilder<TagsSeries> builder)
+        public void Configure(EntityTypeBuilder<CategoriesSeries> builder)
         {
-            builder.HasKey(ta => new { ta.SeriesId, ta.TagId });
+            builder.HasKey(ta => new { ta.SeriesId, ta.CategoryId });
         }
     }
 }

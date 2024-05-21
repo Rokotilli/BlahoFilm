@@ -30,7 +30,7 @@ namespace BusinessLogicLayer.Services
                 byte[] posterPartTwoBytes = null;
                 byte[] posterPartThreeBytes = null;
                 var genres = animeRegisterModel.Genres.Split(",");
-                var tags = animeRegisterModel.Tags.Split(",");
+                var categories = animeRegisterModel.Categories.Split(",");
                 var studios = animeRegisterModel.Studios.Split(",");
                 using (var stream = new MemoryStream())
                 {
@@ -92,7 +92,7 @@ namespace BusinessLogicLayer.Services
                     .Select(g => g.Name)
                     .ToArray();
 
-                var existingTags = _dbContext.Tags
+                var existingCategories = _dbContext.Categories
                     .Select(t => t.Name)
                     .ToArray();
                 var existingStudios = _dbContext.Studios
@@ -105,8 +105,8 @@ namespace BusinessLogicLayer.Services
                     .Except(existingGenres)
                     .ToArray();
 
-                var missingTags = tags
-                    .Except(existingTags)
+                var missingCategories = categories
+                    .Except(existingCategories)
                     .ToArray();
                 var missingStudios = studios
                   .Except(existingStudios)
@@ -118,10 +118,10 @@ namespace BusinessLogicLayer.Services
                     _dbContext.Genres.Add(newGenre);
                 }
 
-                foreach (var item in missingTags)
+                foreach (var item in missingCategories)
                 {
-                    var newTag = new Tag { Name = item };
-                    _dbContext.Tags.Add(newTag);
+                    var newCategory = new Category { Name = item };
+                    _dbContext.Categories.Add(newCategory);
                 }
                 foreach (var item in missingStudios)
                 {
@@ -154,10 +154,10 @@ namespace BusinessLogicLayer.Services
                     _dbContext.GenresAnimes.Add(new GenresAnime() { AnimeId = animeid, GenreId = genre.Id });
                 }
 
-                foreach (var item in tags)
+                foreach (var item in categories)
                 {
-                    var tag = await _dbContext.Tags.FirstOrDefaultAsync(t => t.Name == item);
-                    _dbContext.TagsAnimes.Add(new TagsAnime() { AnimeId = animeid, TagId = tag.Id });
+                    var category = await _dbContext.Categories.FirstOrDefaultAsync(t => t.Name == item);
+                    _dbContext.CategoriesAnimes.Add(new CategoriesAnime() { AnimeId = animeid, CategoryId = category.Id });
                 }
                 foreach (var item in studios)
                 {

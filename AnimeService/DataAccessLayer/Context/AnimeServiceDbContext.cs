@@ -13,8 +13,8 @@ namespace DataAccessLayer.Context
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<GenresAnime> GenresAnimes { get; set; }
-        public DbSet<Tag> Tags { get; set; }
-        public DbSet<TagsAnime> TagsAnimes { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<CategoriesAnime> CategoriesAnimes { get; set; }
         public DbSet<Rating> AnimeRating { get; set; }
         public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<CommentDislike> CommentDislikes { get; set; }

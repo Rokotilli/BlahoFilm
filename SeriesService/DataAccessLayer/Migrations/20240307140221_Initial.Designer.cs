@@ -183,7 +183,7 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("SeriesParts");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -197,22 +197,22 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.TagsSeries", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesSeries", b =>
                 {
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TagId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.HasKey("SeriesId", "TagId");
+                    b.HasKey("SeriesId", "CategoryId");
 
-                    b.HasIndex("TagId");
+                    b.HasIndex("CategoryId");
 
-                    b.ToTable("TagsSeries");
+                    b.ToTable("CategoriesSeries");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.User", b =>
@@ -280,23 +280,23 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Series");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.TagsSeries", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesSeries", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Series", "Series")
-                        .WithMany("TagsSeries")
+                        .WithMany("CategoriesSeries")
                         .HasForeignKey("SeriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataAccessLayer.Entities.Tag", "Tag")
-                        .WithMany("TagsSeries")
-                        .HasForeignKey("TagId")
+                    b.HasOne("DataAccessLayer.Entities.Category", "Category")
+                        .WithMany("CategoriesSeries")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Series");
 
-                    b.Navigation("Tag");
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Genre", b =>
@@ -310,7 +310,7 @@ namespace DataAccessLayer.Migrations
 
                     b.Navigation("SeriesParts");
 
-                    b.Navigation("TagsSeries");
+                    b.Navigation("CategoriesSeries");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.SeriesPart", b =>
@@ -318,9 +318,9 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Comments");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Tag", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
                 {
-                    b.Navigation("TagsSeries");
+                    b.Navigation("CategoriesSeries");
                 });
 #pragma warning restore 612, 618
         }
