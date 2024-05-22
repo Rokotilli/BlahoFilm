@@ -6,11 +6,24 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Genres",
                 columns: table => new
@@ -31,6 +44,9 @@ namespace DataAccessLayer.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Poster = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PosterPartOne = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PosterPartTwo = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PosterPartThree = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CountSeasons = table.Column<int>(type: "int", nullable: false),
@@ -61,19 +77,6 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tags",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tags", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -85,16 +88,27 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Voiceovers",
+                name: "CategoriesSeries",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    SeriesId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Voiceovers", x => x.Id);
+                    table.PrimaryKey("PK_CategoriesSeries", x => new { x.SeriesId, x.CategoryId });
+                    table.ForeignKey(
+                        name: "FK_CategoriesSeries_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CategoriesSeries_Series_SeriesId",
+                        column: x => x.SeriesId,
+                        principalTable: "Series",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -170,30 +184,6 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TagsSeries",
-                columns: table => new
-                {
-                    SeriesId = table.Column<int>(type: "int", nullable: false),
-                    TagId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TagsSeries", x => new { x.SeriesId, x.TagId });
-                    table.ForeignKey(
-                        name: "FK_TagsSeries_Series_SeriesId",
-                        column: x => x.SeriesId,
-                        principalTable: "Series",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TagsSeries_Tags_TagId",
-                        column: x => x.TagId,
-                        principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Ratings",
                 columns: table => new
                 {
@@ -217,30 +207,6 @@ namespace DataAccessLayer.Migrations
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "VoiceoversSeries",
-                columns: table => new
-                {
-                    SeriesId = table.Column<int>(type: "int", nullable: false),
-                    VoiceoverId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_VoiceoversSeries", x => new { x.SeriesId, x.VoiceoverId });
-                    table.ForeignKey(
-                        name: "FK_VoiceoversSeries_Series_SeriesId",
-                        column: x => x.SeriesId,
-                        principalTable: "Series",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_VoiceoversSeries_Voiceovers_VoiceoverId",
-                        column: x => x.VoiceoverId,
-                        principalTable: "Voiceovers",
-                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -327,6 +293,11 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_CategoriesSeries_CategoryId",
+                table: "CategoriesSeries",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CommentDislikes_CommentId",
                 table: "CommentDislikes",
                 column: "CommentId");
@@ -370,21 +341,14 @@ namespace DataAccessLayer.Migrations
                 name: "IX_StudiosSeries_StudioId",
                 table: "StudiosSeries",
                 column: "StudioId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TagsSeries_TagId",
-                table: "TagsSeries",
-                column: "TagId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VoiceoversSeries_VoiceoverId",
-                table: "VoiceoversSeries",
-                column: "VoiceoverId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "CategoriesSeries");
+
             migrationBuilder.DropTable(
                 name: "CommentDislikes");
 
@@ -401,10 +365,7 @@ namespace DataAccessLayer.Migrations
                 name: "StudiosSeries");
 
             migrationBuilder.DropTable(
-                name: "TagsSeries");
-
-            migrationBuilder.DropTable(
-                name: "VoiceoversSeries");
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Comments");
@@ -414,12 +375,6 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Studios");
-
-            migrationBuilder.DropTable(
-                name: "Tags");
-
-            migrationBuilder.DropTable(
-                name: "Voiceovers");
 
             migrationBuilder.DropTable(
                 name: "SeriesParts");

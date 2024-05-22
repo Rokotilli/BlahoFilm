@@ -4,30 +4,45 @@ using SeriesServiceAPI.Consumers;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.DataProtection;
 using System.Text;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<SeriesServiceDbContext>(options =>
+
+if (!builder.Environment.IsDevelopment())
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SeriesServiceSqlServer"));
-});
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowOrigin", opt =>
+    builder.Configuration.AddAzureAppConfiguration(config =>
     {
-        opt.WithOrigins(builder.Configuration.GetSection("Security:AllowedOrigins").Get<string[]>())
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .AllowCredentials();
+        config.Connect(builder.Configuration["ConnectionStrings:AzureAppConfiguration"]);
     });
-});
+}
+
+builder.Services.AddControllers();
+
 builder.Services.AddMyServices();
 
 builder.Services.AddDataProtection(opt =>
 {
     opt.ApplicationDiscriminator = builder.Configuration["Security:CookieProtectKey"];
 });
+
+builder.Services.AddDbContext<SeriesServiceDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:SeriesServiceSqlServer"]);
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin", opt =>
+    {
+        var origins = builder.Configuration.GetSection("Security:AllowedOrigins").Get<string[]>();
+        opt.WithOrigins(origins)
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
+    });
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                    .AddJwtBearer(options =>
                    {
@@ -66,8 +81,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                        };
                    });
 
-builder.Services.AddControllers();
-
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UserReceivedConsumer>();
@@ -84,12 +97,13 @@ builder.Services.AddMassTransit(x =>
 
 var app = builder.Build();
 
+app.UseCors("AllowOrigin");
+
 if (!app.Environment.IsDevelopment())
 {
     app.Services.GetRequiredService<SeriesServiceDbContext>().Database.Migrate();
 }
 
 app.MapControllers();
-app.MapGet("/", () => "Hello World!");
+
 app.Run();
- 

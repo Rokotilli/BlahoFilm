@@ -21,9 +21,12 @@ namespace SeriesServiceAPI.Controllers
             var model = _dbContext.Series
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(s=>new
+                .Select(s => new
                 {
                     Poster = s.Poster,
+                    PosterPartOne = s.PosterPartOne,
+                    PosterPartTwo = s.PosterPartTwo,
+                    PosterPartThree = s.PosterPartThree,
                     Title = s.Title,
                     Description = s.Description,
                     CountSeasons = s.CountSeasons,
@@ -34,9 +37,8 @@ namespace SeriesServiceAPI.Controllers
                     TrailerUri = s.TrailerUri,
                     AgeRestriction = s.AgeRestriction,
                     Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
-                    Tags = s.TagsSeries.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Categories = s.CategoriesSeries.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
                     Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-                    Voiceovers = s.VoiceoversSeries.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
                 })
                 .ToArray();
 
@@ -80,11 +82,11 @@ namespace SeriesServiceAPI.Controllers
             return Ok(countPages);
         }
 
-        [HttpGet("countpagesbytags")]
-        public async Task<IActionResult> GetCountPagesSeriesByTags([FromQuery] int pageSize, [FromBody] string[] tags)
+        [HttpGet("countpagesbycategories")]
+        public async Task<IActionResult> GetCountPagesSeriesByCategories([FromQuery] int pageSize, [FromBody] string[] categories)
         {
             var model = _dbContext.Series
-                .Where(s => tags.All(g => s.TagsSeries.Any(gf => gf.Tag.Name == g)))
+                .Where(s => categories.All(g => s.CategoriesSeries.Any(gf => gf.Category.Name == g)))
                 .Count();
 
             if (model == 0)
@@ -96,7 +98,22 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok(countPages);
         }
+        [HttpGet("countpagesbystudios")]
+        public async Task<IActionResult> GetCountPagesSeriesByStudios([FromQuery] int pageSize, [FromBody] string[] studios)
+        {
+            var model = _dbContext.Series
+                .Where(s => studios.All(g => s.StudiosSeries.Any(gf => gf.Studio.Name == g)))
+                .Count();
 
+            if (model == 0)
+            {
+                return NotFound();
+            }
+
+            var countPages = Math.Ceiling((double)model / pageSize);
+
+            return Ok(countPages);
+        }
         [HttpGet("byid")]
         public async Task<IActionResult> GetSeriesById([FromQuery] int id)
         {
@@ -134,6 +151,9 @@ namespace SeriesServiceAPI.Controllers
                 .Select(s => new
                 {
                     Poster = s.Poster,
+                    PosterPartOne = s.PosterPartOne,
+                    PosterPartTwo = s.PosterPartTwo,
+                    PosterPartThree = s.PosterPartThree,
                     Title = s.Title,
                     Description = s.Description,
                     CountSeasons = s.CountSeasons,
@@ -144,9 +164,8 @@ namespace SeriesServiceAPI.Controllers
                     TrailerUri = s.TrailerUri,
                     AgeRestriction = s.AgeRestriction,
                     Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
-                    Tags = s.TagsSeries.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Categories = s.CategoriesSeries.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
                     Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-                    Voiceovers = s.VoiceoversSeries.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
 
                 })
                 .ToArray();
@@ -169,6 +188,9 @@ namespace SeriesServiceAPI.Controllers
                 .Select(s => new
                 {
                     Poster = s.Poster,
+                    PosterPartOne = s.PosterPartOne,
+                    PosterPartTwo = s.PosterPartTwo,
+                    PosterPartThree = s.PosterPartThree,
                     Title = s.Title,
                     Description = s.Description,
                     CountSeasons = s.CountSeasons,
@@ -179,9 +201,8 @@ namespace SeriesServiceAPI.Controllers
                     TrailerUri = s.TrailerUri,
                     AgeRestriction = s.AgeRestriction,
                     Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
-                    Tags = s.TagsSeries.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Categories = s.CategoriesSeries.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
                     Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-                    Voiceovers = s.VoiceoversSeries.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
 
                 })
                 .ToArray();
@@ -194,16 +215,19 @@ namespace SeriesServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("bytags")]
-        public async Task<IActionResult> GetPaggedSeriesByTags([FromBody] string[] tags, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("bycategories")]
+        public async Task<IActionResult> GetPaggedSeriesByCategories([FromBody] string[] categories, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var model = _dbContext.Series
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Where(s => tags.All(g => s.TagsSeries.Any(gf => gf.Tag.Name == g)))
+                .Where(s => categories.All(g => s.CategoriesSeries.Any(gf => gf.Category.Name == g)))
                 .Select(s => new
                 {
                     Poster = s.Poster,
+                    PosterPartOne = s.PosterPartOne,
+                    PosterPartTwo = s.PosterPartTwo,
+                    PosterPartThree = s.PosterPartThree,
                     Title = s.Title,
                     Description = s.Description,
                     CountSeasons = s.CountSeasons,
@@ -214,9 +238,43 @@ namespace SeriesServiceAPI.Controllers
                     TrailerUri = s.TrailerUri,
                     AgeRestriction = s.AgeRestriction,
                     Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
-                    Tags = s.TagsSeries.Select(tf => new Tag { Id = tf.TagId, Name = tf.Tag.Name }),
+                    Categories = s.CategoriesSeries.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
                     Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-                    Voiceovers = s.VoiceoversSeries.Select(tf => new Voiceover { Id = tf.VoiceoverId, Name = tf.Voiceover.Name }),
+
+                })
+                .ToArray();
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+        [HttpGet("bystudios")]
+        public async Task<IActionResult> GetPaggedSeriesByStudios([FromBody] string[] studios, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        {
+            var model = _dbContext.Series
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Where(s => studios.All(g => s.StudiosSeries.Any(gf => gf.Studio.Name == g)))
+                .Select(s => new
+                {
+                    Poster = s.Poster,
+                    PosterPartOne = s.PosterPartOne,
+                    PosterPartTwo = s.PosterPartTwo,
+                    PosterPartThree = s.PosterPartThree,
+                    Title = s.Title,
+                    Description = s.Description,
+                    CountSeasons = s.CountSeasons,
+                    CountParts = s.CountParts,
+                    Year = s.Year,
+                    Director = s.Director,
+                    Rating = s.Rating,
+                    TrailerUri = s.TrailerUri,
+                    AgeRestriction = s.AgeRestriction,
+                    Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
+                    Categories = s.CategoriesSeries.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
+                    Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
 
                 })
                 .ToArray();

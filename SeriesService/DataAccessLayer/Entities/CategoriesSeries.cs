@@ -1,11 +1,11 @@
 ﻿namespace DataAccessLayer.Entities
 {
-    public class VoiceoversSeries
+    public class CategoriesSeries
     {
         public int SeriesId { get; set; }
-        public int VoiceoverId { get; set; }
+        public int CategoryId { get; set; }
 
         public Series Series { get; set; }
-        public Voiceover Voiceover { get; set; }
+        public Category Category { get; set; }
     }
 }

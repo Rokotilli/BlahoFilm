@@ -15,12 +15,10 @@ namespace DataAccessLayer.Context
         public DbSet<CommentDislike> CommentDislikes { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<GenresSeries> GenresSeries { get; set; }
-        public DbSet<Tag> Tags { get; set; }
-        public DbSet<TagsSeries> TagsSeries { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<CategoriesSeries> CategoriesSeries { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Studio> Studios { get; set; }
-        public DbSet<Voiceover> Voiceovers { get; set; }
-        public DbSet<VoiceoversSeries> VoiceoversSeries { get; set; }
         public DbSet<StudiosSeries> StudiosSeries { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
