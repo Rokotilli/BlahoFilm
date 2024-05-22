@@ -1,5 +1,6 @@
 ﻿using DataAccessLayer.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace DataAccessLayer.Context
 {

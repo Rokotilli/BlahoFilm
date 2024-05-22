@@ -174,6 +174,10 @@ namespace DataAccessLayer.Migrations
                     b.Property<byte[]>("PosterPartTwo")
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<string>("Quality")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("Rating")
                         .HasColumnType("float");
 
@@ -184,9 +188,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("TrailerUri")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Views")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

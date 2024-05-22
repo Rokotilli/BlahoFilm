@@ -10,6 +10,7 @@
         public string Title { get; set; }
         public string Description { get; set; }
         public string Duration { get; set; }
+        public string Quality { get; set; }
         public string Country { get; set; }
         public int AgeRestriction { get; set; }
         public DateTime DateOfPublish { get; set; }

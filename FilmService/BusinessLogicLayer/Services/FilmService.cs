@@ -8,6 +8,7 @@ using MassTransit.Initializers;
 using MassTransit.Testing;
 using MessageBus.Enums;
 using MessageBus.Messages;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLogicLayer.Services
@@ -34,28 +35,14 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                byte[] posterBytes = null;
-                byte[] posterPartOneBytes = null;
-                byte[] posterPartTwoBytes = null;
-                byte[] posterPartThreeBytes = null;
                 var genres = filmRegisterModel.Genres.Split(",");
                 var categories = filmRegisterModel.Categories.Split(",");
-                var studios = filmRegisterModel.Studios.Split(",");
+                var studios = filmRegisterModel.Studios.Split(",");                
 
-                using (var stream = new MemoryStream())
-                {
-                    await filmRegisterModel.Poster.CopyToAsync(stream);
-                    posterBytes = stream.ToArray();
-                    if (filmRegisterModel.PosterPartOne != null && filmRegisterModel.PosterPartTwo != null && filmRegisterModel.PosterPartThree != null)
-                    {
-                        await filmRegisterModel.PosterPartOne.CopyToAsync(stream);
-                        posterPartOneBytes = stream.ToArray();
-                        await filmRegisterModel.PosterPartTwo.CopyToAsync(stream);
-                        posterPartTwoBytes = stream.ToArray();
-                        await filmRegisterModel.PosterPartThree.CopyToAsync(stream);
-                        posterPartThreeBytes = stream.ToArray();
-                    }                    
-                }
+                byte[] posterBytes = await ReadBytesAsync(filmRegisterModel.Poster);
+                byte[] posterPartOneBytes = await ReadBytesAsync(filmRegisterModel.PosterPartOne);
+                byte[] posterPartTwoBytes = await ReadBytesAsync(filmRegisterModel.PosterPartTwo);
+                byte[] posterPartThreeBytes = await ReadBytesAsync(filmRegisterModel.PosterPartThree);
 
                 var model = new Film()
                 {
@@ -154,7 +141,6 @@ namespace BusinessLogicLayer.Services
                 AgeRestriction = f.AgeRestriction,
                 Director = f.Director,
                 Rating = f.Rating,
-                Views = f.Views,
                 Actors = f.Actors,
                 TrailerUri = f.TrailerUri,
                 Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
@@ -167,21 +153,24 @@ namespace BusinessLogicLayer.Services
         {
             var query = _dbContext.Films.AsQueryable();
 
-            foreach (var filter in filters)
+            if (filters != null)
             {
-                switch (filter.Key)
+                foreach (var filter in filters)
                 {
-                    case "Genres":
-                        query = query.Where(f => filter.Value.All(g => f.GenresFilms.Any(gf => gf.Genre.Name == g)));
-                        break;
-                    case "Categories":
-                        query = query.Where(f => filter.Value.All(t => f.CategoriesFilms.Any(tf => tf.Category.Name == t)));
-                        break;
-                    case "Studios":
-                        query = query.Where(f => filter.Value.All(s => f.StudiosFilms.Any(sf => sf.Studio.Name == s)));
-                        break;
+                    switch (filter.Key)
+                    {
+                        case "Genres":
+                            query = query.Where(f => filter.Value.All(g => f.GenresFilms.Any(gf => gf.Genre.Name == g)));
+                            break;
+                        case "Categories":
+                            query = query.Where(f => filter.Value.All(t => f.CategoriesFilms.Any(tf => tf.Category.Name == t)));
+                            break;
+                        case "Studios":
+                            query = query.Where(f => filter.Value.All(s => f.StudiosFilms.Any(sf => sf.Studio.Name == s)));
+                            break;
+                    }
                 }
-            }
+            }            
 
             if (!string.IsNullOrWhiteSpace(sortByDate))
             {
@@ -201,6 +190,18 @@ namespace BusinessLogicLayer.Services
                 .Include(f => f.GenresFilms).ThenInclude(gf => gf.Genre)
                 .Include(f => f.CategoriesFilms).ThenInclude(cf => cf.Category)
                 .Include(f => f.StudiosFilms).ThenInclude(sf => sf.Studio);
+        }
+
+        private async Task<byte[]> ReadBytesAsync(IFormFile file)
+        {
+            if (file == null)
+                return null;
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                return stream.ToArray();
+            }
         }
 
         private async Task AddMissingEntitiesAsync<TEntity>(string[] items)
