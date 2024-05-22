@@ -15,10 +15,11 @@ PosterPartOne (file)?: Перша частина розділеного прос
 PosterPartTwo (file)?: Друга частина розділеного простеру фільму (необов'язково).  
 PosterPartThree (file)?: Третя частина розділеного простеру фільму (необов'язково).  
 Title (string): Назва фільму.  
-Description (string): Опис фільму.    
+Description (string): Опис фільму.  
+Quality (int): Якість фільму.  
 Duration (string): Тривалість фільму.  
-Country (string): Країна фільму.
-AgeRestriction (int): Вікове обмеження
+Country (string): Країна фільму.  
+AgeRestriction (int): Вікове обмеження.  
 DateOfPublish (int): Дата публікації фільму.  
 Director (string): Режисер фільму.  
 Actors (string): Актори фільму.  
@@ -50,7 +51,7 @@ filmId (int): Ідентифікатор фільму.
 rate (int): Оцінка фільму.  
 
 ## FilmsController
-- **GET /api/Films/countpagesbyfiltersandsorting** - Отримати кількість сторінок за довільною кількість фільтрів та відсортувати. Результати: Ok(результат), NotFound  
+- **POST /api/Films/countpagesbyfiltersandsorting** - Отримати кількість сторінок за довільною кількість фільтрів та відсортувати. Результати: Ok(результат), NotFound  
 
 Параметри запиту:  
 
@@ -66,8 +67,7 @@ sortByPopularity (string)?: Сортування за популярністю (
 {  
     "Genres": ["Action", "Drama"],  
     "Tags": ["Classic", "Must Watch"],  
-    "Studios": ["Warner Bros", "Paramount"],  
-    "Voiceovers": ["English", "Ukrainian"]  
+    "Studios": ["Warner Bros", "Paramount"]  
 }  
 
 - **GET /api/Films/byid** - Отримати фільм за ідентифікатором. Результати: Ok(результат), NotFound
@@ -88,10 +88,11 @@ ids (масив int): Масив ідентифікаторів фільмів.
 
 title (string): Назва фільму.
 
-- **GET /api/Films/byfiltersandsorting** - Отримати фільми за довільною кількість фільтрів та відсортувати. Результати: Ok(результат), NotFound
+- **POST /api/Films/byfiltersandsorting** - Отримати фільми за довільною кількість фільтрів та відсортувати. Результати: Ok(результат), NotFound
   
 Параметри запиту:  
 
+pageNumber (int): Номер сторінки.  
 pageSize (int): Розмір сторінки.  
 sortByDate (string)?: Сортування за датою (не обов'язкого). Варіанти: "asc", "desc"  
 sortByPopularity (string)?: Сортування за популярністю (не обов'язкого). Варіанти: "rating", "discussing"  
@@ -104,8 +105,7 @@ sortByPopularity (string)?: Сортування за популярністю (
 {  
     "Genres": ["Action", "Drama"],  
     "Tags": ["Classic", "Must Watch"],  
-    "Studios": ["Warner Bros", "Paramount"],  
-    "Voiceovers": ["English", "Ukrainian"]  
+    "Studios": ["Warner Bros", "Paramount"]  
 }  
 
 - **GET /api/Films/getsas** - Отримати SaS токен для завантажування файлу зі сховища. Результати: Ok, BadRequest(текст помилки)
