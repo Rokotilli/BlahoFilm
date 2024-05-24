@@ -9,5 +9,6 @@ namespace BusinessLogicLayer.Interfaces
         Task<string> RegisterFilm(FilmRegisterModel filmRegisterModel);
         List<ReturnFilms> GetFilmsByFilterAndSorting(Dictionary<string, string[]> filters, int pageNumber, int pageSize, string sortByDate, string sortByPopularity);
         double GetCountPagesFilmsByFilter(Dictionary<string, string[]> filters, int pageSize, string sortByDate, string sortByPopularity);
+        Task<string> CreateSelection(SelectionAddModel selectionAddModel);
     }
 }

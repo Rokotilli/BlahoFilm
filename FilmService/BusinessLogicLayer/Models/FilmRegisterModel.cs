@@ -25,5 +25,6 @@ namespace BusinessLogicLayer.Models
         public string Studios { get; set; }
         public string Genres { get; set; }
         public string Categories { get; set; }
+        public string? Selections { get; set; }
     }
 }

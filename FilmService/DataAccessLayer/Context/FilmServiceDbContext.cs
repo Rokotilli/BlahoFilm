@@ -1,6 +1,5 @@
 ﻿using DataAccessLayer.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace DataAccessLayer.Context
 {
@@ -15,6 +14,8 @@ namespace DataAccessLayer.Context
         public DbSet<GenresFilm> GenresFilms { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategoriesFilm> CategoriesFilms { get; set; }
+        public DbSet<Selection> Selections { get; set; }
+        public DbSet<SelectionsFilm> SelectionsFilms { get; set; }
         public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<CommentDislike> CommentDislikes { get; set; }
         public DbSet<Rating> Rating { get; set; }

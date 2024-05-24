@@ -67,6 +67,20 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Selections",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Image = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Selections", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Studios",
                 columns: table => new
                 {
@@ -134,6 +148,30 @@ namespace DataAccessLayer.Migrations
                         name: "FK_GenresFilms_Genres_GenreId",
                         column: x => x.GenreId,
                         principalTable: "Genres",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SelectionsFilms",
+                columns: table => new
+                {
+                    FilmId = table.Column<int>(type: "int", nullable: false),
+                    SelectionId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SelectionsFilms", x => new { x.FilmId, x.SelectionId });
+                    table.ForeignKey(
+                        name: "FK_SelectionsFilms_Films_FilmId",
+                        column: x => x.FilmId,
+                        principalTable: "Films",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SelectionsFilms_Selections_SelectionId",
+                        column: x => x.SelectionId,
+                        principalTable: "Selections",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -307,6 +345,11 @@ namespace DataAccessLayer.Migrations
                 column: "FilmId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SelectionsFilms_SelectionId",
+                table: "SelectionsFilms",
+                column: "SelectionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StudiosFilms_StudioId",
                 table: "StudiosFilms",
                 column: "StudioId");
@@ -331,6 +374,9 @@ namespace DataAccessLayer.Migrations
                 name: "Rating");
 
             migrationBuilder.DropTable(
+                name: "SelectionsFilms");
+
+            migrationBuilder.DropTable(
                 name: "StudiosFilms");
 
             migrationBuilder.DropTable(
@@ -341,6 +387,9 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Genres");
+
+            migrationBuilder.DropTable(
+                name: "Selections");
 
             migrationBuilder.DropTable(
                 name: "Studios");

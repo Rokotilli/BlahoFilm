@@ -166,5 +166,18 @@ namespace FilmServiceAPI.Controllers
 
             return Ok(model);
         }
+
+        [HttpGet("selections")]
+        public async Task<IActionResult> GetAllSelections()
+        {
+            var model = await _dbContext.Selections.ToArrayAsync();
+
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
     }
 }

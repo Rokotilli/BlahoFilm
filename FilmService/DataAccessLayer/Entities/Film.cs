@@ -23,6 +23,7 @@
 
         public ICollection<GenresFilm> GenresFilms { get; set; }
         public ICollection<CategoriesFilm> CategoriesFilms { get; set; }
+        public ICollection<SelectionsFilm> SelectionsFilms { get; set; }
         public ICollection<Rating> Ratings { get; set; }
         public ICollection<StudiosFilm> StudiosFilms { get; set; }
         public ICollection<Comment> Comments { get; set; }

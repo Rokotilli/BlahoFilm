@@ -63,5 +63,18 @@ namespace FilmServiceAPI.Controllers
 
             return BadRequest(result);
         }
+
+        [HttpPost("createselection")]
+        public async Task<IActionResult> CreateSelection(SelectionAddModel selectionAddModel)
+        {
+            var result = await _filmService.CreateSelection(selectionAddModel);
+
+            if (result != null)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok();
+        }
     }
 }

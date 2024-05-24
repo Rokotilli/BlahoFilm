@@ -37,7 +37,20 @@ namespace BusinessLogicLayer.Services
             {
                 var genres = filmRegisterModel.Genres.Split(",");
                 var categories = filmRegisterModel.Categories.Split(",");
-                var studios = filmRegisterModel.Studios.Split(",");                
+                var studios = filmRegisterModel.Studios.Split(",");
+                var selections = filmRegisterModel.Selections?.Split(",");
+
+                if (selections != null)
+                {
+                    foreach (var item in selections)
+                    {
+                        var existSelection = await _dbContext.Selections.FirstOrDefaultAsync(s => s.Name == item);
+                        if (existSelection == null)
+                        {
+                            return $"Selection {item} not found!";
+                        }
+                    }
+                }                
 
                 byte[] posterBytes = await ReadBytesAsync(filmRegisterModel.Poster);
                 byte[] posterPartOneBytes = await ReadBytesAsync(filmRegisterModel.PosterPartOne);
@@ -85,6 +98,7 @@ namespace BusinessLogicLayer.Services
                 await AddEntityForManyToMany<Genre, GenresFilm>(newFilm.Entity.Id, genres);
                 await AddEntityForManyToMany<Category, CategoriesFilm>(newFilm.Entity.Id, categories);
                 await AddEntityForManyToMany<Studio, StudiosFilm>(newFilm.Entity.Id, studios);
+                await AddEntityForManyToMany<Selection, SelectionsFilm>(newFilm.Entity.Id, selections);
 
                 await _dbContext.SaveChangesAsync();
 
@@ -95,6 +109,36 @@ namespace BusinessLogicLayer.Services
             catch (Exception ex)
             {
                 return "Adding film failed!";
+            }
+        }
+
+        public async Task<string> CreateSelection(SelectionAddModel selectionAddModel)
+        {
+            try
+            {
+                var existSelection = await _dbContext.Selections.FirstOrDefaultAsync(s => s.Name == selectionAddModel.Name);
+
+                if (existSelection != null)
+                {
+                    return "This selection is already exist!";
+                }
+
+                byte[] imageBytes = await ReadBytesAsync(selectionAddModel.Image);
+
+                var model = new Selection
+                {
+                    Name = selectionAddModel.Name,
+                    Image = imageBytes
+                };
+
+                await _dbContext.Selections.AddAsync(model);
+                await _dbContext.SaveChangesAsync();
+
+                return null;
+            }
+            catch
+            {
+                return "Adding selection failed!";
             }
         }
 
@@ -170,6 +214,9 @@ namespace BusinessLogicLayer.Services
                         case "Studios":
                             query = query.Where(f => filter.Value.All(s => f.StudiosFilms.Any(sf => sf.Studio.Name == s)));
                             break;
+                        case "Selections":
+                            query = query.Where(f => filter.Value.All(s => f.SelectionsFilms.Any(sf => sf.Selection.Name == s)));
+                            break;
                     }
                 }
             }            
@@ -191,7 +238,8 @@ namespace BusinessLogicLayer.Services
             return query
                 .Include(f => f.GenresFilms).ThenInclude(gf => gf.Genre)
                 .Include(f => f.CategoriesFilms).ThenInclude(cf => cf.Category)
-                .Include(f => f.StudiosFilms).ThenInclude(sf => sf.Studio);
+                .Include(f => f.StudiosFilms).ThenInclude(sf => sf.Studio)
+                .Include(f => f.SelectionsFilms).ThenInclude(sf => sf.Selection);
         }
 
         private async Task<byte[]> ReadBytesAsync(IFormFile file)

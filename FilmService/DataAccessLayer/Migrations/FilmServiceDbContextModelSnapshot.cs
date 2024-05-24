@@ -247,6 +247,42 @@ namespace DataAccessLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Selection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Selections");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.SelectionsFilm", b =>
+                {
+                    b.Property<int>("FilmId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SelectionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FilmId", "SelectionId");
+
+                    b.HasIndex("SelectionId");
+
+                    b.ToTable("SelectionsFilms");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
                 {
                     b.Property<int>("Id")
@@ -409,6 +445,25 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.SelectionsFilm", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Film", "Film")
+                        .WithMany("SelectionsFilms")
+                        .HasForeignKey("FilmId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.Selection", "Selection")
+                        .WithMany("SelectionsFilms")
+                        .HasForeignKey("SelectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Film");
+
+                    b.Navigation("Selection");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.StudiosFilm", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Film", "Film")
@@ -450,12 +505,19 @@ namespace DataAccessLayer.Migrations
 
                     b.Navigation("Ratings");
 
+                    b.Navigation("SelectionsFilms");
+
                     b.Navigation("StudiosFilms");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Genre", b =>
                 {
                     b.Navigation("GenresFilms");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Selection", b =>
+                {
+                    b.Navigation("SelectionsFilms");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
