@@ -1,4 +1,5 @@
-﻿using BusinessLogicLayer.Interfaces;
+﻿using Azure.Storage.Sas;
+using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace AnimeServiceAPI.Controllers
        
         public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
-            var result = await _getSaSService.GetSaS(_configuration, _configuration["AzureStorageContainerName"], blobName);
+            var result = await _getSaSService.GetSaS(blobName, BlobSasPermissions.Write);
 
             if (result != null)
             {
@@ -90,5 +91,10 @@ namespace AnimeServiceAPI.Controllers
 
             return BadRequest(result);
         }
+
+
+
+
+
     }
 }

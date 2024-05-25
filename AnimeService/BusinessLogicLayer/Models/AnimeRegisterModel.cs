@@ -21,6 +21,7 @@ namespace BusinessLogicLayer.Models
         public int AnimationTypeId { get; set; }
         public int Year { get; set; }
         public string Director { get; set; }
+        public string Actors { get; set; }
         public int Rating { get; set; }
         public string Studios { get; set; }
         public string TrailerUri { get; set; }

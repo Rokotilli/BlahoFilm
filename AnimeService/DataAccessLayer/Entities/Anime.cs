@@ -14,6 +14,7 @@
         public string? Duration { get; set; }
         public int Year { get; set; }
         public string Director { get; set; }
+        public string Actors { get; set; }
         public double Rating { get; set; }
         public string TrailerUri { get; set; }
         public int AgeRestriction { get; set; }
@@ -24,5 +25,6 @@
         public ICollection<CategoriesAnime> CategoriesAnimes { get; set; }
         public ICollection<Rating> AnimeRatings{ get; set; }
         public ICollection<StudiosAnime> StudiosAnime { get; set; }
+        public ICollection<SelectionAnime> SelectionAnimes { get; set; }
     }
 }

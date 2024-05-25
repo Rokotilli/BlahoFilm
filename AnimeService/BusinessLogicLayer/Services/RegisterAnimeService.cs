@@ -65,6 +65,7 @@ namespace BusinessLogicLayer.Services
                     CountParts = animeRegisterModel.CountParts,
                     Year = animeRegisterModel.Year,
                     Director = animeRegisterModel.Director,
+                    Actors = animeRegisterModel.Actors,
                     Rating = animeRegisterModel.Rating,
                     TrailerUri = animeRegisterModel.TrailerUri,
                     AgeRestriction = animeRegisterModel.AgeRestriction,
@@ -81,6 +82,7 @@ namespace BusinessLogicLayer.Services
                     a.Year == model.Year &&
                     a.Director == model.Director &&
                     a.Rating == model.Rating &&
+                    a.Actors == animeRegisterModel.Actors &&
                     a.TrailerUri == model.TrailerUri &&
                     a.AgeRestriction == model.AgeRestriction);
                 if (anime != null)
