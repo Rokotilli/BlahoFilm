@@ -1,4 +1,5 @@
 ﻿using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 
@@ -13,13 +14,24 @@ namespace BusinessLogicLayer.Services
             _dbContext = transactionServiceDbContext;
         }
 
-        public async Task<string> CreateFundraising(string fundraisingUrl)
+        public async Task<string> CreateFundraising(FundraisingModel fundraisingModel)
         {
             try
             {
+                byte[] imageBytes = null;
+
+                using (var stream = new MemoryStream())
+                {
+                    await fundraisingModel.Image.CopyToAsync(stream);
+                    imageBytes = stream.ToArray();
+                }
+
                 var model = new Fundraising()
                 {
-                    FundraisingUrl = fundraisingUrl
+                    Name = fundraisingModel.Name,
+                    Description = fundraisingModel.Description,
+                    Image = imageBytes,
+                    FundraisingUrl = fundraisingModel.FundraisingUrl
                 };
 
                 _dbContext.Fundraisings.Add(model);

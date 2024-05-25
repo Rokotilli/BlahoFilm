@@ -1,8 +1,10 @@
-﻿namespace BusinessLogicLayer.Interfaces
+﻿using BusinessLogicLayer.Models;
+
+namespace BusinessLogicLayer.Interfaces
 {
     public interface IFundraisingService
     {
-        Task<string> CreateFundraising(string fundraisingUrl);
+        Task<string> CreateFundraising(FundraisingModel fundraisingModel);
         Task<string> ChangeStatus(int fundraisingId);
     }
 }
