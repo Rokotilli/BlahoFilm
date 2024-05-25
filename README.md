@@ -27,6 +27,7 @@ TrailerUri (string): Посилання на трейлер фільму.
 Studios (string): Студії фільму (через кому).  
 Genres (string): Жанри фільму (через кому).  
 Categories (string): Категорії фільму (через кому).  
+Selections (string)?: Додати фільм в існуючі вибірка (через кому) (необов'язково).  
 
 - **POST /api/RegisterFilm/uploadedfilm** - Додати в базу данних лінк на файл в сховищі. Результати: Ok, BadRequest(текст помилки), Forbidden, Unauthorized  
   
@@ -35,6 +36,13 @@ Categories (string): Категорії фільму (через кому).
 FilmId (int): Ідентифікатор фільму.  
 FileName (string): Назва файлу.  
 FileUri (string): URI файлу.  
+
+- **POST /api/RegisterFilm/createselection** - Створити нову вибірку. Результати: Ok, BadRequest(текст помилки), Forbidden, Unauthorized  
+  
+Поля тіла запиту (multipart/form-data):
+ 
+Name (string): Назва вибірки.  
+Image (file): Картинка вибірки.  
 
 ## RatingController
 - **GET /api/Rating** - Отримати рейтинг фільму. Результати: Ok(результат), NotFound
@@ -68,6 +76,7 @@ sortByPopularity (string)?: Сортування за популярністю (
     "Genres": ["Action", "Drama"],  
     "Tags": ["Classic", "Must Watch"],  
     "Studios": ["Warner Bros", "Paramount"]  
+    "Selections": ["New year", "AI"]  
 }  
 
 - **GET /api/Films/byid** - Отримати фільм за ідентифікатором. Результати: Ok(результат), NotFound
@@ -106,6 +115,7 @@ sortByPopularity (string)?: Сортування за популярністю (
     "Genres": ["Action", "Drama"],  
     "Tags": ["Classic", "Must Watch"],  
     "Studios": ["Warner Bros", "Paramount"]  
+    "Selections": ["New year", "AI"]  
 }  
 
 - **GET /api/Films/getsas** - Отримати SaS токен для завантажування файлу зі сховища. Результати: Ok, BadRequest(текст помилки)
@@ -119,6 +129,8 @@ blobName (string): Назва файлу в сховищі.
 - **GET /api/Films/categories** - Отримати всі теги. Результати: Ok(результат), NotFound  
 
 - **GET /api/Films/studios** - Отримати всі студії. Результати: Ok(результат), NotFound  
+
+- **GET /api/Films/selections** - Отримати всі вибірки. Результати: Ok(результат), NotFound  
 
 ## CommentsController
 - **GET /api/Comments** - Отримати всі коментарі. Результати: Ok(результат), NotFound  
@@ -166,15 +178,15 @@ commentId (int): Ідентифікатор коментаря.
 
 Поля тіла запиту (application/json):  
 
-Email (string): Пошта користувача  
-Password (string): Пароль користувача  
+Email (string): Пошта користувача.  
+Password (string): Пароль користувача.  
 
 - **POST /api/Auth/authenticate** - Аутентифікувати користувача. Результати: Ok, BadRequest(текст помилки), NotFound, Forbidden  
 
 Поля тіла запиту (application/json):  
 
-Email (string): Пошта користувача  
-Password (string): Пароль користувача  
+Email (string): Пошта користувача.  
+Password (string): Пароль користувача.  
 
 - **PUT /api/Auth/refreshjwt** - Оновити JWT токен. Результати: Ok, BadRequest(текст помилки)  
 
@@ -184,73 +196,73 @@ Password (string): Пароль користувача
 
 Поля тіла запиту (multipart/form-data):  
 
-token (string): Токен доступу виданий Google  
+token (string): Токен доступу виданий Google.  
 
 - **GET /api/Auth/migrateuser** - Додати користувачу Google аутентифікацію. Результати: Ok, BadRequest(текст помилки), NotFound, Conflict  
 
 Параметри запиту:  
 
-token (string): Токен користувача  
+token (string): Токен користувача.  
 
-- **GET /api/Auth/emailconfirm** - Підтвердити пошту користувача. Результати: Ok, BadRequest(текст помилки), Conflict  
+- **POST /api/Auth/emailconfirm** - Підтвердити пошту користувача. Результати: Ok, BadRequest(текст помилки), Conflict  
 
 Параметри запиту:  
 
-token (string): Токен користувача  
+token (string): Токен користувача.  
 
 ## UsersController
 - **GET /api/Users/byid** - Отримати користувача за ідентифікатором. Результати: Ok(результат), NotFound  
 
 Параметри запиту:
 
-id (int): Ідентифікатор користувача
+id (int)?: Ідентифікатор користувача (необов'язково).
 
 - **GET /api/Users/byids** - Отримати користувачів за ідентифікаторами: Результати: Ok(результат), NotFound  
 
 Поля тіла запиту (application/json):
 
-ids (масив int): Масив Ідентифікаторів користувача
+ids (масив int): Масив Ідентифікаторів користувача.
 
 - **PUT /api/Users/avatar** - Змінити аватар користувача. Результати: Ok, BadRequest(текст помилки), Unauthorized  
 
 Поля тіла запиту (multipart/form-data):
 
-avatar (file): Аватар користувача  
+avatar (file): Аватар користувача.  
 
 - **POST /api/Users/sendemailchangepassword** - Надіслати лист користувачу на пошту для зміни пароля. Результати: Ok, BadRequest(текст помилки), NotFound  
 
 Поля тіла запиту (multipart/form-data):  
 
-email (string): Поштовий адрес користувача  
+email (string): Поштовий адрес користувача.  
 
 - **PUT /api/Users/changepassword** - Змінити пароль користувача. Результати: Ok, BadRequest(текст помилки), NotFound  
 
 Параметри запиту:  
 
-token (string): Токен виданий сервісом для зміни пароля  
+token (string): Токен виданий сервісом для зміни пароля.  
 
 Поля тіла запиту (multipart/form-data):  
 
-password (string): Новий пароль  
+password (string): Новий пароль.  
 
 - **POST /api/Users/sendemailchangeemailaddress** - Надіслати лист користувачу на пошту для зміни пошти. Результати: Ok, BadRequest(текст помилки), Unauthorized  
 
 Поля тіла запиту (application/json):  
 
-password (string): Пароль користувача  
-email (string): Новий поштовий адрес користувача  
+password (string): Пароль користувача.  
+email (string): Новий поштовий адрес користувача.  
 
 - **PUT /api/Users/changeemail** - Змінити пошту користувача. Результати: Ok, BadRequest(текст помилки)  
 
 Параметри запиту:  
 
-token (string): Токен виданий сервісом для зміни пошти  
+token (string): Токен виданий сервісом для зміни пошти.  
 
 - **PUT /api/Users/changenusername** - Змінити ім'я користувача. Результати: Ok, BadRequest(текст помилки), Unauthorized  
 
 Параметри запиту:  
 
-username (string): Нове ім'я користувача
+username (string): Нове ім'я користувача.
 
 ## HistoryController
 - **GET /api/History** - Отримати історії користувача. Результати: Ok(результат), NotFound  
@@ -260,12 +272,12 @@ username (string): Нове ім'я користувача
 Поля тіла запиту (application/json):  
 
 MediaWithType (object){  
-MediaId (int): Ідентифікатор медія  
-MediaTypeId (int): Ідентифікатор типу медіа  
+MediaId (int): Ідентифікатор медія.  
+MediaTypeId (int): Ідентифікатор типу медіа.  
 }  
-PartNumber (int)?: Номер частини  
-SeasonNumber (int)?: Номер сезона  
-TimeCode (string): Позиція користувача на таймлайні  
+PartNumber (int)?: Номер частини.  
+SeasonNumber (int)?: Номер сезона.  
+TimeCode (string): Позиція користувача на таймлайні.  
 
 ## BookMarksController
 - **GET /api/BookMarks** - Отримати закладки користувача. Результати: Ok(результат), NotFound  
@@ -274,8 +286,8 @@ TimeCode (string): Позиція користувача на таймлайні
 
 Поля тіла запиту (application/json):  
 
-MediaId (int): Ідентифікатор медія  
-MediaTypeId (int): Ідентифікатор типу медіа  
+MediaId (int): Ідентифікатор медіа.  
+MediaTypeId (int): Ідентифікатор типу медіа.  
 
 # TransactionService
 ## FundraisingController  
@@ -286,25 +298,20 @@ MediaTypeId (int): Ідентифікатор типу медіа
 pageNumber (int): Номер сторінки.  
 pageSize (int): Розмір сторінки.  
 
-- **POST /api/Fundraising - Додати збір. Результати: Ok, BadRequest(текст помилки), Forbidden, Unauthorized  
+- **POST /api/Fundraising** - Додати збір. Результати: Ok, BadRequest(текст помилки), Forbidden, Unauthorized  
 
-Поля тіла запиту (application/json):  
+Поля тіла запиту (multipart/form-data):  
 
-Title (string): Назва збору  
-Description (string): Опис збору  
-TotalAmount (decimal): Загальна кількість коштів  
+Name (string): Назва збору.  
+Description (string): Опис збору.  
+Image (file): Картинка збору.  
+FundraisingUrl (string): URL на збір.  
 
 - **PUT /api/Fundraising** - Змінити статус збору. Результати: Ok, BadRequest(текст помилки), Forbidden, Unauthorized  
 
 Параметри запиту:  
 
-fundraisingId (int): Ідентифікатор збору  
-
-Поля тіла запиту (application/json):  
-
-Title (string): Назва збору  
-Description (string): Опис збору  
-TotalAmount (decimal): Загальна кількість коштів  
+fundraisingId (int): Ідентифікатор збору.  
 
 ## SubscriptionController
 - **GET /api/Subscription/subscriptions** - Отримати підписки користувача. Результати: Ok(результат), NotFound, Unauthorized  
@@ -313,11 +320,11 @@ TotalAmount (decimal): Загальна кількість коштів
 
 Поля тіла запиту (application/json):  
 
-OrderId (string): Ідентифікатор замовлення  
-SubscriptionId (string): Ідентифікатор підписки  
+OrderId (string): Ідентифікатор замовлення. 
+SubscriptionId (string): Ідентифікатор підписки.  
 
 - **PUT /api/Subscription/changestatus** - Змінити статус підписки користувача. Результати: Ok, BadRequest(текст помилки), Unauthorized  
 
 Параметри запиту:  
 
-reason (string): Причина зміни статусу  
+reason (string): Причина зміни статусу.  
