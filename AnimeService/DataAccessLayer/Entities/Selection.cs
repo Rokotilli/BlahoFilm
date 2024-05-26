@@ -12,6 +12,6 @@ namespace DataAccessLayer.Entities
         public string Name { get; set; }
         public byte[] Image { get; set; }
 
-        public ICollection<SelectionsAnime> SelectionsAnimes{ get; set; }
+        public ICollection<SelectionAnime> SelectionsAnimes{ get; set; }
     }
 }

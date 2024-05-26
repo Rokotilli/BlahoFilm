@@ -10,7 +10,6 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IAnimeService
     {
-        Task<string> RegisterAnime(AnimeRegisterModel animeRegisterModel);
         List<ReturnAnime> GetAnimeByFilterAndSorting(Dictionary<string, string[]> filters, int pageNumber, int pageSize, string sortByDate, string sortByPopularity);
         double GetCountPagesAnimeByFilter(Dictionary<string, string[]> filters, int pageSize, string sortByDate, string sortByPopularity);
         Task<string> CreateSelection(SelectionAddModel selectionAddModel);

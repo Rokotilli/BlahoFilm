@@ -8,11 +8,18 @@ namespace BusinessLogicLayer.Services
 {
     public class GetSaSService : IGetSaSService
     {
-        public async Task<string> GetSaS(IConfiguration configuration, string containerName, string blobName)
+        private readonly IConfiguration _configuration;
+        public GetSaSService(IConfiguration configuration)
         {
-            var connectionString = configuration["AzureStorageConnectionString"];
-            var accountName = configuration["AzureStorageAccountName"];
-            var accountKey = configuration["AzureStorageAccountKey"];
+            _configuration = configuration;
+        }
+
+        public async Task<string> GetSaS(string blobName, BlobSasPermissions permission)
+        {
+            var connectionString = _configuration["AzureStorageConnectionString"];
+            var containerName = _configuration["AzureStorageContainerName"];
+            var accountName = _configuration["AzureStorageAccountName"];
+            var accountKey = _configuration["AzureStorageAccountKey"];
 
             BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
             BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
@@ -30,8 +37,7 @@ namespace BusinessLogicLayer.Services
                     ExpiresOn = DateTimeOffset.UtcNow.AddHours(10),
                 };
 
-                sasBuilder.SetPermissions(BlobSasPermissions.Write);
-                sasBuilder.SetPermissions(BlobSasPermissions.Read);
+                sasBuilder.SetPermissions(permission);
 
                 StorageSharedKeyCredential storageSharedKeyCredential = new StorageSharedKeyCredential(accountName, accountKey);
                 string sasToken = sasBuilder.ToSasQueryParameters(storageSharedKeyCredential).ToString();

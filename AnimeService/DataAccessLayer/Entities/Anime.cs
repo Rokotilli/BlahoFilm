@@ -12,7 +12,7 @@
         public int? CountSeasons { get; set; }
         public int? CountParts { get; set; }
         public string? Duration { get; set; }
-        public int Year { get; set; }
+        public DateTime DateOfPublish { get; set; }
         public string Director { get; set; }
         public string Actors { get; set; }
         public double Rating { get; set; }
@@ -26,5 +26,6 @@
         public ICollection<Rating> AnimeRatings{ get; set; }
         public ICollection<StudiosAnime> StudiosAnime { get; set; }
         public ICollection<SelectionAnime> SelectionAnimes { get; set; }
+        public ICollection<Comment> Comments { get; set; }
     }
 }

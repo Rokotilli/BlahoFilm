@@ -6,6 +6,7 @@ using MassTransit;
 using MassTransit.Initializers;
 using MessageBus.Enums;
 using MessageBus.Messages;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 
@@ -21,37 +22,30 @@ namespace BusinessLogicLayer.Services
             _dbContext = animeServiceDbContext;
             _publishEndpoint = publishEndpoint;
         }
+        private async Task<byte[]> ReadBytesAsync(IFormFile file)
+        {
+            if (file == null)
+                return null;
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                return stream.ToArray();
+            }
+        }
         public async Task<string> RegisterAnime(AnimeRegisterModel animeRegisterModel)
         {
             try
             {
-                byte[] posterBytes = null;
-                byte[] posterPartOneBytes = null;
-                byte[] posterPartTwoBytes = null;
-                byte[] posterPartThreeBytes = null;
+
                 var genres = animeRegisterModel.Genres.Split(",");
                 var categories = animeRegisterModel.Categories.Split(",");
                 var studios = animeRegisterModel.Studios.Split(",");
-                using (var stream = new MemoryStream())
-                {
-                    await animeRegisterModel.Poster.CopyToAsync(stream);
-                    posterBytes = stream.ToArray();
-                }
-                using (var stream = new MemoryStream())
-                {
-                    await animeRegisterModel.PosterPartOne.CopyToAsync(stream);
-                    posterPartOneBytes = stream.ToArray();
-                }
-                using (var stream = new MemoryStream())
-                {
-                    await animeRegisterModel.PosterPartTwo.CopyToAsync(stream);
-                    posterPartTwoBytes = stream.ToArray();
-                }
-                using (var stream = new MemoryStream())
-                {
-                    await animeRegisterModel.PosterPartThree.CopyToAsync(stream);
-                    posterPartThreeBytes = stream.ToArray();
-                }
+                byte[] posterBytes = await ReadBytesAsync(animeRegisterModel.Poster);
+                byte[] posterPartOneBytes = await ReadBytesAsync(animeRegisterModel.PosterPartOne);
+                byte[] posterPartTwoBytes = await ReadBytesAsync(animeRegisterModel.PosterPartTwo);
+                byte[] posterPartThreeBytes = await ReadBytesAsync(animeRegisterModel.PosterPartThree);
+
                 var model = new Anime()
                 {
                     Poster = posterBytes,
@@ -63,7 +57,7 @@ namespace BusinessLogicLayer.Services
                     Description = animeRegisterModel.Description,
                     CountSeasons = animeRegisterModel.CountSeasons,
                     CountParts = animeRegisterModel.CountParts,
-                    Year = animeRegisterModel.Year,
+                    DateOfPublish = animeRegisterModel.DateOfPublish,
                     Director = animeRegisterModel.Director,
                     Actors = animeRegisterModel.Actors,
                     Rating = animeRegisterModel.Rating,
@@ -79,7 +73,7 @@ namespace BusinessLogicLayer.Services
                     a.Description == model.Description &&
                     a.CountSeasons == model.CountSeasons &&
                     a.CountParts == model.CountParts &&
-                    a.Year == model.Year &&
+                    a.DateOfPublish == model.DateOfPublish &&
                     a.Director == model.Director &&
                     a.Rating == model.Rating &&
                     a.Actors == animeRegisterModel.Actors &&
@@ -141,7 +135,7 @@ namespace BusinessLogicLayer.Services
                     a.Description == model.Description &&
                     a.CountSeasons == model.CountSeasons &&
                     a.CountParts == model.CountParts &&
-                    a.Year == model.Year &&
+                    a.DateOfPublish == model.DateOfPublish &&
                     a.Director == model.Director &&
                     a.Rating == model.Rating &&
                     a.TrailerUri == model.TrailerUri &&

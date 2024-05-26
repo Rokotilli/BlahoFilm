@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Sas;
 using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Services;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,12 @@ namespace AnimeServiceAPI.Controllers
     {
         private readonly IGetSaSService _getSaSService;
         private readonly AnimeServiceDbContext _dbContext;
-
-        public AnimeController(AnimeServiceDbContext AnimeServiceDbContext, IGetSaSService getSaSService)
+        private readonly AnimeService _animeService;
+        public AnimeController(AnimeServiceDbContext AnimeServiceDbContext, IGetSaSService getSaSService, AnimeService animeService)
         {
             _dbContext = AnimeServiceDbContext;
             _getSaSService = getSaSService;
+            _animeService = animeService;
         }
         [HttpGet("getsas")]
         public async Task<IActionResult> GetSaS([FromQuery] string blobName, [FromQuery] int animeId)
@@ -48,7 +50,7 @@ namespace AnimeServiceAPI.Controllers
                     Description = a.Description,
                     CountSeasons = a.CountSeasons,
                     CountParts = a.CountParts,
-                    Year = a.Year,
+                    DateOfPublish = a.DateOfPublish,
                     Director = a.Director,
                     Actors = a.Actors,
                     Rating = a.Rating,
@@ -140,32 +142,14 @@ namespace AnimeServiceAPI.Controllers
         public async Task<IActionResult> GetAnimeById([FromQuery] int id)
         {
             var model = _dbContext.Animes
-                .Select(a => new
-                {
-                    Id = a.Id,
-                    Poster = a.Poster,
-                    PosterPartOne = a.PosterPartOne,
-                    PosterPartTwo = a.PosterPartTwo,
-                    PosterPartThree = a.PosterPartThree,
-                    Title = a.Title,
-                    Description = a.Description,
-                    CountSeasons = a.CountSeasons,
-                    CountParts = a.CountParts,
-                    Year = a.Year,
-                    Director = a.Director,
-                    Actors = a.Actors,
-                    Rating = a.Rating,
-                    TrailerUri = a.TrailerUri,
-                    AgeRestriction = a.AgeRestriction,
-                    FileName = a.FileName,
-                    FileUri = a.FileUri,
-                    genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                    studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                }
-                ).FirstOrDefault(a => a.Id == id);
+            .Where(a => a.Id == id)
+            .Include(a => a.GenresAnimes).ThenInclude(ga => ga.Genre)
+            .Include(a => a.CategoriesAnimes).ThenInclude(ca => ca.Category)
+            .Include(a => a.StudiosAnime).ThenInclude(sa => sa.Studio)
+            .Select(a => AnimeService.ToReturnAnime(a))
+            .ToArray();
 
-            if (model == null)
+            if (!model.Any())
             {
                 return NotFound();
             }
@@ -177,33 +161,12 @@ namespace AnimeServiceAPI.Controllers
         public async Task<IActionResult> GetAnimesByIds([FromBody] int[] ids)
         {
             var model = _dbContext.Animes
-                .Where(a => ids
-                .Contains(a.Id))
-                .Select(a => new
-                {
-                    Id = a.Id,
-                    Poster = a.Poster,
-                    PosterPartOne = a.PosterPartOne,
-                    PosterPartTwo = a.PosterPartTwo,
-                    PosterPartThree = a.PosterPartThree,
-                    Title = a.Title,
-                    Description = a.Description,
-                    CountSeasons = a.CountSeasons,
-                    CountParts = a.CountParts,
-                    Year = a.Year,
-                    Director = a.Director,
-                    Actors = a.Actors,
-                    Rating = a.Rating,
-                    TrailerUri = a.TrailerUri,
-                    AgeRestriction = a.AgeRestriction,
-                    FileName = a.FileName,
-                    FileUri = a.FileUri,
-                    genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                    studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                }
-                )
-                .ToArray();
+              .Where(a => ids.Contains(a.Id))
+              .Include(a => a.GenresAnimes).ThenInclude(ga => ga.Genre)
+              .Include(a => a.CategoriesAnimes).ThenInclude(ca => ca.Category)
+              .Include(a => a.StudiosAnime).ThenInclude(sa => sa.Studio)
+              .Select(a => AnimeService.ToReturnAnime(a))
+              .ToArray();
 
             if (!model.Any())
             {
@@ -218,192 +181,13 @@ namespace AnimeServiceAPI.Controllers
         {
             var model = _dbContext.Animes
                 .Where(a => a.Title.Contains(title))
-                .Select(a => new
-                {
-                    Id = a.Id,
-                    Poster = a.Poster,
-                    PosterPartOne = a.PosterPartOne,
-                    PosterPartTwo = a.PosterPartTwo,
-                    PosterPartThree = a.PosterPartThree,
-                    Title = a.Title,
-                    Description = a.Description,
-                    CountSeasons = a.CountSeasons,
-                    CountParts = a.CountParts,
-                    Year = a.Year,
-                    Director = a.Director,
-                    Actors = a.Actors,
-                    Rating = a.Rating,
-                    TrailerUri = a.TrailerUri,
-                    AgeRestriction = a.AgeRestriction,
-                    FileName = a.FileName,
-                    FileUri = a.FileUri,
-                    genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                    studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                }
-                )
+                .Include(a => a.GenresAnimes).ThenInclude(ga => ga.Genre)
+                .Include(a => a.CategoriesAnimes).ThenInclude(ca => ca.Category)
+                .Include(a => a.StudiosAnime).ThenInclude(sa => sa.Studio)
+                .Select(a => AnimeService.ToReturnAnime(a))
                 .ToArray();
 
             if (!model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
-        [HttpGet("bygenres")]
-        public async Task<IActionResult> GetPaggedAnimesByGenres([FromBody] string[] genres, [FromQuery] int pageNumber, [FromQuery] int pageSize)
-        {
-            var model = _dbContext.Animes
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(a => genres.All(g => a.GenresAnimes.Any(gc => gc.Genre.Name == g)))
-                 .Select(a => new
-                 {
-                     Id = a.Id,
-                     Poster = a.Poster,
-                     PosterPartOne = a.PosterPartOne,
-                     PosterPartTwo = a.PosterPartTwo,
-                     PosterPartThree = a.PosterPartThree,
-                     Title = a.Title,
-                     Description = a.Description,
-                     CountSeasons = a.CountSeasons,
-                     CountParts = a.CountParts,
-                     Year = a.Year,
-                     Director = a.Director,
-                     Actors = a.Actors,
-                     Rating = a.Rating,
-                     TrailerUri = a.TrailerUri,
-                     AgeRestriction = a.AgeRestriction,
-                     FileName = a.FileName,
-                     FileUri = a.FileUri,
-                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                     studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                 }
-                )
-                .ToArray();
-
-            if (!model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
-        [HttpGet("bycategories")]
-        public async Task<IActionResult> GetPaggedAnimesByCategories([FromBody] string[] categories, [FromQuery] int pageNumber, [FromQuery] int pageSize)
-        {
-            var model = _dbContext.Animes
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(a => categories.All(g => a.CategoriesAnimes.Any(gc => gc.Category.Name == g)))
-                 .Select(a => new
-                 {
-                     Id = a.Id,
-                     Poster = a.Poster,
-                     PosterPartOne = a.PosterPartOne,
-                     PosterPartTwo = a.PosterPartTwo,
-                     PosterPartThree = a.PosterPartThree,
-                     Title = a.Title,
-                     Description = a.Description,
-                     CountSeasons = a.CountSeasons,
-                     CountParts = a.CountParts,
-                     Year = a.Year,
-                     Director = a.Director,
-                     Actors = a.Actors,
-                     Rating = a.Rating,
-                     TrailerUri = a.TrailerUri,
-                     AgeRestriction = a.AgeRestriction,
-                     FileName = a.FileName,
-                     FileUri = a.FileUri,
-                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                     studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                 }
-                )
-                .ToArray();
-            if (!model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-        [HttpGet("bystudios")]
-        public async Task<IActionResult> GetPaggedAnimesByStudios([FromBody] string[] studios, [FromQuery] int pageNumber, [FromQuery] int pageSize)
-        {
-            var model = _dbContext.Animes
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(a => studios.All(g => a.StudiosAnime.Any(gc => gc.Studio.Name == g)))
-                 .Select(a => new
-                 {
-                     Id = a.Id,
-                     Poster = a.Poster,
-                     PosterPartOne = a.PosterPartOne,
-                     PosterPartTwo = a.PosterPartTwo,
-                     PosterPartThree = a.PosterPartThree,
-                     Title = a.Title,
-                     Description = a.Description,
-                     CountSeasons = a.CountSeasons,
-                     CountParts = a.CountParts,
-                     Year = a.Year,
-                     Director = a.Director,
-                     Actors = a.Actors,
-                     Rating = a.Rating,
-                     TrailerUri = a.TrailerUri,
-                     AgeRestriction = a.AgeRestriction,
-                     FileName = a.FileName,
-                     FileUri = a.FileUri,
-                     genres = a.GenresAnimes.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     categories = a.CategoriesAnimes.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                     studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                 }
-                )
-                .ToArray();
-            if (!model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
-
-
-
-
-        [HttpPost("byfiltersandsorting")]
-        public async Task<IActionResult> GetPaggedFilmsByFilter(
-          [FromBody] Dictionary<string, string[]>? filters,
-          [FromQuery] int pageNumber,
-          [FromQuery] int pageSize,
-          [FromQuery] string? sortByDate,
-          [FromQuery] string? sortByPopularity)
-        {
-            var model = _filmService.GetFilmsByFilterAndSorting(filters, pageNumber, pageSize, sortByDate, sortByPopularity);
-
-            if (model == null || !model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
-        [HttpPost("countpagesbyfiltersandsorting")]
-        public async Task<IActionResult> GetCountPagesFilmsByGenres(
-            [FromBody] Dictionary<string, string[]>? filters,
-            [FromQuery] int pageSize,
-            [FromQuery] string? sortByDate,
-            [FromQuery] string? sortByPopularity)
-        {
-            var model = ainmeService.GetCountPagesFilmsByFilter(filters, pageSize, sortByDate, sortByPopularity);
-
-            if (model == 0)
             {
                 return NotFound();
             }
@@ -456,6 +240,44 @@ namespace AnimeServiceAPI.Controllers
             var model = await _dbContext.Selections.ToArrayAsync();
 
             if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+
+
+
+
+        [HttpPost("byfiltersandsorting")]
+        public async Task<IActionResult> GetPaggedAnimesByFilter(
+          [FromBody] Dictionary<string, string[]>? filters,
+          [FromQuery] int pageNumber,
+          [FromQuery] int pageSize,
+          [FromQuery] string? sortByDate,
+          [FromQuery] string? sortByPopularity)
+        {
+            var model = _animeService.GetAnimeByFilterAndSorting(filters, pageNumber, pageSize, sortByDate, sortByPopularity);
+
+            if (model == null || !model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+
+        [HttpPost("countpagesbyfiltersandsorting")]
+        public async Task<IActionResult> GetCountPagesAnimeByGenres(
+            [FromBody] Dictionary<string, string[]>? filters,
+            [FromQuery] int pageSize,
+            [FromQuery] string? sortByDate,
+            [FromQuery] string? sortByPopularity)
+        {
+            var model = _animeService.GetCountPagesAnimeByFilter(filters, pageSize, sortByDate, sortByPopularity);
+
+            if (model == 0)
             {
                 return NotFound();
             }

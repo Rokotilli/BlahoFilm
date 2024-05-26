@@ -19,7 +19,7 @@ namespace BusinessLogicLayer.Models
         public string? Duration { get; set; }
         public int CategoryId { get; set; }
         public int AnimationTypeId { get; set; }
-        public int Year { get; set; }
+        public DateTime DateOfPublish { get; set; }
         public string Director { get; set; }
         public string Actors { get; set; }
         public int Rating { get; set; }
