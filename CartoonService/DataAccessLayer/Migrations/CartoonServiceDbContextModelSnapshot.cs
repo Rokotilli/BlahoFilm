@@ -59,6 +59,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("CountSeasons")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("DateOfPublish")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -102,9 +105,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("TrailerUri")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -216,6 +216,8 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CartoonId");
+
                     b.HasIndex("CartoonPartId");
 
                     b.HasIndex("ParentCommentId");
@@ -317,6 +319,42 @@ namespace DataAccessLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Selection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Selections");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.SelectionCartoon", b =>
+                {
+                    b.Property<int>("CartoonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SelectionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CartoonId", "SelectionId");
+
+                    b.HasIndex("SelectionId");
+
+                    b.ToTable("SelectionCartoons");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
                 {
                     b.Property<int>("Id")
@@ -373,7 +411,7 @@ namespace DataAccessLayer.Migrations
             modelBuilder.Entity("DataAccessLayer.Entities.CartoonPart", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Cartoon", "Cartoon")
-                        .WithMany("Cartoons")
+                        .WithMany("CartoonParts")
                         .HasForeignKey("CartoonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -402,6 +440,10 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.Comment", b =>
                 {
+                    b.HasOne("DataAccessLayer.Entities.Cartoon", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("CartoonId");
+
                     b.HasOne("DataAccessLayer.Entities.CartoonPart", "CartoonPart")
                         .WithMany()
                         .HasForeignKey("CartoonPartId");
@@ -499,6 +541,25 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.SelectionCartoon", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Cartoon", "Cartoon")
+                        .WithMany("SelectionCartoons")
+                        .HasForeignKey("CartoonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.Selection", "Selection")
+                        .WithMany("SelectionsAnimes")
+                        .HasForeignKey("SelectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cartoon");
+
+                    b.Navigation("Selection");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.StudiosCartoon", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Cartoon", "Cartoon")
@@ -525,13 +586,17 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.Cartoon", b =>
                 {
-                    b.Navigation("CartoonRatings");
+                    b.Navigation("CartoonParts");
 
-                    b.Navigation("Cartoons");
+                    b.Navigation("CartoonRatings");
 
                     b.Navigation("CategoriesCartoons");
 
+                    b.Navigation("Comments");
+
                     b.Navigation("GenresCartoons");
+
+                    b.Navigation("SelectionCartoons");
 
                     b.Navigation("StudiosCartoons");
                 });
@@ -551,6 +616,11 @@ namespace DataAccessLayer.Migrations
             modelBuilder.Entity("DataAccessLayer.Entities.Genre", b =>
                 {
                     b.Navigation("GenresCartoons");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.Selection", b =>
+                {
+                    b.Navigation("SelectionsAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>

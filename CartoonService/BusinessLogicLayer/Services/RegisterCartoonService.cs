@@ -6,6 +6,7 @@ using MassTransit;
 using MassTransit.Initializers;
 using MessageBus.Enums;
 using MessageBus.Messages;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 
@@ -21,38 +22,28 @@ namespace BusinessLogicLayer.Services
             _dbContext = cartoonServiceDbContext;
             _publishEndpoint = publishEndpoint;
         }
+        private async Task<byte[]> ReadBytesAsync(IFormFile file)
+        {
+            if (file == null)
+                return null;
 
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                return stream.ToArray();
+            }
+        }
         public async Task<string> RegisterCartoon(CartoonRegisterModel cartoonRegisterModel)
         {
             try
             {
-                byte[] posterBytes = null;
-                byte[] posterPartOneBytes = null;
-                byte[] posterPartTwoBytes = null;
-                byte[] posterPartThreeBytes = null;
+                byte[] posterBytes = await ReadBytesAsync(cartoonRegisterModel.Poster);
+                byte[] posterPartOneBytes = await ReadBytesAsync(cartoonRegisterModel.PosterPartOne);
+                byte[] posterPartTwoBytes = await ReadBytesAsync(cartoonRegisterModel.PosterPartTwo);
+                byte[] posterPartThreeBytes = await ReadBytesAsync(cartoonRegisterModel.PosterPartThree);
                 var genres = cartoonRegisterModel.Genres.Split(",");
-                var Categories = cartoonRegisterModel.Genres.Split(",");
-                var studios = cartoonRegisterModel.Studios.Split(",");
-                using (var stream = new MemoryStream())
-                {
-                    await cartoonRegisterModel.Poster.CopyToAsync(stream);
-                    posterBytes = stream.ToArray();
-                }
-                using (var stream = new MemoryStream())
-                {
-                    await cartoonRegisterModel.PosterPartOne.CopyToAsync(stream);
-                    posterPartOneBytes = stream.ToArray();
-                }
-                using (var stream = new MemoryStream())
-                {
-                    await cartoonRegisterModel.PosterPartTwo.CopyToAsync(stream);
-                    posterPartTwoBytes = stream.ToArray();
-                }
-                using (var stream = new MemoryStream())
-                {
-                    await cartoonRegisterModel.PosterPartThree.CopyToAsync(stream);
-                    posterPartThreeBytes = stream.ToArray();
-                }
+                var categories = cartoonRegisterModel.Categories.Split(",");
+                var studios = cartoonRegisterModel.Studios.Split(",");               
                 var model = new Cartoon()
                 {
                     Poster = posterBytes,
@@ -64,7 +55,7 @@ namespace BusinessLogicLayer.Services
                     Duration = cartoonRegisterModel.Duration,
                     CountSeasons = cartoonRegisterModel.CountSeasons,
                     CountParts = cartoonRegisterModel.CountParts,
-                    Year = cartoonRegisterModel.Year,
+                    DateOfPublish = cartoonRegisterModel.DateOfPublish,
                     Director = cartoonRegisterModel.Director,
                     Rating = cartoonRegisterModel.Rating,
                     TrailerUri = cartoonRegisterModel.TrailerUri,
@@ -78,7 +69,7 @@ namespace BusinessLogicLayer.Services
                                      c.Duration == model.Duration &&
                                      c.CountSeasons == model.CountSeasons &&
                                      c.CountParts == model.CountParts &&
-                                     c.Year == model.Year &&
+                                     c.DateOfPublish == model.DateOfPublish &&
                                      c.Director == model.Director &&
                                      c.Rating == model.Rating &&
                                      c.AgeRestriction == model.AgeRestriction);
@@ -117,7 +108,7 @@ namespace BusinessLogicLayer.Services
                     .Except(existingGenres)
                     .ToArray();
 
-                var missingCategories = Categories
+                var missingCategories = categories
                     .Except(existingCategories)
                     .ToArray();
                 var missingStudios = studios
@@ -152,7 +143,7 @@ namespace BusinessLogicLayer.Services
                                      c.CountSeasons == model.CountSeasons &&
                                      c.CountParts == model.CountParts &&
                                      c.AnimationTypeId == model.AnimationTypeId &&
-                                     c.Year == model.Year &&
+                                     c.DateOfPublish == model.DateOfPublish &&
                                      c.Director == model.Director &&
                                      c.Rating == model.Rating &&
                                      c.AgeRestriction == model.AgeRestriction)
@@ -166,7 +157,7 @@ namespace BusinessLogicLayer.Services
                     _dbContext.GenresCartoons.Add(new GenresCartoon() { CartoonId = cartoonid, GenreId = genre.Id });
                 }
 
-                foreach (var item in Categories)
+                foreach (var item in categories)
                 {
                     var category = await _dbContext.Categories.FirstOrDefaultAsync(t => t.Name == item);
                     _dbContext.CategoriesCartoons.Add(new CategoriesCartoon() { CartoonId = cartoonid, CategoryId = category.Id });

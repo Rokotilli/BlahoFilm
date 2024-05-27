@@ -1,6 +1,10 @@
-﻿using DataAccessLayer.Context;
+﻿using Azure.Storage.Sas;
+using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Services;
+using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CartoonServiceAPI.Controllers
 {
@@ -8,159 +12,39 @@ namespace CartoonServiceAPI.Controllers
     [Route("api/[controller]")]
     public class CartoonsController : ControllerBase
     {
+        private readonly IGetSaSService _getSaSService;
         private readonly CartoonServiceDbContext _dbContext;
-
-        public CartoonsController(CartoonServiceDbContext CartoonServiceDbContext)
+        private readonly CartoonService _cartoonService;
+        public CartoonsController(CartoonServiceDbContext CartoonServiceDbContext, IGetSaSService getSaSService, CartoonService animeService)
         {
             _dbContext = CartoonServiceDbContext;
+            _getSaSService = getSaSService;
+            _cartoonService = animeService;
         }
-        [HttpGet]
-        public async Task<IActionResult> GetPaggedCartoons([FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("getsas")]
+        public async Task<IActionResult> GetSaS([FromQuery] string blobName, [FromQuery] int animeId)
         {
-            var model = _dbContext.Cartoons
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(c => new
-                {
-                    Id = c.Id,
-                    Poster = c.Poster,
-                    Title = c.Title,
-                    Description = c.Description,
-                    CountSeasons = c.CountSeasons,
-                    CountParts = c.CountParts,
-                    Duration = c.Duration,
-                    Animation = c.AnimationType.Name,
-                    Year = c.Year,
-                    Director = c.Director,
-                    Rating = c.Rating,
-                    TrailerUri = c.TrailerUri,
-                    FileName = c.FileName,
-                    FileUri = c.FileUri,
-                    AgeRestriction = c.AgeRestriction,
-                    genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                    Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-                }
-                )
-                .ToArray();
+            var result = await _getSaSService.GetSaS(blobName, BlobSasPermissions.Read);
 
-            if (!model.Any())
+            if (result != null)
             {
-                return NotFound();
+                return Ok(result);
             }
 
-            return Ok(model);
-        }
-
-        [HttpGet("countpages")]
-        public async Task<IActionResult> GetCountPagesCartoons([FromQuery] int pageSize)
-        {
-            var model = _dbContext.Cartoons.Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
-        }
-
-        [HttpGet("countpagesbygenres")]
-        public async Task<IActionResult> GetCountPagesCartoonsByGenres([FromQuery] int pageSize, [FromBody] string[] genres)
-        {
-            var model = _dbContext.Cartoons
-                .Where(c => genres.All(g => c.GenresCartoons.Any(gc => gc.Genre.Name == g)))
-                .Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
-        }
-
-        [HttpGet("countpagesbycategories")]
-        public async Task<IActionResult> GetCountPagesCartoonsByCategories([FromQuery] int pageSize, [FromBody] string[] categories)
-        {
-            var model = _dbContext.Cartoons
-                .Where(c => categories.All(g => c.CategoriesCartoons.Any(gc => gc.Category.Name == g)))
-                .Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
-        }
-        [HttpGet("countpagesbystudios")]
-        public async Task<IActionResult> GetCountPagesCartoonsByStudios([FromQuery] int pageSize, [FromBody] string[] studios)
-        {
-            var model = _dbContext.Cartoons
-                .Where(c => studios.All(g => c.StudiosCartoons.Any(gc => gc.Studio.Name == g)))
-                .Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
-        }
-        [HttpGet("countpagesbyanimationtype")]
-        public async Task<IActionResult> GetCountPagesCartoonsByAnymationtype([FromQuery] int pageSize, [FromBody] string animationType)
-        {
-            var model = _dbContext.Cartoons
-                .Where(c => c.AnimationType.Name == animationType)
-                .Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
+            return BadRequest("Can't get a SaS");
         }
         [HttpGet("byid")]
         public async Task<IActionResult> GetCartoonById([FromQuery] int id)
         {
             var model = _dbContext.Cartoons
-                .Select(c => new
-                {
-                    Id = c.Id,
-                    Poster = c.Poster,
-                    Title = c.Title,
-                    Description = c.Description,
-                    CountSeasons = c.CountSeasons,
-                    CountParts = c.CountParts,
-                    Duration = c.Duration,
-                    Animation = c.AnimationType.Name,
-                    Year = c.Year,
-                    Director = c.Director,
-                    Rating = c.Rating,
-                    TrailerUri = c.TrailerUri,
-                    FileName = c.FileName,
-                    FileUri = c.FileUri,
-                    AgeRestriction = c.AgeRestriction,
-                    genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                    Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+            .Where(a => a.Id == id)
+            .Include(a => a.GenresCartoons).ThenInclude(ga => ga.Genre)
+            .Include(a => a.CategoriesCartoons).ThenInclude(ca => ca.Category)
+            .Include(a => a.StudiosCartoons).ThenInclude(sa => sa.Studio)
+            .Select(a => CartoonService.ToReturnCartoon(a))
+            .ToArray();
 
-                }
-                ).FirstOrDefault(c => c.Id == id);
-
-            if (model == null)
+            if (!model.Any())
             {
                 return NotFound();
             }
@@ -172,32 +56,12 @@ namespace CartoonServiceAPI.Controllers
         public async Task<IActionResult> GetCartoonsByIds([FromBody] int[] ids)
         {
             var model = _dbContext.Cartoons
-                .Where(f => ids
-                .Contains(f.Id))
-                .Select(c => new
-                {
-                    Id = c.Id,
-                    Poster = c.Poster,
-                    Title = c.Title,
-                    Description = c.Description,
-                    CountSeasons = c.CountSeasons,
-                    CountParts = c.CountParts,
-                    Duration = c.Duration,
-                    Animation = c.AnimationType.Name,
-                    Year = c.Year,
-                    Director = c.Director,
-                    Rating = c.Rating,
-                    TrailerUri = c.TrailerUri,
-                    FileName = c.FileName,
-                    FileUri = c.FileUri,
-                    AgeRestriction = c.AgeRestriction,
-                    genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                    Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-
-                }
-                )
-                .ToArray();
+              .Where(a => ids.Contains(a.Id))
+              .Include(a => a.GenresCartoons).ThenInclude(ga => ga.Genre)
+              .Include(a => a.CategoriesCartoons).ThenInclude(ca => ca.Category)
+              .Include(a => a.StudiosCartoons).ThenInclude(sa => sa.Studio)
+              .Select(a => CartoonService.ToReturnCartoon(a))
+              .ToArray();
 
             if (!model.Any())
             {
@@ -211,30 +75,11 @@ namespace CartoonServiceAPI.Controllers
         public async Task<IActionResult> GetCartoonsByTitle([FromQuery] string title)
         {
             var model = _dbContext.Cartoons
-                .Where(f => f.Title.Contains(title))
-                .Select(c => new
-                {
-                    Id = c.Id,
-                    Poster = c.Poster,
-                    Title = c.Title,
-                    Description = c.Description,
-                    CountSeasons = c.CountSeasons,
-                    CountParts = c.CountParts,
-                    Duration = c.Duration,
-                    Animation = c.AnimationType.Name,
-                    Year = c.Year,
-                    Director = c.Director,
-                    Rating = c.Rating,
-                    TrailerUri = c.TrailerUri,
-                    FileName = c.FileName,
-                    FileUri = c.FileUri,
-                    AgeRestriction = c.AgeRestriction,
-                    genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                    categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                    Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-
-                }
-                )
+                .Where(a => a.Title.Contains(title))
+                .Include(a => a.GenresCartoons).ThenInclude(ga => ga.Genre)
+                .Include(a => a.CategoriesCartoons).ThenInclude(ca => ca.Category)
+                .Include(a => a.StudiosCartoons).ThenInclude(sa => sa.Studio)
+                .Select(a => CartoonService.ToReturnCartoon(a))
                 .ToArray();
 
             if (!model.Any())
@@ -245,37 +90,10 @@ namespace CartoonServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("bygenres")]
-        public async Task<IActionResult> GetPaggedCartoonsByGenres([FromBody] string[] genres, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("genres")]
+        public async Task<IActionResult> GetAllGenres()
         {
-            var model = _dbContext.Cartoons
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(c => genres.All(g => c.GenresCartoons.Any(gc => gc.Genre.Name == g)))
-                 .Select(c => new
-                 {
-                     Id = c.Id,
-                     Poster = c.Poster,
-                     Title = c.Title,
-                     Description = c.Description,
-                     CountSeasons = c.CountSeasons,
-                     CountParts = c.CountParts,
-                     Duration = c.Duration,
-                     Animation = c.AnimationType.Name,
-                     Year = c.Year,
-                     Director = c.Director,
-                     Rating = c.Rating,
-                     TrailerUri = c.TrailerUri,
-                     FileName = c.FileName,
-                     FileUri = c.FileUri,
-                     AgeRestriction = c.AgeRestriction,
-                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
-
-                 }
-                )
-                .ToArray();
+            var model = await _dbContext.Genres.ToArrayAsync();
 
             if (!model.Any())
             {
@@ -285,37 +103,11 @@ namespace CartoonServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("bycategories")]
-        public async Task<IActionResult> GetPaggedCartoonsByCategories([FromBody] string[] categories, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetAllTags()
         {
-            var model = _dbContext.Cartoons
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(c => categories.All(g => c.CategoriesCartoons.Any(gc => gc.Category.Name == g)))
-                 .Select(c => new
-                 {
-                     Id = c.Id,
-                     Poster = c.Poster,
-                     Title = c.Title,
-                     Description = c.Description,
-                     CountSeasons = c.CountSeasons,
-                     CountParts = c.CountParts,
-                     Duration = c.Duration,
-                     Year = c.Year,
-                     Director = c.Director,
-                     Rating = c.Rating,
-                     TrailerUri = c.TrailerUri,
-                     FileName = c.FileName,
-                     FileUri = c.FileUri,
-                     AgeRestriction = c.AgeRestriction,
-                     Animation = c.AnimationType.Name,
-                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+            var model = await _dbContext.Categories.ToArrayAsync();
 
-                 }
-                )
-                .ToArray();
             if (!model.Any())
             {
                 return NotFound();
@@ -323,37 +115,12 @@ namespace CartoonServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet("bystudios")]
-        public async Task<IActionResult> GetPaggedCartoonsByStudios([FromBody] string[] studios, [FromQuery] int pageNumber, [FromQuery] int pageSize)
-        {
-            var model = _dbContext.Cartoons
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(c => studios.All(g => c.StudiosCartoons.Any(gc => gc.Studio.Name == g)))
-                 .Select(c => new
-                 {
-                     Id = c.Id,
-                     Poster = c.Poster,
-                     Title = c.Title,
-                     Description = c.Description,
-                     CountSeasons = c.CountSeasons,
-                     CountParts = c.CountParts,
-                     Duration = c.Duration,
-                     Year = c.Year,
-                     Director = c.Director,
-                     Rating = c.Rating,
-                     TrailerUri = c.TrailerUri,
-                     FileName = c.FileName,
-                     FileUri = c.FileUri,
-                     AgeRestriction = c.AgeRestriction,
-                     Animation = c.AnimationType.Name,
-                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
 
-                 }
-                )
-                .ToArray();
+        [HttpGet("studios")]
+        public async Task<IActionResult> GetAllStudios()
+        {
+            var model = await _dbContext.Studios.ToArrayAsync();
+
             if (!model.Any())
             {
                 return NotFound();
@@ -361,38 +128,47 @@ namespace CartoonServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet("byanimationtype")]
-        public async Task<IActionResult> GetPaggedCartoonsByAnimationType([FromBody] string animationType, [FromQuery] int pageNumber, [FromQuery] int pageSize)
-        {
-            var model = _dbContext.Cartoons
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(c => c.AnimationType.Name == animationType)
-                 .Select(c => new
-                 {
-                     Id = c.Id,
-                     Poster = c.Poster,
-                     Title = c.Title,
-                     Description = c.Description,
-                     CountSeasons = c.CountSeasons,
-                     CountParts = c.CountParts,
-                     Duration = c.Duration,
-                     Year = c.Year,
-                     Director = c.Director,
-                     Rating = c.Rating,
-                     TrailerUri = c.TrailerUri,
-                     FileName = c.FileName,
-                     FileUri = c.FileUri,
-                     AgeRestriction = c.AgeRestriction,
-                     Animation = c.AnimationType.Name,
-                     genres = c.GenresCartoons.Select(gc => new { id = gc.GenreId, name = gc.Genre.Name }),
-                     categories = c.CategoriesCartoons.Select(tc => new { id = tc.CategoryId, name = tc.Category.Name }),
-                     Studios = c.StudiosCartoons.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
 
-                 }
-                )
-                .ToArray();
+        [HttpGet("selections")]
+        public async Task<IActionResult> GetAllSelections()
+        {
+            var model = await _dbContext.Selections.ToArrayAsync();
+
             if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+        [HttpPost("byfiltersandsorting")]
+        public async Task<IActionResult> GetPaggedCartoonsByFilter(
+          [FromBody] Dictionary<string, string[]>? filters,
+          [FromQuery] int pageNumber,
+          [FromQuery] int pageSize,
+          [FromQuery] string? sortByDate,
+          [FromQuery] string? sortByPopularity)
+        {
+            var model = _cartoonService.GetCartoonsByFilterAndSorting(filters, pageNumber, pageSize, sortByDate, sortByPopularity);
+
+            if (model == null || !model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+
+        [HttpPost("countpagesbyfiltersandsorting")]
+        public async Task<IActionResult> GetCountPagesCartoonByGenres(
+            [FromBody] Dictionary<string, string[]>? filters,
+            [FromQuery] int pageSize,
+            [FromQuery] string? sortByDate,
+            [FromQuery] string? sortByPopularity)
+        {
+            var model = _cartoonService.GetCountPagesCartoonsByFilter(filters, pageSize, sortByDate, sortByPopularity);
+
+            if (model == 0)
             {
                 return NotFound();
             }

@@ -21,6 +21,8 @@ namespace DataAccessLayer.Context
         public DbSet<CommentDislike> CommentDislikes { get; set; }
         public DbSet<Studio> Studios { get; set; }
         public DbSet<StudiosCartoon> StudiosCartoons { get; set; }
+        public DbSet<Selection> Selections { get; set; }
+        public DbSet<SelectionCartoon> SelectionCartoons { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
