@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(SeriesServiceDbContext))]
-    [Migration("20240522135726_Init")]
+    [Migration("20240527212955_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -77,6 +77,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("ParentCommentId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("SeriesId")
+                        .HasColumnType("int");
+
                     b.Property<int>("SeriesPartId")
                         .HasColumnType("int");
 
@@ -91,6 +94,8 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("SeriesId");
 
                     b.HasIndex("SeriesPartId");
 
@@ -191,6 +196,42 @@ namespace DataAccessLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Selection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Selections");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.SelectionSeries", b =>
+                {
+                    b.Property<int>("SeriesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SelectionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SeriesId", "SelectionId");
+
+                    b.HasIndex("SelectionId");
+
+                    b.ToTable("SelectionSeries");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Series", b =>
                 {
                     b.Property<int>("Id")
@@ -211,6 +252,13 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<int>("CountSeasons")
                         .HasColumnType("int");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateOfPublish")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -247,9 +295,6 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Series");
@@ -275,8 +320,15 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("PartNumber")
                         .HasColumnType("int");
+
+                    b.Property<string>("Quality")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SeasonNumber")
                         .HasColumnType("int");
@@ -357,6 +409,10 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DataAccessLayer.Entities.Comment", "ParentComment")
                         .WithMany()
                         .HasForeignKey("ParentCommentId");
+
+                    b.HasOne("DataAccessLayer.Entities.Series", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("SeriesId");
 
                     b.HasOne("DataAccessLayer.Entities.SeriesPart", "SeriesPart")
                         .WithMany("Comments")
@@ -453,6 +509,25 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.SelectionSeries", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Selection", "Selection")
+                        .WithMany("SelectionsSeries")
+                        .HasForeignKey("SelectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Entities.Series", "Series")
+                        .WithMany("SelectionSeries")
+                        .HasForeignKey("SeriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Selection");
+
+                    b.Navigation("Series");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.SeriesPart", b =>
                 {
                     b.HasOne("DataAccessLayer.Entities.Series", "Series")
@@ -500,11 +575,20 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("SeriesGenres");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Selection", b =>
+                {
+                    b.Navigation("SelectionsSeries");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Series", b =>
                 {
                     b.Navigation("CategoriesSeries");
 
+                    b.Navigation("Comments");
+
                     b.Navigation("GenresSeries");
+
+                    b.Navigation("SelectionSeries");
 
                     b.Navigation("SeriesParts");
 

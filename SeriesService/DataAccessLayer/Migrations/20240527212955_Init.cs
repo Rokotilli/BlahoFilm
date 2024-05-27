@@ -38,6 +38,20 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Selections",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Image = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Selections", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Series",
                 columns: table => new
                 {
@@ -51,11 +65,12 @@ namespace DataAccessLayer.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CountSeasons = table.Column<int>(type: "int", nullable: false),
                     CountParts = table.Column<int>(type: "int", nullable: false),
-                    Year = table.Column<int>(type: "int", nullable: false),
+                    DateOfPublish = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false),
                     Actors = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AgeRestriction = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -136,17 +151,43 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SelectionSeries",
+                columns: table => new
+                {
+                    SeriesId = table.Column<int>(type: "int", nullable: false),
+                    SelectionId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SelectionSeries", x => new { x.SeriesId, x.SelectionId });
+                    table.ForeignKey(
+                        name: "FK_SelectionSeries_Selections_SelectionId",
+                        column: x => x.SelectionId,
+                        principalTable: "Selections",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SelectionSeries_Series_SeriesId",
+                        column: x => x.SeriesId,
+                        principalTable: "Series",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SeriesParts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SeriesId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SeasonNumber = table.Column<int>(type: "int", nullable: false),
                     PartNumber = table.Column<int>(type: "int", nullable: false),
                     Duration = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -222,7 +263,8 @@ namespace DataAccessLayer.Migrations
                     CountLikes = table.Column<int>(type: "int", nullable: false),
                     CountDislikes = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SeriesId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -238,6 +280,11 @@ namespace DataAccessLayer.Migrations
                         principalTable: "SeriesParts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Comments_Series_SeriesId",
+                        column: x => x.SeriesId,
+                        principalTable: "Series",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Comments_Users_UserId",
                         column: x => x.UserId,
@@ -313,6 +360,11 @@ namespace DataAccessLayer.Migrations
                 column: "ParentCommentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comments_SeriesId",
+                table: "Comments",
+                column: "SeriesId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Comments_SeriesPartId",
                 table: "Comments",
                 column: "SeriesPartId");
@@ -331,6 +383,11 @@ namespace DataAccessLayer.Migrations
                 name: "IX_Ratings_SeriesId",
                 table: "Ratings",
                 column: "SeriesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SelectionSeries_SelectionId",
+                table: "SelectionSeries",
+                column: "SelectionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SeriesParts_SeriesId",
@@ -362,6 +419,9 @@ namespace DataAccessLayer.Migrations
                 name: "Ratings");
 
             migrationBuilder.DropTable(
+                name: "SelectionSeries");
+
+            migrationBuilder.DropTable(
                 name: "StudiosSeries");
 
             migrationBuilder.DropTable(
@@ -372,6 +432,9 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Genres");
+
+            migrationBuilder.DropTable(
+                name: "Selections");
 
             migrationBuilder.DropTable(
                 name: "Studios");

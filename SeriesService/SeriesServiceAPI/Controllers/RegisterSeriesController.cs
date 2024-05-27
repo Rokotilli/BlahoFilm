@@ -30,7 +30,7 @@ namespace SeriesServiceAPI.Controllers
         [HttpGet("getsas")]
         public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
-            var result = await _getSaSService.GetSaS(_configuration, _configuration["AzureStorageContainerName"], blobName);
+            var result = await _getSaSService.GetSaS( blobName, Azure.Storage.Sas.BlobSasPermissions.Write);
 
             if (result != null)
             {

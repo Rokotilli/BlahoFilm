@@ -1,7 +1,11 @@
-﻿using BusinessLogicLayer.Models;
+﻿using Azure.Storage.Sas;
+using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Models;
+using BusinessLogicLayer.Services;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace SeriesServiceAPI.Controllers
 {
@@ -9,117 +13,39 @@ namespace SeriesServiceAPI.Controllers
     [Route("api/[controller]")]
     public class SeriesController : ControllerBase
     {
+        private readonly IGetSaSService _getSaSService;
         private readonly SeriesServiceDbContext _dbContext;
-
-        public SeriesController(SeriesServiceDbContext SeriesServiceDbContext)
+        private readonly SeriesService _seriesService;
+        public SeriesController(SeriesServiceDbContext SeriesServiceDbContext, IGetSaSService getSaSService, SeriesService seriesService)
         {
             _dbContext = SeriesServiceDbContext;
+            _getSaSService = getSaSService;
+            _seriesService = seriesService;
         }
-        [HttpGet]
-        public async Task<IActionResult> GetPaggedSeries([FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("getsas")]
+        public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
-            var model = _dbContext.Series
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(s => new
-                {
-                    Poster = s.Poster,
-                    PosterPartOne = s.PosterPartOne,
-                    PosterPartTwo = s.PosterPartTwo,
-                    PosterPartThree = s.PosterPartThree,
-                    Title = s.Title,
-                    Description = s.Description,
-                    CountSeasons = s.CountSeasons,
-                    CountParts = s.CountParts,
-                    Year = s.Year,
-                    Director = s.Director,
-                    Rating = s.Rating,
-                    TrailerUri = s.TrailerUri,
-                    AgeRestriction = s.AgeRestriction,
-                    Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
-                    Categories = s.CategoriesSeries.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
-                    Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-                })
-                .ToArray();
+            var result = await _getSaSService.GetSaS(blobName, BlobSasPermissions.Read);
 
-            if (!model.Any())
+            if (result != null)
             {
-                return NotFound();
+                return Ok(result);
             }
 
-            return Ok(model);
-        }
-
-        [HttpGet("countpages")]
-        public async Task<IActionResult> GetCountPagesSeries([FromQuery] int pageSize)
-        {
-            var model = _dbContext.Series.Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
-        }
-
-        [HttpGet("countpagesbygenres")]
-        public async Task<IActionResult> GetCountPagesSeriesByGenres([FromQuery] int pageSize, [FromBody] string[] genres)
-        {
-            var model = _dbContext.Series
-                .Where(s => genres.All(g => s.GenresSeries.Any(gf => gf.Genre.Name == g)))
-                .Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
-        }
-
-        [HttpGet("countpagesbycategories")]
-        public async Task<IActionResult> GetCountPagesSeriesByCategories([FromQuery] int pageSize, [FromBody] string[] categories)
-        {
-            var model = _dbContext.Series
-                .Where(s => categories.All(g => s.CategoriesSeries.Any(gf => gf.Category.Name == g)))
-                .Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
-        }
-        [HttpGet("countpagesbystudios")]
-        public async Task<IActionResult> GetCountPagesSeriesByStudios([FromQuery] int pageSize, [FromBody] string[] studios)
-        {
-            var model = _dbContext.Series
-                .Where(s => studios.All(g => s.StudiosSeries.Any(gf => gf.Studio.Name == g)))
-                .Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
+            return BadRequest("Can't get a SaS");
         }
         [HttpGet("byid")]
         public async Task<IActionResult> GetSeriesById([FromQuery] int id)
         {
-            var model = _dbContext.Series.FirstOrDefault(s => s.Id == id);
+            var model = _dbContext.Series
+            .Where(a => a.Id == id)
+            .Include(a => a.GenresSeries).ThenInclude(ga => ga.Genre)
+            .Include(a => a.CategoriesSeries).ThenInclude(ca => ca.Category)
+            .Include(a => a.StudiosSeries).ThenInclude(sa => sa.Studio)
+            .Select(a => SeriesService.ToReturnSeries(a))
+            .ToArray();
 
-            if (model == null)
+            if (!model.Any())
             {
                 return NotFound();
             }
@@ -131,9 +57,12 @@ namespace SeriesServiceAPI.Controllers
         public async Task<IActionResult> GetSeriesByIds([FromBody] int[] ids)
         {
             var model = _dbContext.Series
-                .Where(s => ids
-                .Contains(s.Id))
-                .ToArray();
+              .Where(a => ids.Contains(a.Id))
+              .Include(a => a.GenresSeries).ThenInclude(ga => ga.Genre)
+              .Include(a => a.CategoriesSeries).ThenInclude(ca => ca.Category)
+              .Include(a => a.StudiosSeries).ThenInclude(sa => sa.Studio)
+              .Select(a => SeriesService.ToReturnSeries(a))
+              .ToArray();
 
             if (!model.Any())
             {
@@ -147,27 +76,11 @@ namespace SeriesServiceAPI.Controllers
         public async Task<IActionResult> GetSeriesByTitle([FromQuery] string title)
         {
             var model = _dbContext.Series
-                .Where(s => s.Title.Contains(title))
-                .Select(s => new
-                {
-                    Poster = s.Poster,
-                    PosterPartOne = s.PosterPartOne,
-                    PosterPartTwo = s.PosterPartTwo,
-                    PosterPartThree = s.PosterPartThree,
-                    Title = s.Title,
-                    Description = s.Description,
-                    CountSeasons = s.CountSeasons,
-                    CountParts = s.CountParts,
-                    Year = s.Year,
-                    Director = s.Director,
-                    Rating = s.Rating,
-                    TrailerUri = s.TrailerUri,
-                    AgeRestriction = s.AgeRestriction,
-                    Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
-                    Categories = s.CategoriesSeries.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
-                    Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-
-                })
+                .Where(a => a.Title.Contains(title))
+                .Include(a => a.GenresSeries).ThenInclude(ga => ga.Genre)
+                .Include(a => a.CategoriesSeries).ThenInclude(ca => ca.Category)
+                .Include(a => a.StudiosSeries).ThenInclude(sa => sa.Studio)
+                .Select(a => SeriesService.ToReturnSeries(a))
                 .ToArray();
 
             if (!model.Any())
@@ -178,34 +91,10 @@ namespace SeriesServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("bygenres")]
-        public async Task<IActionResult> GetPaggedSeriesByGenres([FromBody] string[] genres, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("genres")]
+        public async Task<IActionResult> GetAllGenres()
         {
-            var model = _dbContext.Series
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(s => genres.All(g => s.GenresSeries.Any(gf => gf.Genre.Name == g)))
-                .Select(s => new
-                {
-                    Poster = s.Poster,
-                    PosterPartOne = s.PosterPartOne,
-                    PosterPartTwo = s.PosterPartTwo,
-                    PosterPartThree = s.PosterPartThree,
-                    Title = s.Title,
-                    Description = s.Description,
-                    CountSeasons = s.CountSeasons,
-                    CountParts = s.CountParts,
-                    Year = s.Year,
-                    Director = s.Director,
-                    Rating = s.Rating,
-                    TrailerUri = s.TrailerUri,
-                    AgeRestriction = s.AgeRestriction,
-                    Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
-                    Categories = s.CategoriesSeries.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
-                    Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
-
-                })
-                .ToArray();
+            var model = await _dbContext.Genres.ToArrayAsync();
 
             if (!model.Any())
             {
@@ -215,34 +104,11 @@ namespace SeriesServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("bycategories")]
-        public async Task<IActionResult> GetPaggedSeriesByCategories([FromBody] string[] categories, [FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetAllTags()
         {
-            var model = _dbContext.Series
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(s => categories.All(g => s.CategoriesSeries.Any(gf => gf.Category.Name == g)))
-                .Select(s => new
-                {
-                    Poster = s.Poster,
-                    PosterPartOne = s.PosterPartOne,
-                    PosterPartTwo = s.PosterPartTwo,
-                    PosterPartThree = s.PosterPartThree,
-                    Title = s.Title,
-                    Description = s.Description,
-                    CountSeasons = s.CountSeasons,
-                    CountParts = s.CountParts,
-                    Year = s.Year,
-                    Director = s.Director,
-                    Rating = s.Rating,
-                    TrailerUri = s.TrailerUri,
-                    AgeRestriction = s.AgeRestriction,
-                    Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
-                    Categories = s.CategoriesSeries.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
-                    Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
+            var model = await _dbContext.Categories.ToArrayAsync();
 
-                })
-                .ToArray();
             if (!model.Any())
             {
                 return NotFound();
@@ -250,35 +116,60 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet("bystudios")]
-        public async Task<IActionResult> GetPaggedSeriesByStudios([FromBody] string[] studios, [FromQuery] int pageNumber, [FromQuery] int pageSize)
-        {
-            var model = _dbContext.Series
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Where(s => studios.All(g => s.StudiosSeries.Any(gf => gf.Studio.Name == g)))
-                .Select(s => new
-                {
-                    Poster = s.Poster,
-                    PosterPartOne = s.PosterPartOne,
-                    PosterPartTwo = s.PosterPartTwo,
-                    PosterPartThree = s.PosterPartThree,
-                    Title = s.Title,
-                    Description = s.Description,
-                    CountSeasons = s.CountSeasons,
-                    CountParts = s.CountParts,
-                    Year = s.Year,
-                    Director = s.Director,
-                    Rating = s.Rating,
-                    TrailerUri = s.TrailerUri,
-                    AgeRestriction = s.AgeRestriction,
-                    Genres = s.GenresSeries.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
-                    Categories = s.CategoriesSeries.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
-                    Studios = s.StudiosSeries.Select(tf => new Studio { Id = tf.StudioId, Name = tf.Studio.Name }),
 
-                })
-                .ToArray();
+        [HttpGet("studios")]
+        public async Task<IActionResult> GetAllStudios()
+        {
+            var model = await _dbContext.Studios.ToArrayAsync();
+
             if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+
+        [HttpGet("selections")]
+        public async Task<IActionResult> GetAllSelections()
+        {
+            var model = await _dbContext.Selections.ToArrayAsync();
+
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+        [HttpPost("byfiltersandsorting")]
+        public async Task<IActionResult> GetPaggedSeriesByFilter(
+          [FromBody] Dictionary<string, string[]>? filters,
+          [FromQuery] int pageNumber,
+          [FromQuery] int pageSize,
+          [FromQuery] string? sortByDate,
+          [FromQuery] string? sortByPopularity)
+        {
+            var model = _seriesService.GetSeriesByFilterAndSorting(filters, pageNumber, pageSize, sortByDate, sortByPopularity);
+
+            if (model == null || !model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+
+        [HttpPost("countpagesbyfiltersandsorting")]
+        public async Task<IActionResult> GetCountPagesSeriesByGenres(
+            [FromBody] Dictionary<string, string[]>? filters,
+            [FromQuery] int pageSize,
+            [FromQuery] string? sortByDate,
+            [FromQuery] string? sortByPopularity)
+        {
+            var model = _seriesService.GetCountPagesSeriesByFilter(filters, pageSize, sortByDate, sortByPopularity);
+
+            if (model == 0)
             {
                 return NotFound();
             }

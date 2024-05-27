@@ -10,5 +10,7 @@ namespace BusinessLogicLayer.Models
     {
         public int Id { get; set; }
         public string FileUri { get; set; }
+        public string FileName{ get; set; }
+        public string Quality { get; set; }
     }
 }

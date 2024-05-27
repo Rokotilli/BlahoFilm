@@ -11,6 +11,7 @@ namespace BusinessLogicLayer.Models
     public class SeriesPartRegisterModel
     {
         public int SeriesId { get; set; }
+        public string? Name { get; set; }
         public int SeasonNumber { get; set; }
         public int PartNumber { get; set; }
 

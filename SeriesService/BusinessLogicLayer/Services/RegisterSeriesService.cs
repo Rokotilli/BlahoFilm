@@ -6,6 +6,7 @@ using MassTransit;
 using MassTransit.Initializers;
 using MessageBus.Enums;
 using MessageBus.Messages;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 
@@ -21,40 +22,29 @@ namespace BusinessLogicLayer.Services
             _dbContext = seriesServiceDbContext;
             _publishEndpoint = publishEndpoint;
         }
+        private async Task<byte[]> ReadBytesAsync(IFormFile file)
+        {
+            if (file == null)
+                return null;
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                return stream.ToArray();
+            }
+        }
 
         public async Task<string> RegisterSeries(SeriesRegisterModel seriesRegisterModel)
         {
             try
             {
-                byte[] posterBytes = null;
-                byte[] posterPartOneBytes = null;
-                byte[] posterPartTwoBytes = null;
-                byte[] posterPartThreeBytes = null;
+                byte[] posterBytes = await ReadBytesAsync(seriesRegisterModel.Poster);
+                byte[] posterPartOneBytes = await ReadBytesAsync(seriesRegisterModel.PosterPartOne);
+                byte[] posterPartTwoBytes = await ReadBytesAsync(seriesRegisterModel.PosterPartTwo);
+                byte[] posterPartThreeBytes = await ReadBytesAsync(seriesRegisterModel.PosterPartThree);
                 var genres = seriesRegisterModel.Genres.Split(",");
-                var categories = seriesRegisterModel.Genres.Split(",");
-                var studios = seriesRegisterModel.Studios.Split(",");
-
-                using (var stream = new MemoryStream())
-                {
-                    await seriesRegisterModel.Poster.CopyToAsync(stream);
-                    posterBytes = stream.ToArray();
-                }
-
-                using (var stream = new MemoryStream())
-                {
-                    await seriesRegisterModel.PosterPartOne.CopyToAsync(stream);
-                    posterPartOneBytes = stream.ToArray();
-                }
-                using (var stream = new MemoryStream())
-                {
-                    await seriesRegisterModel.PosterPartTwo.CopyToAsync(stream);
-                    posterPartTwoBytes = stream.ToArray();
-                }
-                using (var stream = new MemoryStream())
-                {
-                    await seriesRegisterModel.PosterPartThree.CopyToAsync(stream);
-                    posterPartThreeBytes = stream.ToArray();
-                }
+                var categories = seriesRegisterModel.Categories.Split(",");
+                var studios = seriesRegisterModel.Studios.Split(",");               
                 var model = new Series()
                 {
                     Poster = posterBytes,
@@ -65,12 +55,13 @@ namespace BusinessLogicLayer.Services
                     Description = seriesRegisterModel.Description,
                     CountSeasons = seriesRegisterModel.CountSeasons,
                     CountParts = seriesRegisterModel.CountParts,
-                    Year = seriesRegisterModel.Year,
+                    DateOfPublish = seriesRegisterModel.DateOfPublish,
                     Actors = seriesRegisterModel.Actors,
                     Director = seriesRegisterModel.Director,
                     Rating = seriesRegisterModel.Rating,
                     TrailerUri = seriesRegisterModel.TrailerUri,
-                    AgeRestriction = seriesRegisterModel.AgeRestriction
+                    AgeRestriction = seriesRegisterModel.AgeRestriction,
+                    Country = seriesRegisterModel.Country
                 };
 
                 var series = await _dbContext.Series
@@ -80,8 +71,9 @@ namespace BusinessLogicLayer.Services
                       s.Description == model.Description &&
                         s.CountSeasons == s.CountSeasons &&
                        s.CountParts == s.CountParts &&
-                       s.Year == model.Year &&
+                       s.DateOfPublish == model.DateOfPublish &&
                           s.Director == model.Director &&
+                          s.Country == model.Country &&
                        s.Rating == model.Rating &&
                           s.Actors == model.Actors &&
                           s.TrailerUri == model.TrailerUri &&
@@ -142,7 +134,7 @@ namespace BusinessLogicLayer.Services
                       s.Description == model.Description &&
                         s.CountSeasons == s.CountSeasons &&
                        s.CountParts == s.CountParts &&
-                       s.Year == model.Year &&
+                       s.DateOfPublish == model.DateOfPublish &&
                           s.Director == model.Director &&
                        s.Rating == model.Rating &&
                           s.Actors == model.Actors &&
@@ -192,6 +184,7 @@ namespace BusinessLogicLayer.Services
                 var model = new SeriesPart()
                 {
                     SeriesId = seriesPartRegisterModel.SeriesId,
+                    Name = seriesPartRegisterModel.Name,
                     SeasonNumber = seriesPartRegisterModel.SeasonNumber,
                     PartNumber = seriesPartRegisterModel.PartNumber,
                     Duration = seriesPartRegisterModel.Duration
@@ -200,6 +193,7 @@ namespace BusinessLogicLayer.Services
                 var seriesPart = await _dbContext.SeriesParts
                     .FirstOrDefaultAsync(cp =>
                        cp.SeriesId == model.SeriesId &&
+                       cp.Name == model.Name &&
                     cp.SeasonNumber == model.SeasonNumber &&
                     cp.PartNumber == model.PartNumber &&
                     cp.Duration == model.Duration
