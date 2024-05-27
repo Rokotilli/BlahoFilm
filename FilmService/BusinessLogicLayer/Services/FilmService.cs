@@ -98,7 +98,10 @@ namespace BusinessLogicLayer.Services
                 await AddEntityForManyToMany<Genre, GenresFilm>(newFilm.Entity.Id, genres);
                 await AddEntityForManyToMany<Category, CategoriesFilm>(newFilm.Entity.Id, categories);
                 await AddEntityForManyToMany<Studio, StudiosFilm>(newFilm.Entity.Id, studios);
-                await AddEntityForManyToMany<Selection, SelectionsFilm>(newFilm.Entity.Id, selections);
+                if (selections != null)
+                {
+                    await AddEntityForManyToMany<Selection, SelectionsFilm>(newFilm.Entity.Id, selections);
+                }                
 
                 await _dbContext.SaveChangesAsync();
 

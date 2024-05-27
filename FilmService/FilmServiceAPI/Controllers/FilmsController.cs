@@ -2,7 +2,6 @@
 using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Services;
 using DataAccessLayer.Context;
-using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,7 +41,7 @@ namespace FilmServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("byids")]
+        [HttpPost("byids")]
         public async Task<IActionResult> GetFilmsByIds([FromBody] int[] ids)
         {
             var model = _dbContext.Films
