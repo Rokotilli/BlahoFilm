@@ -11,9 +11,9 @@ blobName (string): Назва об'єкта Blob.
 Поля тіла запиту (multipart/form-data):
 
 Poster (file): Постер фільму.  
-PosterPartOne (file)?: Перша частина розділеного простеру фільму (необов'язково).  
-PosterPartTwo (file)?: Друга частина розділеного простеру фільму (необов'язково).  
-PosterPartThree (file)?: Третя частина розділеного простеру фільму (необов'язково).  
+PosterPartOne (file)?: Перша частина розділеного постеру фільму (необов'язково).  
+PosterPartTwo (file)?: Друга частина розділеного постеру фільму (необов'язково).  
+PosterPartThree (file)?: Третя частина розділеного постеру фільму (необов'язково).  
 Title (string): Назва фільму.  
 Description (string): Опис фільму.  
 Quality (int): Якість фільму.  
@@ -85,7 +85,7 @@ sortByPopularity (string)?: Сортування за популярністю (
 
 id (int): Ідентифікатор фільму.
 
-- **GET /api/Films/byids** - Отримати масив фільмів за ідентифікаторами: Результати: Ok(результат), NotFound
+- **POST /api/Films/byids** - Отримати масив фільмів за ідентифікаторами: Результати: Ok(результат), NotFound
   
 Поля тіла запиту (application/json):
 
@@ -217,7 +217,7 @@ token (string): Токен користувача.
 
 id (int)?: Ідентифікатор користувача (необов'язково).
 
-- **GET /api/Users/byids** - Отримати користувачів за ідентифікаторами: Результати: Ok(результат), NotFound  
+- **POST /api/Users/byids** - Отримати користувачів за ідентифікаторами: Результати: Ok(результат), NotFound  
 
 Поля тіла запиту (application/json):
 
@@ -277,10 +277,9 @@ MediaTypeId (int): Ідентифікатор типу медіа.
 }  
 PartNumber (int)?: Номер частини.  
 SeasonNumber (int)?: Номер сезона.  
-TimeCode (string): Позиція користувача на таймлайні.  
 
 ## BookMarksController
-- **GET /api/BookMarks** - Отримати закладки користувача. Результати: Ok(результат), NotFound  
+- **GET /api/BookMarks** - Отримати закладки користувача. Результати: Ok(результат), NotFound, Unauthorized  
 
 - **POST /api/BookMarks** - Додати закладку користувачу. Результати: Ok, BadRequest(текст помилки), Unauthorized  
 
