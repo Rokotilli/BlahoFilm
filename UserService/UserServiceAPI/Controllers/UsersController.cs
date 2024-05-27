@@ -45,8 +45,10 @@ namespace UserServiceAPI.Controllers
         }
 
         [HttpGet("byid")]
-        public async Task<IActionResult> GetUserById([FromQuery] string id)
+        public async Task<IActionResult> GetUserById([FromQuery] string? id)
         {
+            var userId = id ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var model = await _dbContext.Users.Select(u => new
             {
                 Id = u.Id,
@@ -56,7 +58,7 @@ namespace UserServiceAPI.Controllers
                 Avatar = u.Avatar,
                 RegisterDate = u.RegisterDate,
                 Roles = u.UserRoles.Select(ur => new Role { Id = ur.RoleId, Name = ur.Role.Name})
-            }).FirstOrDefaultAsync(u => u.Id == id);
+            }).FirstOrDefaultAsync(u => u.Id == userId);
 
             if (model == null)
             {

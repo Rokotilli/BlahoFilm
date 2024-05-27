@@ -25,7 +25,14 @@ namespace UserServiceAPI.Controllers
         public async Task<IActionResult> GetHistoryByUserId()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var model = _dbContext.Histories.Where(f => f.UserId == userId).ToArray();
+            var model = _dbContext.Histories.Where(f => f.UserId == userId).Select(f => new
+            {
+                PartNumber = f.PartNumber,
+                SeasonNumber = f.SeasonNumber,
+                MediaId = f.MediaWithType.MediaId,
+                MediaTypeId = f.MediaWithType.MediaTypeId,
+                Date = f.Date,
+            }).ToArray();
 
             if (!model.Any())
             {

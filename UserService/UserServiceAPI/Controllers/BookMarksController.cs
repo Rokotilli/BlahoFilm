@@ -25,7 +25,12 @@ namespace UserServiceAPI.Controllers
         public async Task<IActionResult> GetBookMarksByUserId()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var model = _dbContext.BookMarks.Where(f => f.UserId == userId).ToArray();
+            var model = _dbContext.BookMarks.Where(f => f.UserId == userId).Select(f => new
+            {
+                MediaId = f.MediaWithType.MediaId,
+                MediaTypeId = f.MediaWithType.MediaTypeId,
+                Date = f.Date,
+            });
 
             if (!model.Any())
             {

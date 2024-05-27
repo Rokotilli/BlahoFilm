@@ -6,10 +6,16 @@ namespace BusinessLogicLayer.Models
     {
         [EmailAddress(ErrorMessage = "Incorrect syntax, example: \"example@gmail.com\"")]
         [StringLength(40, ErrorMessage = "Max length 50 characters")]
-        public string Email { get; set; }
+        public string Email
+        {
+            get => _email;
+            set => _email = value.ToLower();
+        }
+        private string _email;
 
         [RegularExpression(@"^(?=.*\d)(?=.*[A-Z]).+$", ErrorMessage = "Password must contain at least one uppercase letter and a number")]
         [StringLength(24, MinimumLength = 8, ErrorMessage = "Max length 24 characters, min length 8 characters")]
-        public string Password { get; set; }    
+        public string Password { get; set; }
+        
     }
 }
