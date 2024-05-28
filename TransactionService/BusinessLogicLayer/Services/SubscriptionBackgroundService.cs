@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using MassTransit;
 using MessageBus.Messages;
-using System.Net.Http;
 
 namespace BusinessLogicLayer.Services
 {
