@@ -115,7 +115,7 @@ namespace FilmServiceAPI.Controllers
         }
 
         [HttpGet("getsas")]
-        public async Task<IActionResult> GetSaS([FromQuery] string blobName, [FromQuery] int filmId)
+        public async Task<IActionResult> GetSaS([FromQuery] string blobName)
         {
             var result = await _getSaSService.GetSaS(blobName, BlobSasPermissions.Read);
 

@@ -52,9 +52,9 @@ namespace FilmServiceAPI.Controllers
         }
 
         [HttpPost("uploadedfilm")]
-        public async Task<IActionResult> UploadedVoiceover(FilmUploadedModel uploadedVoiceover)
+        public async Task<IActionResult> UploadedVoiceover(FilmUploadedModel uploadedModel)
         {
-            var result = await _uploadedFilmService.UploadedFilm(uploadedVoiceover);
+            var result = await _uploadedFilmService.UploadedFilm(uploadedModel);
 
             if (result == null)
             {
