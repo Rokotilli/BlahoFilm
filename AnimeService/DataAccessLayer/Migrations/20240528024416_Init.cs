@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,8 +32,9 @@ namespace DataAccessLayer.Migrations
                     Rating = table.Column<double>(type: "float", nullable: false),
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AgeRestriction = table.Column<int>(type: "int", nullable: false),
-                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -114,8 +115,9 @@ namespace DataAccessLayer.Migrations
                     SeasonNumber = table.Column<int>(type: "int", nullable: false),
                     PartNumber = table.Column<int>(type: "int", nullable: false),
                     Duration = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

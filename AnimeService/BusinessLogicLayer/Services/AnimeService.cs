@@ -151,6 +151,7 @@ namespace BusinessLogicLayer.Services
                 PosterPartTwo = a.PosterPartTwo,
                 PosterPartThree = a.PosterPartThree,
                 Title = a.Title,
+                Quality = a.Quality,
                 Description = a.Description,
                 CountSeasons = a.CountSeasons,
                 CountParts = a.CountParts,

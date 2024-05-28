@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AnimeServiceDbContext))]
-    [Migration("20240526020344_init")]
-    partial class init
+    [Migration("20240528024416_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -61,11 +61,9 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileUri")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("Poster")
@@ -83,6 +81,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<byte[]>("PosterPartTwo")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Quality")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Rating")
                         .HasColumnType("float");
@@ -115,15 +116,17 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileUri")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PartNumber")
                         .HasColumnType("int");
+
+                    b.Property<string>("Quality")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SeasonNumber")
                         .HasColumnType("int");

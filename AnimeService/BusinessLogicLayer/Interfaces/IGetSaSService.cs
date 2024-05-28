@@ -4,6 +4,6 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IGetSaSService
     {
-        Task<string> GetSaS(string blobName, BlobSasPermissions permission);
+        Task<string> GetSaS(string blobName, BlobSasPermissions permission );
     }
 }

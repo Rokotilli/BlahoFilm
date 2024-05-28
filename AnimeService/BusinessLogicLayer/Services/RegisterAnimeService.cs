@@ -37,7 +37,6 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-
                 var genres = animeRegisterModel.Genres.Split(",");
                 var categories = animeRegisterModel.Categories.Split(",");
                 var studios = animeRegisterModel.Studios.Split(",");
@@ -54,6 +53,7 @@ namespace BusinessLogicLayer.Services
                     PosterPartTwo = posterPartTwoBytes,
                     PosterPartThree = posterPartThreeBytes,
                     Title = animeRegisterModel.Title,
+                    Quality = animeRegisterModel.Quality,
                     Description = animeRegisterModel.Description,
                     CountSeasons = animeRegisterModel.CountSeasons,
                     CountParts = animeRegisterModel.CountParts,
@@ -69,7 +69,7 @@ namespace BusinessLogicLayer.Services
 
                 var anime = await _dbContext.Animes
                     .FirstOrDefaultAsync(a =>
-                                    a.Title == model.Title &&
+                    a.Title == model.Title &&
                     a.Description == model.Description &&
                     a.CountSeasons == model.CountSeasons &&
                     a.CountParts == model.CountParts &&
@@ -78,7 +78,8 @@ namespace BusinessLogicLayer.Services
                     a.Rating == model.Rating &&
                     a.Actors == animeRegisterModel.Actors &&
                     a.TrailerUri == model.TrailerUri &&
-                    a.AgeRestriction == model.AgeRestriction);
+                    a.AgeRestriction == model.AgeRestriction &&
+                    a.Quality == model.Quality);
                 if (anime != null)
                 {
                     return "This anime already exists!";
@@ -139,7 +140,8 @@ namespace BusinessLogicLayer.Services
                     a.Director == model.Director &&
                     a.Rating == model.Rating &&
                     a.TrailerUri == model.TrailerUri &&
-                    a.AgeRestriction == model.AgeRestriction)
+                    a.AgeRestriction == model.AgeRestriction &&
+                    a.Quality == model.Quality)
                     .Select(s => s.Id)
                     .First();
 
@@ -184,6 +186,7 @@ namespace BusinessLogicLayer.Services
                     SeasonNumber = animePartRegisterModel.SeasonNumber,
                     PartNumber = animePartRegisterModel.PartNumber,
                     Duration = animePartRegisterModel.Duration,
+                    Quality = animePartRegisterModel.Quality,
                     FileName = "",
                     FileUri = "",
                 };
@@ -193,7 +196,8 @@ namespace BusinessLogicLayer.Services
                        cp.AnimeId == model.AnimeId &&
                     cp.SeasonNumber == model.SeasonNumber &&
                     cp.PartNumber == model.PartNumber &&
-                    cp.Duration == model.Duration
+                    cp.Duration == model.Duration &&
+                    cp.Quality == model.Quality
                                     );
                 if (animePart != null)
                 {
