@@ -23,7 +23,24 @@ namespace CartoonServiceAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCommentsForCartoon([FromQuery] int cartoonId)
         {
-            var model = _dbContext.Comments.Where(c => c.CartoonId == cartoonId).ToArray();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var model = _dbContext.Comments.Where(c => c.CartoonId == cartoonId)
+                .GroupJoin(_dbContext.Comments,
+                parent => parent.Id,
+                reply => reply.ParentCommentId,
+                (parent, replies) => new
+                {
+                    Id = parent.Id,
+                    UserId = parent.UserId,
+                    Text = parent.Text,
+                    ParentCommentId = parent.ParentCommentId,
+                    Date = parent.Date,
+                    CountLikes = parent.CommentLikes.Count(),
+                    CountDislikes = parent.CommentDislikes.Count(),
+                    CountReplies = replies.Count(),
+                    IsLiked = parent.CommentLikes.Any(cl => cl.UserId == (userId ?? "")),
+                    IsDisliked = parent.CommentDislikes.Any(cl => cl.UserId == (userId ?? ""))
+                }).ToArray();
 
             if (!model.Any())
             {
@@ -32,21 +49,9 @@ namespace CartoonServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet("forpart")]
-        public async Task<IActionResult> GetCommentsForCartoonPart([FromQuery] int cartoonPartId)
-        {
-            var model = _dbContext.Comments.Where(c => c.CartoonPartId == cartoonPartId).ToArray();
 
-            if (!model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         public async Task<IActionResult> AddCommentForCartoon(CommentAddModel commentAddModel)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -59,22 +64,9 @@ namespace CartoonServiceAPI.Controllers
 
             return Ok();
         }
-        [HttpPost("forpart")]
+
         [Authorize]
-        public async Task<IActionResult> AddCommentForCartoonPart(CommentAddModel commentAddModel)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _commentService.AddComment(commentAddModel, userId);
-
-            if (result != null)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok();
-        }
         [HttpDelete]
-        [Authorize]
         public async Task<IActionResult> DeleteComment([FromQuery] int commentId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -88,8 +80,8 @@ namespace CartoonServiceAPI.Controllers
             return Ok();
         }
 
-        [HttpPut]
         [Authorize]
+        [HttpPut]
         public async Task<IActionResult> ChangeComment(ChangeCommentModel changeCommentModel)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -103,6 +95,7 @@ namespace CartoonServiceAPI.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpPost("like")]
         public async Task<IActionResult> Like([FromQuery] int commentId)
         {
@@ -117,6 +110,7 @@ namespace CartoonServiceAPI.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpPost("dislike")]
         public async Task<IActionResult> Dislike([FromQuery] int commentId)
         {
