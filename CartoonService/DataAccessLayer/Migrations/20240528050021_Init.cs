@@ -110,6 +110,7 @@ namespace DataAccessLayer.Migrations
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AgeRestriction = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -134,7 +135,8 @@ namespace DataAccessLayer.Migrations
                     PartNumber = table.Column<int>(type: "int", nullable: true),
                     Duration = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -19,6 +19,7 @@
         public string TrailerUri { get; set; }
         public string? FileName { get; set; }
         public string? FileUri { get; set; }
+        public string? Quality { get; set; }
         public int AgeRestriction { get; set; }
         public AnimationType AnimationType { get; set; }
         public ICollection<CartoonPart> CartoonParts { get; set; }

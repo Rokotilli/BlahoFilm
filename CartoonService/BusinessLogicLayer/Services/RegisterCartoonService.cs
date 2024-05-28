@@ -51,6 +51,7 @@ namespace BusinessLogicLayer.Services
                     PosterPartTwo = posterPartTwoBytes,
                     PosterPartThree = posterPartThreeBytes,
                     Title = cartoonRegisterModel.Title,
+                    Quality= cartoonRegisterModel.Quality,
                     Description = cartoonRegisterModel.Description,
                     Duration = cartoonRegisterModel.Duration,
                     CountSeasons = cartoonRegisterModel.CountSeasons,
@@ -68,6 +69,7 @@ namespace BusinessLogicLayer.Services
                                      c.Description == model.Description &&
                                      c.Duration == model.Duration &&
                                      c.CountSeasons == model.CountSeasons &&
+                                     c.Quality == model.Quality &&
                                      c.CountParts == model.CountParts &&
                                      c.DateOfPublish == model.DateOfPublish &&
                                      c.Director == model.Director &&
@@ -139,6 +141,7 @@ namespace BusinessLogicLayer.Services
                     .Where(c =>
                                      c.Title == model.Title &&
                                      c.Description == model.Description &&
+                                     c.Quality == model.Quality &&
                                      c.Duration == model.Duration &&
                                      c.CountSeasons == model.CountSeasons &&
                                      c.CountParts == model.CountParts &&
@@ -184,7 +187,8 @@ namespace BusinessLogicLayer.Services
                     CartoonId = cartoonPartRegisterModel.CartoonId,
                     SeasonNumber = cartoonPartRegisterModel.SeasonNumber,
                     PartNumber = cartoonPartRegisterModel.PartNumber,
-                    Duration = cartoonPartRegisterModel.Duration
+                    Duration = cartoonPartRegisterModel.Duration,
+                    Quality = cartoonPartRegisterModel.Quality
                 };
 
                 var cartoonPart = await _dbContext.CartoonParts
@@ -192,7 +196,8 @@ namespace BusinessLogicLayer.Services
                        cp.CartoonId == model.CartoonId &&
                     cp.SeasonNumber == model.SeasonNumber &&
                     cp.PartNumber == model.PartNumber &&
-                    cp.Duration == model.Duration
+                    cp.Duration == model.Duration &&
+                    cp.Quality == model.Quality
                                     );
                 if (cartoonPart != null)
                 {
@@ -210,7 +215,8 @@ namespace BusinessLogicLayer.Services
                        cp.CartoonId == model.CartoonId &&
                     cp.SeasonNumber == model.SeasonNumber &&
                     cp.PartNumber == model.PartNumber &&
-                    cp.Duration == model.Duration
+                    cp.Duration == model.Duration &&
+                    cp.Quality == model.Quality
                                   )
                     .Select(cp => cp.Id)
                     .First();

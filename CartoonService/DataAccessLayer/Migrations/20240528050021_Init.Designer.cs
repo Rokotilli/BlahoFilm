@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(CartoonServiceDbContext))]
-    [Migration("20240527152811_Init")]
+    [Migration("20240528050021_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -98,6 +98,9 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<string>("Quality")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("Rating")
                         .HasColumnType("float");
 
@@ -139,6 +142,10 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<int?>("PartNumber")
                         .HasColumnType("int");
+
+                    b.Property<string>("Quality")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("SeasonNumber")
                         .HasColumnType("int");

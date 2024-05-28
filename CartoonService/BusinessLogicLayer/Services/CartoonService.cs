@@ -152,6 +152,7 @@ namespace BusinessLogicLayer.Services
                 Duration = c.Duration,
                 CountSeasons = c.CountSeasons,
                 CountParts = c.CountParts,
+                Quality = c.Quality,
                 DateOfPublish = c.DateOfPublish,
                 Director = c.Director,
                 Rating = c.Rating,
