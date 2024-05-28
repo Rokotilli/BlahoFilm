@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DataAccessLayer.Migrations
 {
-    [DbContext(typeof(SeriesServiceDbContext))]
-    partial class SeriesServiceDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AnimeServiceDbContext))]
+    partial class AnimeServiceDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -22,19 +22,132 @@ namespace DataAccessLayer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesSeries", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.Anime", b =>
                 {
-                    b.Property<int>("SeriesId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Actors")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AgeRestriction")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CountParts")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CountSeasons")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateOfPublish")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Director")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Duration")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileUri")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Poster")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PosterPartOne")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PosterPartThree")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PosterPartTwo")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Quality")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Rating")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TrailerUri")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Animes");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.AnimePart", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AnimeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Duration")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileUri")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PartNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Quality")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SeasonNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnimeId");
+
+                    b.ToTable("AnimeParts");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesAnime", b =>
+                {
+                    b.Property<int>("AnimeId")
                         .HasColumnType("int");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.HasKey("SeriesId", "CategoryId");
+                    b.HasKey("AnimeId", "CategoryId");
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("CategoriesSeries");
+                    b.ToTable("CategoriesAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
@@ -62,6 +175,12 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AnimeId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("AnimePartId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CountDislikes")
                         .HasColumnType("int");
 
@@ -74,12 +193,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("ParentCommentId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SeriesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SeriesPartId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -90,11 +203,11 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AnimeId");
+
+                    b.HasIndex("AnimePartId");
+
                     b.HasIndex("ParentCommentId");
-
-                    b.HasIndex("SeriesId");
-
-                    b.HasIndex("SeriesPartId");
 
                     b.HasIndex("UserId");
 
@@ -154,19 +267,19 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Genres");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.GenresSeries", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.GenresAnime", b =>
                 {
-                    b.Property<int>("SeriesId")
+                    b.Property<int>("AnimeId")
                         .HasColumnType("int");
 
                     b.Property<int>("GenreId")
                         .HasColumnType("int");
 
-                    b.HasKey("SeriesId", "GenreId");
+                    b.HasKey("AnimeId", "GenreId");
 
                     b.HasIndex("GenreId");
 
-                    b.ToTable("GenresSeries");
+                    b.ToTable("GenresAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Rating", b =>
@@ -174,20 +287,20 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("SeriesId")
+                    b.Property<int>("AnimeId")
                         .HasColumnType("int");
 
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.Property<int>("Rate")
-                        .HasColumnType("int");
+                    b.Property<double>("Rate")
+                        .HasColumnType("float");
 
-                    b.HasKey("UserId", "SeriesId");
+                    b.HasKey("UserId", "AnimeId");
 
-                    b.HasIndex("SeriesId");
+                    b.HasIndex("AnimeId");
 
-                    b.ToTable("Ratings", t =>
+                    b.ToTable("AnimeRating", t =>
                         {
                             t.HasCheckConstraint("CK_Rating_Rate_Range", "[Rate] >= 1 AND [Rate] <= 10");
                         });
@@ -214,130 +327,19 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Selections");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.SelectionSeries", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.SelectionAnime", b =>
                 {
-                    b.Property<int>("SeriesId")
+                    b.Property<int>("AnimeId")
                         .HasColumnType("int");
 
                     b.Property<int>("SelectionId")
                         .HasColumnType("int");
 
-                    b.HasKey("SeriesId", "SelectionId");
+                    b.HasKey("AnimeId", "SelectionId");
 
                     b.HasIndex("SelectionId");
 
-                    b.ToTable("SelectionSeries");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.Series", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Actors")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("AgeRestriction")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CountParts")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CountSeasons")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DateOfPublish")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Director")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte[]>("Poster")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("PosterPartOne")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("PosterPartThree")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("PosterPartTwo")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<double>("Rating")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TrailerUri")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Series");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.SeriesPart", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Duration")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileUri")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PartNumber")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Quality")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SeasonNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SeriesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SeriesId");
-
-                    b.ToTable("SeriesParts");
+                    b.ToTable("SelectionAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
@@ -357,19 +359,19 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Studios");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.StudiosSeries", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.StudiosAnime", b =>
                 {
-                    b.Property<int>("SeriesId")
+                    b.Property<int>("AnimeId")
                         .HasColumnType("int");
 
                     b.Property<int>("StudioId")
                         .HasColumnType("int");
 
-                    b.HasKey("SeriesId", "StudioId");
+                    b.HasKey("AnimeId", "StudioId");
 
                     b.HasIndex("StudioId");
 
-                    b.ToTable("StudiosSeries");
+                    b.ToTable("StudiosAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.User", b =>
@@ -382,40 +384,49 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesSeries", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.AnimePart", b =>
                 {
+                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
+                        .WithMany("AnimeParts")
+                        .HasForeignKey("AnimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Anime");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.CategoriesAnime", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
+                        .WithMany("CategoriesAnimes")
+                        .HasForeignKey("AnimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DataAccessLayer.Entities.Category", "Category")
-                        .WithMany("CategoriesSeries")
+                        .WithMany("CategoriesAnimes")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataAccessLayer.Entities.Series", "Series")
-                        .WithMany("CategoriesSeries")
-                        .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Anime");
 
                     b.Navigation("Category");
-
-                    b.Navigation("Series");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Comment", b =>
                 {
+                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
+                        .WithMany("Comments")
+                        .HasForeignKey("AnimeId");
+
+                    b.HasOne("DataAccessLayer.Entities.AnimePart", "AnimePart")
+                        .WithMany("Comments")
+                        .HasForeignKey("AnimePartId");
+
                     b.HasOne("DataAccessLayer.Entities.Comment", "ParentComment")
                         .WithMany()
                         .HasForeignKey("ParentCommentId");
-
-                    b.HasOne("DataAccessLayer.Entities.Series", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("SeriesId");
-
-                    b.HasOne("DataAccessLayer.Entities.SeriesPart", "SeriesPart")
-                        .WithMany("Comments")
-                        .HasForeignKey("SeriesPartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.HasOne("DataAccessLayer.Entities.User", "User")
                         .WithMany("Comments")
@@ -423,9 +434,11 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ParentComment");
+                    b.Navigation("Anime");
 
-                    b.Navigation("SeriesPart");
+                    b.Navigation("AnimePart");
+
+                    b.Navigation("ParentComment");
 
                     b.Navigation("User");
                 });
@@ -468,30 +481,30 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.GenresSeries", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.GenresAnime", b =>
                 {
+                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
+                        .WithMany("GenresAnimes")
+                        .HasForeignKey("AnimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DataAccessLayer.Entities.Genre", "Genre")
-                        .WithMany("SeriesGenres")
+                        .WithMany("GenresAnimes")
                         .HasForeignKey("GenreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataAccessLayer.Entities.Series", "Series")
-                        .WithMany("GenresSeries")
-                        .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Anime");
 
                     b.Navigation("Genre");
-
-                    b.Navigation("Series");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Rating", b =>
                 {
-                    b.HasOne("DataAccessLayer.Entities.Series", "Series")
-                        .WithMany()
-                        .HasForeignKey("SeriesId")
+                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
+                        .WithMany("AnimeRatings")
+                        .HasForeignKey("AnimeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -501,63 +514,74 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Series");
+                    b.Navigation("Anime");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.SelectionSeries", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.SelectionAnime", b =>
                 {
+                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
+                        .WithMany("SelectionAnimes")
+                        .HasForeignKey("AnimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DataAccessLayer.Entities.Selection", "Selection")
-                        .WithMany("SelectionsSeries")
+                        .WithMany("SelectionsAnimes")
                         .HasForeignKey("SelectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataAccessLayer.Entities.Series", "Series")
-                        .WithMany("SelectionSeries")
-                        .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Anime");
 
                     b.Navigation("Selection");
-
-                    b.Navigation("Series");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.SeriesPart", b =>
+            modelBuilder.Entity("DataAccessLayer.Entities.StudiosAnime", b =>
                 {
-                    b.HasOne("DataAccessLayer.Entities.Series", "Series")
-                        .WithMany("SeriesParts")
-                        .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Series");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.StudiosSeries", b =>
-                {
-                    b.HasOne("DataAccessLayer.Entities.Series", "Series")
-                        .WithMany("StudiosSeries")
-                        .HasForeignKey("SeriesId")
+                    b.HasOne("DataAccessLayer.Entities.Anime", "Anime")
+                        .WithMany("StudiosAnime")
+                        .HasForeignKey("AnimeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DataAccessLayer.Entities.Studio", "Studio")
-                        .WithMany("StudiosSeries")
+                        .WithMany("StudiosAnimes")
                         .HasForeignKey("StudioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Series");
+                    b.Navigation("Anime");
 
                     b.Navigation("Studio");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.Anime", b =>
+                {
+                    b.Navigation("AnimeParts");
+
+                    b.Navigation("AnimeRatings");
+
+                    b.Navigation("CategoriesAnimes");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("GenresAnimes");
+
+                    b.Navigation("SelectionAnimes");
+
+                    b.Navigation("StudiosAnime");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.AnimePart", b =>
+                {
+                    b.Navigation("Comments");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Category", b =>
                 {
-                    b.Navigation("CategoriesSeries");
+                    b.Navigation("CategoriesAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Comment", b =>
@@ -569,37 +593,17 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.Genre", b =>
                 {
-                    b.Navigation("SeriesGenres");
+                    b.Navigation("GenresAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Selection", b =>
                 {
-                    b.Navigation("SelectionsSeries");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.Series", b =>
-                {
-                    b.Navigation("CategoriesSeries");
-
-                    b.Navigation("Comments");
-
-                    b.Navigation("GenresSeries");
-
-                    b.Navigation("SelectionSeries");
-
-                    b.Navigation("SeriesParts");
-
-                    b.Navigation("StudiosSeries");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.SeriesPart", b =>
-                {
-                    b.Navigation("Comments");
+                    b.Navigation("SelectionsAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Studio", b =>
                 {
-                    b.Navigation("StudiosSeries");
+                    b.Navigation("StudiosAnimes");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.User", b =>
