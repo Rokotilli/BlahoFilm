@@ -3,7 +3,6 @@ using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Services;
 using DataAccessLayer.Context;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +17,6 @@ namespace UserServiceAPI.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IConfiguration _configuration;
-        private readonly IDataProtectionProvider _protectionProvider;
         private readonly IJWTHelper _jWTHelper;
         private readonly IEmailService _emailService;
         private readonly HttpClient _httpClient;
@@ -27,7 +25,6 @@ namespace UserServiceAPI.Controllers
         public AuthController(
             IAuthService authService,
             IConfiguration configuration,
-            IDataProtectionProvider dataProtectionProvider,
             UserServiceDbContext userServiceDbContext,
             IJWTHelper jwthelper,
             IEmailService emailService,
@@ -35,7 +32,6 @@ namespace UserServiceAPI.Controllers
         {
             _authService = authService;
             _configuration = configuration;
-            _protectionProvider = dataProtectionProvider;
             _dbContext = userServiceDbContext;
             _jWTHelper = jwthelper;
             _emailService = emailService;
@@ -58,9 +54,7 @@ namespace UserServiceAPI.Controllers
             };
 
             var token = await _jWTHelper.GenerateJwtToken(claims);
-            var protect = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            var encryptedToken = protect.Protect(token);
-            await _emailService.SendEmailAsync(addUserModel.Email, _configuration["RedirectUrlToConfirmEmail"] + "?token=" + encryptedToken, SendEmailActions.ConfirmEmail);
+            await _emailService.SendEmailAsync(addUserModel.Email, _configuration["RedirectUrlToConfirmEmail"] + "?token=" + token, SendEmailActions.ConfirmEmail);
 
             return Ok();
         }
@@ -105,19 +99,14 @@ namespace UserServiceAPI.Controllers
         [HttpPut("refreshjwt")]
         public async Task<IActionResult> RefreshAccessToken()
         {
-            var encryptedToken = HttpContext.Request.Cookies["refreshToken"];
-            var protector = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            string decryptedToken;
-            try
+            var token = HttpContext.Request.Cookies["refreshToken"];
+
+            if (token != null)
             {
-                decryptedToken = protector.Unprotect(encryptedToken);
-            }
-            catch
-            {
-                return BadRequest("Invalid payload!");
+                return BadRequest("Invalid token!");
             }
 
-            var result = await _authService.RefreshJwtToken(decryptedToken);
+            var result = await _authService.RefreshJwtToken(token);
 
             if (result.Exception != null)
             {
@@ -134,22 +123,17 @@ namespace UserServiceAPI.Controllers
         public async Task<IActionResult> RemoveAllTokens()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var encryptedToken = HttpContext.Request.Cookies["refreshToken"];
-            var protector = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            string decryptedToken;
-            try
-            {
-                decryptedToken = protector.Unprotect(encryptedToken);
-            }
-            catch
-            {
-                return BadRequest("Invalid payload!");
-            }            
+            var token = HttpContext.Request.Cookies["refreshToken"];
 
-            Response.Cookies.Delete("accessToken");
-            Response.Cookies.Delete("refreshToken");
+            if (token != null)
+            {
+                return BadRequest("Invalid token!");
+            }                
 
-            var model = _dbContext.RefreshTokens.FirstOrDefault(rt => rt.Token == decryptedToken && rt.UserId == userId);
+            Response.Cookies.Delete("accessToken", new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
+            Response.Cookies.Delete("refreshToken", new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
+
+            var model = _dbContext.RefreshTokens.FirstOrDefault(rt => rt.Token == token && rt.UserId == userId);
 
             if (model == null)
             {
@@ -190,9 +174,7 @@ namespace UserServiceAPI.Controllers
 
             if (resultToken != null)
             {
-                var protect = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-                var encryptedToken = protect.Protect(resultToken);
-                return Redirect($"{_configuration["RedirectUrlToMigrate"]}?token=" + encryptedToken);
+                return Conflict(resultToken);
             }
 
             var resultAuth = await _authService.Authenticate(user);
@@ -205,18 +187,7 @@ namespace UserServiceAPI.Controllers
         [HttpPost("migrateuser")]
         public async Task<IActionResult> MigrateUser([FromQuery] string token)
         {
-            var protector = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            string decryptedToken;
-            try
-            {
-                decryptedToken = protector.Unprotect(token);
-            }
-            catch
-            {
-                return BadRequest("Invalid payload!");
-            }
-
-            var validToken = _jWTHelper.ValidateJwtToken(decryptedToken);
+            var validToken = _jWTHelper.ValidateJwtToken(token);
 
             if (validToken == null)
             {
@@ -256,18 +227,7 @@ namespace UserServiceAPI.Controllers
         [HttpPost("emailconfirm")]
         public async Task<IActionResult> EmailConfirm([FromQuery] string token)
         {
-            var protector = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            string decryptedToken;
-            try
-            {
-                decryptedToken = protector.Unprotect(token);
-            }
-            catch
-            {
-                return BadRequest("Invalid payload!");
-            }
-
-            var validToken = _jWTHelper.ValidateJwtToken(decryptedToken);
+            var validToken = _jWTHelper.ValidateJwtToken(token);
 
             if (validToken == null)
             {
@@ -307,12 +267,8 @@ namespace UserServiceAPI.Controllers
                 Expires = DateTime.UtcNow.AddDays(int.Parse(_configuration["Security:RefreshTokenTTL"]))
             };
 
-            var protect = _protectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            var encryptedAccessToken = protect.Protect(tokens.JwtToken);
-            var encryptedRefreshToken = protect.Protect(tokens.RefreshToken);
-
-            Response.Cookies.Append("accessToken", encryptedAccessToken, cookieAccessTokenOptions);
-            Response.Cookies.Append("refreshToken", encryptedRefreshToken, cookieRefreshTokenOptions);
+            Response.Cookies.Append("accessToken", tokens.JwtToken, cookieAccessTokenOptions);
+            Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieRefreshTokenOptions);
         }     
     }
 }

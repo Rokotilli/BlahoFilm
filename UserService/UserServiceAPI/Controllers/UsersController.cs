@@ -24,7 +24,6 @@ namespace UserServiceAPI.Controllers
         private readonly UserServiceDbContext _dbContext;
         private readonly IUsersService _usersService;
         private readonly IDistributedCache _distributedCache;
-        private readonly IDataProtectionProvider _dataProtectionProvider;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
 
@@ -32,14 +31,12 @@ namespace UserServiceAPI.Controllers
             UserServiceDbContext userServiceDbContext,
             IUsersService usersService,
             IDistributedCache distributedCache,
-            IDataProtectionProvider dataProtectionProvider,
             IConfiguration configuration,
             IEmailService emailService)
         {
             _dbContext = userServiceDbContext;
             _usersService = usersService;
             _distributedCache = distributedCache;
-            _dataProtectionProvider = dataProtectionProvider;
             _configuration = configuration;
             _emailService = emailService;
         }
@@ -68,7 +65,7 @@ namespace UserServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("byids")]
+        [HttpPost("byids")]
         public async Task<IActionResult> GetUsersByIds([FromBody] string[] ids)
         {
             var model = _dbContext.Users
@@ -109,14 +106,13 @@ namespace UserServiceAPI.Controllers
             }
 
             var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-            var protect = _dataProtectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            var encryptedToken = protect.Protect(token);
+
             await _distributedCache.SetStringAsync(token, user.Email, new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             });
 
-            await _emailService.SendEmailAsync(user.Email, _configuration["RedirectUrlToChangePassword"] + "?token=" + encryptedToken, SendEmailActions.ChangePassword);
+            await _emailService.SendEmailAsync(user.Email, _configuration["RedirectUrlToChangePassword"] + "?token=" + token, SendEmailActions.ChangePassword);
 
             return Ok();
         }
@@ -127,18 +123,7 @@ namespace UserServiceAPI.Controllers
                                                                                   [StringLength(24, MinimumLength = 8, ErrorMessage = "Max length 24 characters, min length 8 characters")]
                                                                                   string password)
         {
-            var protector = _dataProtectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            string decryptedToken;
-            try
-            {
-                decryptedToken = protector.Unprotect(token);
-            }
-            catch
-            {
-                return BadRequest("Invalid payload!");
-            }
-
-            var email = await _distributedCache.GetStringAsync(decryptedToken);
+            var email = await _distributedCache.GetStringAsync(token);
 
             if (email == null)
             {
@@ -157,7 +142,7 @@ namespace UserServiceAPI.Controllers
             user.PasswordHash = passwordHash;
             await _dbContext.SaveChangesAsync();
 
-            await _distributedCache.RemoveAsync(decryptedToken);
+            await _distributedCache.RemoveAsync(token);
 
             return Ok();
         }
@@ -220,14 +205,13 @@ namespace UserServiceAPI.Controllers
             }            
 
             var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-            var protect = _dataProtectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            var encryptedToken = protect.Protect(token);
+
             await _distributedCache.SetStringAsync(token, JsonSerializer.Serialize(new ChangeEmailModel { UserEmail = user.Email, NewEmail = userModel.Email }), new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             });
 
-            await _emailService.SendEmailAsync(userModel.Email, _configuration["RedirectUrlToConfirmChangingEmail"] + "?token=" + encryptedToken, SendEmailActions.ConfirmEmail);
+            await _emailService.SendEmailAsync(userModel.Email, _configuration["RedirectUrlToConfirmChangingEmail"] + "?token=" + token, SendEmailActions.ConfirmEmail);
 
             return Ok();
         }
@@ -235,18 +219,7 @@ namespace UserServiceAPI.Controllers
         [HttpPut("changeemail")]
         public async Task<IActionResult> ChangeEmail([FromQuery] string token)
         {
-            var protector = _dataProtectionProvider.CreateProtector(_configuration["Security:CookieProtectKey"]);
-            string decryptedToken;
-            try
-            {
-                decryptedToken = protector.Unprotect(token);
-            }
-            catch
-            {
-                return BadRequest("Invalid payload!");
-            }
-
-            var json = await _distributedCache.GetStringAsync(decryptedToken);
+            var json = await _distributedCache.GetStringAsync(token);
 
             if (json == null)
             {
@@ -259,7 +232,7 @@ namespace UserServiceAPI.Controllers
             user.Email = model.NewEmail;
             await _dbContext.SaveChangesAsync();
 
-            await _distributedCache.RemoveAsync(decryptedToken);
+            await _distributedCache.RemoveAsync(token);
 
             return Ok();
         }

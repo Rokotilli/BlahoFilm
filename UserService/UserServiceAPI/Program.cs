@@ -1,7 +1,6 @@
 using DataAccessLayer.Context;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -31,11 +30,6 @@ builder.Services.AddStackExchangeRedisCache(opt =>
 {
     opt.Configuration = builder.Configuration["Redis:Host"];
     opt.InstanceName = builder.Configuration["Redis:InstanceName"];
-});
-
-builder.Services.AddDataProtection(opt =>
-{
-    opt.ApplicationDiscriminator = builder.Configuration["Security:CookieProtectKey"];
 });
 
 builder.Services.AddCors(options =>
@@ -72,18 +66,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                        {
                            OnMessageReceived = context =>
                            {
-                               var _dataProtectionProvider = context.HttpContext.RequestServices.GetRequiredService<IDataProtectionProvider>();
-                               var encryptedToken = context.Request.Cookies["accessToken"];
-                               var protector = _dataProtectionProvider.CreateProtector(builder.Configuration["Security:CookieProtectKey"]);
+                               var token = context.Request.Cookies["accessToken"];
 
-                               if (!string.IsNullOrEmpty(encryptedToken))
+                               if (!string.IsNullOrEmpty(token))
                                {
-                                   try
-                                   {
-                                       var token = protector.Unprotect(encryptedToken);
-                                       context.Token = token;
-                                   }
-                                   catch { };
+                                    context.Token = token;
                                }
                                return Task.CompletedTask;
                            }
