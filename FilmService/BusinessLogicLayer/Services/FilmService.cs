@@ -192,6 +192,8 @@ namespace BusinessLogicLayer.Services
                 Rating = f.Rating,
                 Actors = f.Actors,
                 TrailerUri = f.TrailerUri,
+                FileName = f.FileName,
+                FileUri = f.FileUri,
                 Genres = f.GenresFilms.Select(gf => new Genre { Id = gf.GenreId, Name = gf.Genre.Name }),
                 Categories = f.CategoriesFilms.Select(tf => new Category { Id = tf.CategoryId, Name = tf.Category.Name }),
                 Studios = f.StudiosFilms.Select(sf => new Studio { Id = sf.StudioId, Name = sf.Studio.Name }),

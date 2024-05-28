@@ -51,19 +51,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                            ValidIssuer = builder.Configuration["Security:JwtIssuer"],
                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Security:JwtSecretKey"]))
                        };
-                       options.Events = new JwtBearerEvents
-                       {
-                           OnMessageReceived = context =>
-                           {
-                               var token = context.Request.Cookies["accessToken"];
-
-                               if (!string.IsNullOrEmpty(token))
-                               {
-                                    context.Token = token;
-                               }
-                               return Task.CompletedTask;
-                           }
-                       };
                    });
 
 builder.Services.AddMassTransit(x =>
