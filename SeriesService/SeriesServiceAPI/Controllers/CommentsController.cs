@@ -19,10 +19,28 @@ namespace SeriesServiceAPI.Controllers
             _dbContext = seriesServiceDbContext;
             _commentService = commentService;
         }
+
         [HttpGet]
-        public async Task<IActionResult> GetCommentsForSeriesPart([FromQuery] int seriesPartId)
+        public async Task<IActionResult> GetCommentsForSeries([FromQuery] int seriesPartId)
         {
-            var model = _dbContext.Comments.Where(c => c.SeriesPartId == seriesPartId).ToArray();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var model = _dbContext.Comments.Where(c => c.SeriesPartId == seriesPartId)
+                .GroupJoin(_dbContext.Comments,
+                parent => parent.Id,
+                reply => reply.ParentCommentId,
+                (parent, replies) => new
+                {
+                    Id = parent.Id,
+                    UserId = parent.UserId,
+                    Text = parent.Text,
+                    ParentCommentId = parent.ParentCommentId,
+                    Date = parent.Date,
+                    CountLikes = parent.CommentLikes.Count(),
+                    CountDislikes = parent.CommentDislikes.Count(),
+                    CountReplies = replies.Count(),
+                    IsLiked = parent.CommentLikes.Any(cl => cl.UserId == (userId ?? "")),
+                    IsDisliked = parent.CommentDislikes.Any(cl => cl.UserId == (userId ?? ""))
+                }).ToArray();
 
             if (!model.Any())
             {
@@ -31,9 +49,10 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpPost]
+
         [Authorize]
-        public async Task<IActionResult> AddCommentForSeriesPart(CommentAddModel commentAddModel)
+        [HttpPost]
+        public async Task<IActionResult> AddCommentForSeries(CommentAddModel commentAddModel)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _commentService.AddComment(commentAddModel, userId);
@@ -45,8 +64,9 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok();
         }
-        [HttpDelete]
+
         [Authorize]
+        [HttpDelete]
         public async Task<IActionResult> DeleteComment([FromQuery] int commentId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -60,8 +80,8 @@ namespace SeriesServiceAPI.Controllers
             return Ok();
         }
 
-        [HttpPut]
         [Authorize]
+        [HttpPut]
         public async Task<IActionResult> ChangeComment(ChangeCommentModel changeCommentModel)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -75,8 +95,8 @@ namespace SeriesServiceAPI.Controllers
             return Ok();
         }
 
-        [HttpPost("like")]
         [Authorize]
+        [HttpPost("like")]
         public async Task<IActionResult> Like([FromQuery] int commentId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -90,8 +110,8 @@ namespace SeriesServiceAPI.Controllers
             return Ok();
         }
 
-        [HttpPost("dislike")]
         [Authorize]
+        [HttpPost("dislike")]
         public async Task<IActionResult> Dislike([FromQuery] int commentId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
