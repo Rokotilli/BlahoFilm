@@ -23,7 +23,24 @@ namespace FilmServiceAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCommentsForFilm([FromQuery] int filmId)
         {
-            var model = _dbContext.Comments.Where(c => c.FilmId == filmId).ToArray();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var model = _dbContext.Comments.Where(c => c.FilmId == filmId)
+                .GroupJoin(_dbContext.Comments,
+                parent => parent.Id,
+                reply => reply.ParentCommentId,
+                (parent, replies) => new
+                {
+                    Id = parent.Id,
+                    UserId = parent.UserId,
+                    Text = parent.Text,
+                    ParentCommentId = parent.ParentCommentId,
+                    Date = parent.Date,
+                    CountLikes = parent.CommentLikes.Count(),
+                    CountDislikes = parent.CommentDislikes.Count(),
+                    CountReplies = replies.Count(),
+                    IsLiked = parent.CommentLikes.Any(cl => cl.UserId == (userId ?? "")),
+                    IsDisliked = parent.CommentDislikes.Any(cl => cl.UserId == (userId ?? ""))
+                }).ToArray();
 
             if (!model.Any())
             {
