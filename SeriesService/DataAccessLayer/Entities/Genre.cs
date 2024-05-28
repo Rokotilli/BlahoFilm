@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogicLayer.Models
+namespace DataAccessLayer.Entities
 {
-    public class AnimePartUploadedModel
+    public class Genre
     {
         public int Id { get; set; }
-        public string FileName { get; set; }
-        public string FileUri { get; set; }
+        public string Name { get; set; }
+
+        public ICollection<GenresSeries> SeriesGenres { get; set; }
     }
 }
