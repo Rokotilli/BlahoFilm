@@ -21,11 +21,6 @@ builder.Services.AddControllers();
 
 builder.Services.AddMyServices();
 
-builder.Services.AddDataProtection(opt =>
-{
-    opt.ApplicationDiscriminator = builder.Configuration["Security:CookieProtectKey"];
-});
-
 builder.Services.AddDbContext<AnimeServiceDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration["ConnectionStrings:AnimeServiceSqlServer"]);
@@ -60,21 +55,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                        {
                            OnMessageReceived = context =>
                            {
-                               var _dataProtectionProvider = context.HttpContext.RequestServices.GetRequiredService<IDataProtectionProvider>();
-                               var encryptedToken = context.Request.Cookies["accessToken"];
-                               var protector = _dataProtectionProvider.CreateProtector(builder.Configuration["Security:CookieProtectKey"]);
-
-                               if (!string.IsNullOrEmpty(encryptedToken))
+                             var token = context.Request.Cookies["accessToken"];
+                               if (!string.IsNullOrEmpty(token))
                                {
-                                   try
-                                   {
-                                       var token = protector.Unprotect(encryptedToken);
-                                       context.Token = token;
-                                   }
-                                   catch (Exception ex)
-                                   {
-                                       Console.WriteLine(ex);
-                                   };
+                                   context.Token = token;
                                }
                                return Task.CompletedTask;
                            }

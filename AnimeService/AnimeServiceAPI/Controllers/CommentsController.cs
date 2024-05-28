@@ -14,16 +14,33 @@ namespace AnimeServiceAPI.Controllers
         private readonly AnimeServiceDbContext _dbContext;
         private readonly ICommentService _commentService;
 
-        public CommentsController(AnimeServiceDbContext animeServiceDbContext, ICommentService commentService)
+        public CommentsController(AnimeServiceDbContext filmServiceDbContext, ICommentService commentService)
         {
-            _dbContext = animeServiceDbContext;
+            _dbContext = filmServiceDbContext;
             _commentService = commentService;
         }
 
-        [HttpGet("getcommentsforanime")]
-        public async Task<IActionResult> GetCommentsForAnime([FromQuery] int animeId)
+        [HttpGet]
+        public async Task<IActionResult> GetCommentsForAnime([FromQuery] int filmId)
         {
-            var model = _dbContext.Comments.Where(a => a.AnimeId == animeId).ToArray();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var model = _dbContext.Comments.Where(c => c.AnimeId == filmId)
+                .GroupJoin(_dbContext.Comments,
+                parent => parent.Id,
+                reply => reply.ParentCommentId,
+                (parent, replies) => new
+                {
+                    Id = parent.Id,
+                    UserId = parent.UserId,
+                    Text = parent.Text,
+                    ParentCommentId = parent.ParentCommentId,
+                    Date = parent.Date,
+                    CountLikes = parent.CommentLikes.Count(),
+                    CountDislikes = parent.CommentDislikes.Count(),
+                    CountReplies = replies.Count(),
+                    IsLiked = parent.CommentLikes.Any(cl => cl.UserId == (userId ?? "")),
+                    IsDisliked = parent.CommentDislikes.Any(cl => cl.UserId == (userId ?? ""))
+                }).ToArray();
 
             if (!model.Any())
             {
@@ -32,21 +49,9 @@ namespace AnimeServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet("getcommentsforanimepart")]
-        public async Task<IActionResult> GetCommentsForAnimePart([FromQuery] int animePartId)
-        {
-            var model = _dbContext.Comments.Where(a => a.AnimePartId == animePartId).ToArray();
 
-            if (!model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
-        [HttpGet("addcommentforanime")]
         [Authorize]
+        [HttpPost]
         public async Task<IActionResult> AddCommentForAnime(CommentAddModel commentAddModel)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -59,22 +64,9 @@ namespace AnimeServiceAPI.Controllers
 
             return Ok();
         }
-        [HttpGet("addcommentforanimepart")]
+
         [Authorize]
-        public async Task<IActionResult> AddCommentForAnimePart(CommentAddModel commentAddModel)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _commentService.AddComment(commentAddModel, userId);
-
-            if (result != null)
-            {
-                return BadRequest(result);
-            }
-
-            return Ok();
-        }
         [HttpDelete]
-        [Authorize]
         public async Task<IActionResult> DeleteComment([FromQuery] int commentId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -88,8 +80,8 @@ namespace AnimeServiceAPI.Controllers
             return Ok();
         }
 
-        [HttpPut]
         [Authorize]
+        [HttpPut]
         public async Task<IActionResult> ChangeComment(ChangeCommentModel changeCommentModel)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -103,8 +95,8 @@ namespace AnimeServiceAPI.Controllers
             return Ok();
         }
 
-        [HttpPost("like")]
         [Authorize]
+        [HttpPost("like")]
         public async Task<IActionResult> Like([FromQuery] int commentId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -118,8 +110,8 @@ namespace AnimeServiceAPI.Controllers
             return Ok();
         }
 
-        [HttpPost("dislike")]
         [Authorize]
+        [HttpPost("dislike")]
         public async Task<IActionResult> Dislike([FromQuery] int commentId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
