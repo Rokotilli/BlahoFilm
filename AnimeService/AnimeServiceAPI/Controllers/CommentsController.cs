@@ -14,17 +14,17 @@ namespace AnimeServiceAPI.Controllers
         private readonly AnimeServiceDbContext _dbContext;
         private readonly ICommentService _commentService;
 
-        public CommentsController(AnimeServiceDbContext filmServiceDbContext, ICommentService commentService)
+        public CommentsController(AnimeServiceDbContext animeServiceDbContext, ICommentService commentService)
         {
-            _dbContext = filmServiceDbContext;
+            _dbContext = animeServiceDbContext;
             _commentService = commentService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCommentsForAnime([FromQuery] int filmId)
+        public async Task<IActionResult> GetCommentsForAnime([FromQuery] int animeId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var model = _dbContext.Comments.Where(c => c.AnimeId == filmId)
+            var model = _dbContext.Comments.Where(c => c.AnimeId == animeId)
                 .GroupJoin(_dbContext.Comments,
                 parent => parent.Id,
                 reply => reply.ParentCommentId,
