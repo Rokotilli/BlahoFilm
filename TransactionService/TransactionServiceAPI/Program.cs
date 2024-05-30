@@ -1,8 +1,10 @@
 using DataAccessLayer.Context;
 using MassTransit;
+using MessageBus.Messages;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using RabbitMQ.Client;
 using System.Text;
 using TransactionServiceAPI.Consumers;
 using TransactionServiceAPI.Services;
@@ -80,6 +82,15 @@ builder.Services.AddMassTransit(x =>
         {
             h.Username("guest");
             h.Password("guest");
+        });
+        cfg.ReceiveEndpoint("user-received-queue-transaction-service", e =>
+        {
+            e.ConfigureConsumeTopology = false;
+            e.Bind<UserReceivedMessage>(b =>
+            {
+                b.ExchangeType = ExchangeType.Fanout;
+            });
+            e.ConfigureConsumer<UserReceivedConsumer>(cxt);
         });
         cfg.ConfigureEndpoints(cxt);
     });
