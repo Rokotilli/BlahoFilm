@@ -2,9 +2,11 @@ using DataAccessLayer.Context;
 using FilmServiceAPI.Consumers;
 using FilmServiceAPI.Services;
 using MassTransit;
+using MessageBus.Messages;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using RabbitMQ.Client;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,6 +53,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                            ValidIssuer = builder.Configuration["Security:JwtIssuer"],
                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Security:JwtSecretKey"]))
                        };
+                       options.Events = new JwtBearerEvents
+                       {
+                           OnMessageReceived = context =>
+                           {
+                               var token = context.Request.Cookies["accessToken"];
+
+                               if (!string.IsNullOrEmpty(token))
+                               {
+                                   context.Token = token;
+                               }
+                               return Task.CompletedTask;
+                           }
+                       };
                    });
 
 builder.Services.AddMassTransit(x =>
@@ -62,6 +77,15 @@ builder.Services.AddMassTransit(x =>
         {
             h.Username("guest");
             h.Password("guest");
+        });
+        cfg.ReceiveEndpoint("user-received-queue-film-service", e =>
+        {
+            e.ConfigureConsumeTopology = false;
+            e.Bind<UserReceivedMessage>(b =>
+            {
+                b.ExchangeType = ExchangeType.Fanout;
+            });
+            e.ConfigureConsumer<UserReceivedConsumer>(cxt);
         });
         cfg.ConfigureEndpoints(cxt);
     });
