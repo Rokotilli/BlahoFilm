@@ -1,8 +1,10 @@
 using DataAccessLayer.Context;
 using MassTransit;
+using MessageBus.Messages;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using RabbitMQ.Client;
 using System.Text;
 using UserServiceAPI.Consumers;
 using UserServiceAPI.Services;
@@ -79,6 +81,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddMassTransit(x =>
 {
+    x.AddConsumer<PremiumRemovedConsumer>();
     x.AddConsumer<PremiumReceivedConsumer>();
     x.AddConsumer<MediaRegisteredConsumer>();
     x.UsingRabbitMq((cxt, cfg) =>
@@ -87,6 +90,11 @@ builder.Services.AddMassTransit(x =>
         {
             h.Username("guest");
             h.Password("guest");
+        });
+        cfg.Publish<UserReceivedMessage>(publishTopology =>
+        {
+            publishTopology.ExchangeType = ExchangeType.Fanout;
+            publishTopology.Durable = true;
         });
         cfg.ConfigureEndpoints(cxt);
     });

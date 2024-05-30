@@ -101,11 +101,6 @@ namespace UserServiceAPI.Controllers
         {
             var token = HttpContext.Request.Cookies["refreshToken"];
 
-            if (token != null)
-            {
-                return BadRequest("Invalid token!");
-            }
-
             var result = await _authService.RefreshJwtToken(token);
 
             if (result.Exception != null)
@@ -123,12 +118,7 @@ namespace UserServiceAPI.Controllers
         public async Task<IActionResult> RemoveAllTokens()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var token = HttpContext.Request.Cookies["refreshToken"];
-
-            if (token != null)
-            {
-                return BadRequest("Invalid token!");
-            }                
+            var token = HttpContext.Request.Cookies["refreshToken"];             
 
             Response.Cookies.Delete("accessToken", new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
             Response.Cookies.Delete("refreshToken", new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
