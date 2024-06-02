@@ -22,6 +22,7 @@ namespace DataAccessLayer.Migrations
                     PosterPartTwo = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     PosterPartThree = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CountSeasons = table.Column<int>(type: "int", nullable: true),
                     CountParts = table.Column<int>(type: "int", nullable: true),

@@ -63,8 +63,7 @@ namespace BusinessLogicLayer.Services
                     Rating = animeRegisterModel.Rating,
                     TrailerUri = animeRegisterModel.TrailerUri,
                     AgeRestriction = animeRegisterModel.AgeRestriction,
-                    FileName = "",
-                    FileUri = "",
+                    Country = animeRegisterModel.Country
                 };
 
                 var anime = await _dbContext.Animes
@@ -79,6 +78,7 @@ namespace BusinessLogicLayer.Services
                     a.Actors == animeRegisterModel.Actors &&
                     a.TrailerUri == model.TrailerUri &&
                     a.AgeRestriction == model.AgeRestriction &&
+                    a.Country == model.Country &&
                     a.Quality == model.Quality);
                 if (anime != null)
                 {
@@ -175,7 +175,6 @@ namespace BusinessLogicLayer.Services
                 return ex.ToString();
             }
         }
-
         public async Task<string> RegisterAnimePart(AnimePartRegisterModel animePartRegisterModel)
         {
             try

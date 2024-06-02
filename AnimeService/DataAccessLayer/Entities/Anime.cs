@@ -8,13 +8,14 @@
         public byte[] PosterPartTwo { get; set; }
         public byte[] PosterPartThree { get; set; }
         public string Title { get; set; }
+        public string Country { get; set; }
         public string Description { get; set; }
         public int? CountSeasons { get; set; }
         public int? CountParts { get; set; }
         public string? Duration { get; set; }
         public DateTime DateOfPublish { get; set; }
         public string Director { get; set; }
-        public string Actors { get; set; }
+        public string Actors { get; set; } 
         public double Rating { get; set; }
         public string TrailerUri { get; set; }
         public int AgeRestriction { get; set; }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AnimeServiceDbContext))]
-    [Migration("20240528024416_Init")]
+    [Migration("20240602114937_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -45,6 +45,10 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<int?>("CountSeasons")
                         .HasColumnType("int");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DateOfPublish")
                         .HasColumnType("datetime2");
