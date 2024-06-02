@@ -12,17 +12,17 @@ namespace AnimeServiceAPI.Controllers
     [Route("api/[controller]")]
     public class AnimeController : ControllerBase
     {
-        private readonly AnimeServiceDbContext _dbContext;
         private readonly IGetSaSService _getSaSService;
-        private readonly IAnimeService _animeService;
-        public AnimeController(AnimeServiceDbContext AnimeServiceDbContext, IGetSaSService getSaSService, IAnimeService animeService)
+        private readonly AnimeServiceDbContext _dbContext;
+        private readonly AnimeService _animeService;
+        public AnimeController(AnimeServiceDbContext AnimeServiceDbContext, IGetSaSService getSaSService, AnimeService animeService)
         {
             _dbContext = AnimeServiceDbContext;
             _getSaSService = getSaSService;
             _animeService = animeService;
         }
         [HttpGet("getsas")]
-        public async Task<IActionResult> GetSaS([FromQuery] string blobName)
+        public async Task<IActionResult> GetSaS([FromQuery] string blobName, [FromQuery] int animeId)
         {
             var result = await _getSaSService.GetSaS(blobName, BlobSasPermissions.Read);
 
@@ -32,21 +32,23 @@ namespace AnimeServiceAPI.Controllers
             }
 
             return BadRequest("Can't get a SaS");
-        }
+        }       
         [HttpGet("byid")]
         public async Task<IActionResult> GetAnimeById([FromQuery] int id)
         {
-            var anime = await _dbContext.Animes.Include(a => a.GenresAnimes).ThenInclude(ga => ga.Genre)
+            var model = _dbContext.Animes
+            .Where(a => a.Id == id)
+            .Include(a => a.GenresAnimes).ThenInclude(ga => ga.Genre)
             .Include(a => a.CategoriesAnimes).ThenInclude(ca => ca.Category)
             .Include(a => a.StudiosAnime).ThenInclude(sa => sa.Studio)
-            .FirstOrDefaultAsync(a => a.Id == id)
-            ;
+            .Select(a => AnimeService.ToReturnAnime(a))
+            .ToArray();
 
-            if (anime == null)
+            if (!model.Any())
             {
                 return NotFound();
             }
-            var model = AnimeService.ToReturnAnime(anime);
+
             return Ok(model);
         }
 

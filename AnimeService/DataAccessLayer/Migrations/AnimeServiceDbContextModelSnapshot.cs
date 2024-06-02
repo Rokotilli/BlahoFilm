@@ -43,10 +43,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("CountSeasons")
                         .HasColumnType("int");
 
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("DateOfPublish")
                         .HasColumnType("datetime2");
 

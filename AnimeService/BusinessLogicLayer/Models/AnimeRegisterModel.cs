@@ -19,7 +19,6 @@ namespace BusinessLogicLayer.Models
         public string? Duration { get; set; }
         public DateTime DateOfPublish { get; set; }
         public string Director { get; set; }
-        public string Country { get; set; }
         public string Actors { get; set; }
         public int Rating { get; set; }
         public string Studios { get; set; }
