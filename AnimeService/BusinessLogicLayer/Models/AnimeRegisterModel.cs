@@ -27,5 +27,6 @@ namespace BusinessLogicLayer.Models
         public string Categories { get; set; }
         public int AgeRestriction { get; set; }
         public string Quality { get; set; }
+        public string Country { get; set; }
     }
 }

@@ -24,7 +24,8 @@ namespace BusinessLogicLayer.Services
                     AnimeId = commentAddModel.AnimeId,
                     AnimePartId = commentAddModel.AnimePartId,
                     ParentCommentId = commentAddModel.ParentCommentId,
-                    Text = commentAddModel.Text
+                    Text = commentAddModel.Text,
+                    Date = DateTime.Now,
                 };
 
                 _dbContext.Comments.Add(model);

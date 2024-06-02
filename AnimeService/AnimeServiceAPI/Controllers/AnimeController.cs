@@ -14,8 +14,8 @@ namespace AnimeServiceAPI.Controllers
     {
         private readonly IGetSaSService _getSaSService;
         private readonly AnimeServiceDbContext _dbContext;
-        private readonly AnimeService _animeService;
-        public AnimeController(AnimeServiceDbContext AnimeServiceDbContext, IGetSaSService getSaSService, AnimeService animeService)
+        private readonly IAnimeService _animeService;
+        public AnimeController(AnimeServiceDbContext AnimeServiceDbContext, IGetSaSService getSaSService, IAnimeService animeService)
         {
             _dbContext = AnimeServiceDbContext;
             _getSaSService = getSaSService;

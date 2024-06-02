@@ -43,6 +43,10 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("CountSeasons")
                         .HasColumnType("int");
 
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("DateOfPublish")
                         .HasColumnType("datetime2");
 
@@ -179,12 +183,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("AnimePartId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CountDislikes")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CountLikes")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")

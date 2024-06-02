@@ -1,10 +1,12 @@
 using AnimeServiceAPI.Consumers;
 using DataAccessLayer.Context;
 using MassTransit;
+using MessageBus.Messages;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using RabbitMQ.Client;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -70,10 +72,19 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<UserReceivedConsumer>();
     x.UsingRabbitMq((cxt, cfg) =>
     {
-        cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
+        cfg.Host(builder.Configuration["RabbitMqHost"], "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
+        });
+        cfg.ReceiveEndpoint("user-received-queue-anime-service", e =>
+        {
+            e.ConfigureConsumeTopology = false;
+            e.Bind<UserReceivedMessage>(b =>
+            {
+                b.ExchangeType = ExchangeType.Fanout;
+            });
+            e.ConfigureConsumer<UserReceivedConsumer>(cxt);
         });
         cfg.ConfigureEndpoints(cxt);
     });

@@ -21,6 +21,7 @@
         public string? FileName { get; set; }
         public string? FileUri { get; set; }
         public string? Quality { get; set; }
+        public string Country { get; set; }
         public ICollection<AnimePart> AnimeParts { get; set; }
         public ICollection<GenresAnime> GenresAnimes { get; set; }
         public ICollection<CategoriesAnime> CategoriesAnimes { get; set; }

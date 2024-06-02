@@ -34,7 +34,8 @@ namespace DataAccessLayer.Migrations
                     AgeRestriction = table.Column<int>(type: "int", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -263,8 +264,6 @@ namespace DataAccessLayer.Migrations
                     AnimeId = table.Column<int>(type: "int", nullable: true),
                     AnimePartId = table.Column<int>(type: "int", nullable: true),
                     ParentCommentId = table.Column<int>(type: "int", nullable: true),
-                    CountLikes = table.Column<int>(type: "int", nullable: false),
-                    CountDislikes = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Text = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },

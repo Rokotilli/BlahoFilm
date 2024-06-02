@@ -21,7 +21,7 @@ namespace AnimeServiceAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCommentsForAnime([FromQuery] int animeId)
+        public async Task<IActionResult> GetComments([FromQuery] int animeId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var model = _dbContext.Comments.Where(c => c.AnimeId == animeId)
@@ -52,8 +52,12 @@ namespace AnimeServiceAPI.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> AddCommentForAnime(CommentAddModel commentAddModel)
+        public async Task<IActionResult> AddComment(CommentAddModel commentAddModel)
         {
+            if (commentAddModel.AnimeId == null && commentAddModel.AnimePartId == null)
+            {
+                return BadRequest();
+            }
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _commentService.AddComment(commentAddModel, userId);
 
@@ -64,7 +68,6 @@ namespace AnimeServiceAPI.Controllers
 
             return Ok();
         }
-
         [Authorize]
         [HttpDelete]
         public async Task<IActionResult> DeleteComment([FromQuery] int commentId)

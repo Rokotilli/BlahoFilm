@@ -163,6 +163,7 @@ namespace BusinessLogicLayer.Services
                 AgeRestriction = a.AgeRestriction,
                 FileName = a.FileName,
                 FileUri = a.FileUri,
+                Country = a.Country,
                 Genres = a.GenresAnimes.Select(ga => new Genre { Id = ga.GenreId, Name = ga.Genre.Name }),
                 Categories = a.CategoriesAnimes.Select(ta => new Category { Id = ta.CategoryId, Name = ta.Category.Name }),
                 Studios = a.StudiosAnime.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
