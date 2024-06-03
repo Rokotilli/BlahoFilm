@@ -93,13 +93,20 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
-                var existingLike = _dbContext.CommentLikes.FirstOrDefault(cl => cl.CommentId == commentId && cl.UserId == userId);
+                var existingLike = _dbContext.CommentLikes.FirstOrDefault(cl => cl.CommentId == commentId && cl.UserId == userId);                
 
                 if (existingLike != null)
                 {
                     _dbContext.CommentLikes.Remove(existingLike);
                     await _dbContext.SaveChangesAsync();
                     return null;
+                }
+
+                var existingDislike = _dbContext.CommentDislikes.FirstOrDefault(cl => cl.CommentId == commentId && cl.UserId == userId);
+
+                if (existingDislike != null)
+                {
+                    _dbContext.CommentDislikes.Remove(existingDislike);
                 }
 
                 var newLike = new CommentLike()
@@ -129,6 +136,13 @@ namespace BusinessLogicLayer.Services
                     _dbContext.CommentDislikes.Remove(existingDislike);
                     await _dbContext.SaveChangesAsync();
                     return null;
+                }
+
+                var existingLike = _dbContext.CommentLikes.FirstOrDefault(cl => cl.CommentId == commentId && cl.UserId == userId);
+
+                if (existingLike != null)
+                {
+                    _dbContext.CommentLikes.Remove(existingLike);
                 }
 
                 var newDislike = new CommentDislike()

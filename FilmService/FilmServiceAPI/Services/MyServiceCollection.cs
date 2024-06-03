@@ -12,6 +12,7 @@ namespace FilmServiceAPI.Services
             serviceCollection.AddScoped<IUploadedFilmService, UploadedFilmService>();
             serviceCollection.AddScoped<ICommentService, CommentService>();
             serviceCollection.AddScoped<IRatingService, RatingService>();
+            serviceCollection.AddScoped<IEncryptionHelper, EncryptionHelper>();
 
             return serviceCollection;
         }
