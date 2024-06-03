@@ -26,19 +26,22 @@ namespace UserServiceAPI.Controllers
         private readonly IDistributedCache _distributedCache;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly IEncryptionHelper _encryptionHelper;
 
         public UsersController(
             UserServiceDbContext userServiceDbContext,
             IUsersService usersService,
             IDistributedCache distributedCache,
             IConfiguration configuration,
-            IEmailService emailService)
+            IEmailService emailService,
+            IEncryptionHelper encryptionHelper)
         {
             _dbContext = userServiceDbContext;
             _usersService = usersService;
             _distributedCache = distributedCache;
             _configuration = configuration;
             _emailService = emailService;
+            _encryptionHelper = encryptionHelper;
         }
 
         [HttpGet("byid")]
@@ -106,13 +109,14 @@ namespace UserServiceAPI.Controllers
             }
 
             var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            var encryptedToken = _encryptionHelper.Encrypt(token);
 
             await _distributedCache.SetStringAsync(token, user.Email, new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             });
 
-            await _emailService.SendEmailAsync(user.Email, _configuration["RedirectUrlToChangePassword"] + "?token=" + token, SendEmailActions.ChangePassword);
+            await _emailService.SendEmailAsync(user.Email, _configuration["RedirectUrlToChangePassword"] + "?token=" + encryptedToken, SendEmailActions.ChangePassword);
 
             return Ok();
         }
@@ -123,7 +127,17 @@ namespace UserServiceAPI.Controllers
                                                                                   [StringLength(24, MinimumLength = 8, ErrorMessage = "Max length 24 characters, min length 8 characters")]
                                                                                   string password)
         {
-            var email = await _distributedCache.GetStringAsync(token);
+            string decryptedToken;
+            try
+            {
+                decryptedToken = _encryptionHelper.Decrypt(token);
+            }
+            catch
+            {
+                return BadRequest("Invalid payload!");
+            }
+
+            var email = await _distributedCache.GetStringAsync(decryptedToken);
 
             if (email == null)
             {
@@ -206,12 +220,14 @@ namespace UserServiceAPI.Controllers
 
             var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 
+            var encryptToken = _encryptionHelper.Encrypt(token);
+
             await _distributedCache.SetStringAsync(token, JsonSerializer.Serialize(new ChangeEmailModel { UserEmail = user.Email, NewEmail = userModel.Email }), new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             });
 
-            await _emailService.SendEmailAsync(userModel.Email, _configuration["RedirectUrlToConfirmChangingEmail"] + "?token=" + token, SendEmailActions.ConfirmEmail);
+            await _emailService.SendEmailAsync(userModel.Email, _configuration["RedirectUrlToConfirmChangingEmail"] + "?token=" + encryptToken, SendEmailActions.ConfirmEmail);
 
             return Ok();
         }
@@ -219,7 +235,17 @@ namespace UserServiceAPI.Controllers
         [HttpPut("changeemail")]
         public async Task<IActionResult> ChangeEmail([FromQuery] string token)
         {
-            var json = await _distributedCache.GetStringAsync(token);
+            string decryptedToken;
+            try
+            {
+                decryptedToken = _encryptionHelper.Decrypt(token);
+            }
+            catch
+            {
+                return BadRequest("Invalid payload!");
+            }
+
+            var json = await _distributedCache.GetStringAsync(decryptedToken);
 
             if (json == null)
             {

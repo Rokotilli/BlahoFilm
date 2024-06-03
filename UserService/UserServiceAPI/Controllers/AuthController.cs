@@ -19,6 +19,7 @@ namespace UserServiceAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly IJWTHelper _jWTHelper;
         private readonly IEmailService _emailService;
+        private readonly IEncryptionHelper _encryptionHelper;
         private readonly HttpClient _httpClient;
         private readonly UserServiceDbContext _dbContext;
 
@@ -28,7 +29,8 @@ namespace UserServiceAPI.Controllers
             UserServiceDbContext userServiceDbContext,
             IJWTHelper jwthelper,
             IEmailService emailService,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            IEncryptionHelper encryptionHelper)
         {
             _authService = authService;
             _configuration = configuration;
@@ -36,6 +38,7 @@ namespace UserServiceAPI.Controllers
             _jWTHelper = jwthelper;
             _emailService = emailService;
             _httpClient = httpClientFactory.CreateClient("google");
+            _encryptionHelper = encryptionHelper;
         }
 
         [HttpPost("register")]
@@ -54,7 +57,8 @@ namespace UserServiceAPI.Controllers
             };
 
             var token = await _jWTHelper.GenerateJwtToken(claims);
-            await _emailService.SendEmailAsync(addUserModel.Email, _configuration["RedirectUrlToConfirmEmail"] + "?token=" + token, SendEmailActions.ConfirmEmail);
+            var encryptedToken = _encryptionHelper.Encrypt(token);
+            await _emailService.SendEmailAsync(addUserModel.Email, _configuration["RedirectUrlToConfirmEmail"] + "?token=" + encryptedToken, SendEmailActions.ConfirmEmail);
 
             return Ok();
         }
@@ -99,9 +103,18 @@ namespace UserServiceAPI.Controllers
         [HttpPut("refreshjwt")]
         public async Task<IActionResult> RefreshAccessToken()
         {
-            var token = HttpContext.Request.Cookies["refreshToken"];
+            var encryptedToken = HttpContext.Request.Cookies["refreshToken"];
+            string decryptedToken;
+            try
+            {
+                decryptedToken = _encryptionHelper.Decrypt(encryptedToken);
+            }
+            catch
+            {
+                return BadRequest("Invalid payload!");
+            }
 
-            var result = await _authService.RefreshJwtToken(token);
+            var result = await _authService.RefreshJwtToken(decryptedToken);
 
             if (result.Exception != null)
             {
@@ -118,12 +131,22 @@ namespace UserServiceAPI.Controllers
         public async Task<IActionResult> RemoveAllTokens()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var token = HttpContext.Request.Cookies["refreshToken"];             
+
+            var encryptedToken = HttpContext.Request.Cookies["refreshToken"];
+            string decryptedToken;
+            try
+            {
+                decryptedToken = _encryptionHelper.Decrypt(encryptedToken);
+            }
+            catch
+            {
+                return BadRequest("Invalid payload!");
+            }
 
             Response.Cookies.Delete("accessToken", new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
             Response.Cookies.Delete("refreshToken", new CookieOptions { SameSite = SameSiteMode.None, Secure = true });
 
-            var model = _dbContext.RefreshTokens.FirstOrDefault(rt => rt.Token == token && rt.UserId == userId);
+            var model = _dbContext.RefreshTokens.FirstOrDefault(rt => rt.Token == decryptedToken && rt.UserId == userId);
 
             if (model == null)
             {
@@ -164,7 +187,8 @@ namespace UserServiceAPI.Controllers
 
             if (resultToken != null)
             {
-                return Conflict(resultToken);
+                var encryptedToken = _encryptionHelper.Encrypt(resultToken);
+                return Conflict(encryptedToken);
             }
 
             var resultAuth = await _authService.Authenticate(user);
@@ -177,7 +201,17 @@ namespace UserServiceAPI.Controllers
         [HttpPost("migrateuser")]
         public async Task<IActionResult> MigrateUser([FromQuery] string token)
         {
-            var validToken = _jWTHelper.ValidateJwtToken(token);
+            string decryptedToken;
+            try
+            {
+                decryptedToken = _encryptionHelper.Decrypt(token);
+            }
+            catch
+            {
+                return BadRequest("Invalid payload!");
+            }
+
+            var validToken = _jWTHelper.ValidateJwtToken(decryptedToken);
 
             if (validToken == null)
             {
@@ -217,7 +251,17 @@ namespace UserServiceAPI.Controllers
         [HttpPost("emailconfirm")]
         public async Task<IActionResult> EmailConfirm([FromQuery] string token)
         {
-            var validToken = _jWTHelper.ValidateJwtToken(token);
+            string decryptedToken;
+            try
+            {
+                decryptedToken = _encryptionHelper.Decrypt(token);
+            }
+            catch
+            {
+                return BadRequest("Invalid payload!");
+            }
+
+            var validToken = _jWTHelper.ValidateJwtToken(decryptedToken);
 
             if (validToken == null)
             {
@@ -257,8 +301,11 @@ namespace UserServiceAPI.Controllers
                 Expires = DateTime.UtcNow.AddDays(int.Parse(_configuration["Security:RefreshTokenTTL"]))
             };
 
-            Response.Cookies.Append("accessToken", tokens.JwtToken, cookieAccessTokenOptions);
-            Response.Cookies.Append("refreshToken", tokens.RefreshToken, cookieRefreshTokenOptions);
+            var encryptedAccessToken = _encryptionHelper.Encrypt(tokens.JwtToken);
+            var encryptedRefreshToken = _encryptionHelper.Encrypt(tokens.RefreshToken);
+
+            Response.Cookies.Append("accessToken", encryptedAccessToken, cookieAccessTokenOptions);
+            Response.Cookies.Append("refreshToken", encryptedRefreshToken, cookieRefreshTokenOptions);
         }     
     }
 }

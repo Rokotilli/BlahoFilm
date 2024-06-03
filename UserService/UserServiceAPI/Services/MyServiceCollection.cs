@@ -13,6 +13,7 @@ namespace UserServiceAPI.Services
             serviceCollection.AddScoped<IAuthService, AuthService>();
             serviceCollection.AddScoped<IEmailService, EmailService>();
             serviceCollection.AddScoped<IJWTHelper, JWTHelper>();
+            serviceCollection.AddScoped<IEncryptionHelper, EncryptionHelper>();
 
             return serviceCollection;
         }
