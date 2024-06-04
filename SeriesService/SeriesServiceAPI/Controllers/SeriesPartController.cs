@@ -1,6 +1,7 @@
 ﻿using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace SeriesServiceAPI.Controllers
 {
@@ -17,7 +18,7 @@ namespace SeriesServiceAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPaggedSeriesParts([FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
-            var model = _dbContext.SeriesParts
+            var model = _dbContext.SeriesParts.Include(sp => sp.Series)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(sp => new
@@ -44,7 +45,7 @@ namespace SeriesServiceAPI.Controllers
         [HttpGet("byseriesid")]
         public async Task<IActionResult> GetPaggedSeriesPartsBySeriesId([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int seriesId)
         {
-            var model = _dbContext.SeriesParts
+            var model = _dbContext.SeriesParts.Include(sp => sp.Series)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize).Where(sp => sp.SeriesId == seriesId)
                 .Select(sp => new
@@ -86,14 +87,25 @@ namespace SeriesServiceAPI.Controllers
         [HttpGet("byid")]
         public async Task<IActionResult> GetSeriesPartById([FromQuery] int id)
         {
-            var model = _dbContext.SeriesParts.FirstOrDefault(s => s.Id == id);
+            var model = _dbContext.SeriesParts.Include(sp=>sp.Series).FirstOrDefault(s => s.Id == id);
 
             if (model == null)
             {
                 return NotFound();
             }
-
-            return Ok(model);
+            var result = new
+            {
+                Id = model.Id,
+                SeriesId = model.SeriesId,
+                SeasonNumber = model.SeasonNumber,
+                PartNumber = model.PartNumber,
+                Duration = model.Duration,
+                FileName = model.FileName,
+                FileUri = model.FileUri,
+                Name = model.Name,
+                Series = model.Series.Title,
+            };
+            return Ok(result);
         }
     }
 }

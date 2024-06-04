@@ -38,11 +38,10 @@ namespace SeriesServiceAPI.Controllers
         public async Task<IActionResult> GetSeriesById([FromQuery] int id)
         {
             var model = await _dbContext.Series
-            .Where(a => a.Id == id)
             .Include(a => a.GenresSeries).ThenInclude(ga => ga.Genre)
             .Include(a => a.CategoriesSeries).ThenInclude(ca => ca.Category)
             .Include(a => a.StudiosSeries).ThenInclude(sa => sa.Studio)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(a => a.Id == id);
 
             if (model == null)
             {

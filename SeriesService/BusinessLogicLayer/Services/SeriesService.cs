@@ -158,6 +158,8 @@ namespace BusinessLogicLayer.Services
                 Director = a.Director,
                 Actors = a.Actors,
                 Rating = a.Rating,
+                Quality = a.Quality,
+                Country = a.Country,
                 TrailerUri = a.TrailerUri,
                 AgeRestriction = a.AgeRestriction,
                 Genres = a.GenresSeries.Select(ga => new Genre { Id = ga.GenreId, Name = ga.Genre.Name }),
