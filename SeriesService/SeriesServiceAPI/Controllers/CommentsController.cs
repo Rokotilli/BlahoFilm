@@ -21,10 +21,11 @@ namespace SeriesServiceAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCommentsForSeries([FromQuery] int seriesPartId)
+        public async Task<IActionResult> GetCommentsForSeriesPart([FromQuery] int seriesPartId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var model = _dbContext.Comments.Where(c => c.SeriesPartId == seriesPartId)
+            var model = _dbContext.Comments
+            .Where(c => c.SeriesPartId == seriesPartId)
                 .GroupJoin(_dbContext.Comments,
                 parent => parent.Id,
                 reply => reply.ParentCommentId,

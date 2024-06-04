@@ -15,8 +15,8 @@ namespace SeriesServiceAPI.Controllers
     {
         private readonly IGetSaSService _getSaSService;
         private readonly SeriesServiceDbContext _dbContext;
-        private readonly SeriesService _seriesService;
-        public SeriesController(SeriesServiceDbContext SeriesServiceDbContext, IGetSaSService getSaSService, SeriesService seriesService)
+        private readonly ISeriesService _seriesService;
+        public SeriesController(SeriesServiceDbContext SeriesServiceDbContext, IGetSaSService getSaSService, ISeriesService seriesService)
         {
             _dbContext = SeriesServiceDbContext;
             _getSaSService = getSaSService;
@@ -37,20 +37,19 @@ namespace SeriesServiceAPI.Controllers
         [HttpGet("byid")]
         public async Task<IActionResult> GetSeriesById([FromQuery] int id)
         {
-            var model = _dbContext.Series
+            var model = await _dbContext.Series
             .Where(a => a.Id == id)
             .Include(a => a.GenresSeries).ThenInclude(ga => ga.Genre)
             .Include(a => a.CategoriesSeries).ThenInclude(ca => ca.Category)
             .Include(a => a.StudiosSeries).ThenInclude(sa => sa.Studio)
-            .Select(a => SeriesService.ToReturnSeries(a))
-            .ToArray();
+            .FirstOrDefaultAsync();
 
-            if (!model.Any())
+            if (model == null)
             {
                 return NotFound();
             }
-
-            return Ok(model);
+            var result = SeriesService.ToReturnSeries(model);
+            return Ok(result);
         }
 
         [HttpGet("byids")]

@@ -22,7 +22,6 @@ namespace BusinessLogicLayer.Services
 
                 model.FileUri = seriesPartUploadedModel.FileUri;
                 model.FileName = seriesPartUploadedModel.FileName;
-                model.Quality = seriesPartUploadedModel.Quality;
 
                 _dbContext.SeriesParts.Update(model);
                 await _dbContext.SaveChangesAsync();

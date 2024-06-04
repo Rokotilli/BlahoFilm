@@ -62,12 +62,6 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CountDislikes")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CountLikes")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
@@ -77,7 +71,7 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("SeriesId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SeriesPartId")
+                    b.Property<int?>("SeriesPartId")
                         .HasColumnType("int");
 
                     b.Property<string>("Text")
@@ -270,16 +264,16 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartOne")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartThree")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartTwo")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Quality")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Rating")
                         .HasColumnType("float");
@@ -310,11 +304,9 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileUri")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -322,10 +314,6 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<int>("PartNumber")
                         .HasColumnType("int");
-
-                    b.Property<string>("Quality")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SeasonNumber")
                         .HasColumnType("int");
@@ -413,9 +401,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasOne("DataAccessLayer.Entities.SeriesPart", "SeriesPart")
                         .WithMany("Comments")
-                        .HasForeignKey("SeriesPartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SeriesPartId");
 
                     b.HasOne("DataAccessLayer.Entities.User", "User")
                         .WithMany("Comments")

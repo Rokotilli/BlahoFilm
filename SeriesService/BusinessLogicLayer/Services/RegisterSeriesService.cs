@@ -9,6 +9,7 @@ using MessageBus.Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using System.Reflection;
 
 namespace BusinessLogicLayer.Services
 {
@@ -44,7 +45,7 @@ namespace BusinessLogicLayer.Services
                 byte[] posterPartThreeBytes = await ReadBytesAsync(seriesRegisterModel.PosterPartThree);
                 var genres = seriesRegisterModel.Genres.Split(",");
                 var categories = seriesRegisterModel.Categories.Split(",");
-                var studios = seriesRegisterModel.Studios.Split(",");               
+                var studios = seriesRegisterModel.Studios.Split(",");
                 var model = new Series()
                 {
                     Poster = posterBytes,
@@ -61,23 +62,44 @@ namespace BusinessLogicLayer.Services
                     Rating = seriesRegisterModel.Rating,
                     TrailerUri = seriesRegisterModel.TrailerUri,
                     AgeRestriction = seriesRegisterModel.AgeRestriction,
-                    Country = seriesRegisterModel.Country
+                    Country = seriesRegisterModel.Country,
+                    Quality = seriesRegisterModel.Quality,
                 };
-
+                _ = _dbContext.Series;
+                foreach (Series s in _dbContext.Series)
+                {
+                    Console.WriteLine(s.Poster == model.Poster);
+                    Console.WriteLine(s.PosterPartOne == model.PosterPartOne);
+                    Console.WriteLine(s.PosterPartTwo == model.PosterPartTwo);
+                    Console.WriteLine(s.PosterPartThree == model.PosterPartThree);
+                    Console.WriteLine(s.Title == model.Title);
+                    Console.WriteLine(s.Description == model.Description);
+                    Console.WriteLine(s.CountSeasons == model.CountSeasons);
+                    Console.WriteLine(s.CountParts == model.CountParts);
+                    Console.WriteLine(s.DateOfPublish == model.DateOfPublish);
+                    Console.WriteLine(s.Actors == model.Actors);
+                    Console.WriteLine(s.Director == model.Director);
+                    Console.WriteLine(s.Rating == model.Rating);
+                    Console.WriteLine(s.TrailerUri == model.TrailerUri);
+                    Console.WriteLine(s.AgeRestriction == model.AgeRestriction);
+                    Console.WriteLine(s.Country == model.Country);
+                    Console.WriteLine(s.Quality == model.Quality);
+                    Console.WriteLine("asdasdasd");
+                }
                 var series = await _dbContext.Series
-                    .FirstOrDefaultAsync(s =>
-                     s.Poster == model.Poster &&
-                       s.Title == model.Title &&
-                      s.Description == model.Description &&
-                        s.CountSeasons == s.CountSeasons &&
-                       s.CountParts == s.CountParts &&
-                       s.DateOfPublish == model.DateOfPublish &&
-                          s.Director == model.Director &&
-                          s.Country == model.Country &&
-                       s.Rating == model.Rating &&
-                          s.Actors == model.Actors &&
-                          s.TrailerUri == model.TrailerUri &&
-                          s.AgeRestriction == model.AgeRestriction);
+                     .FirstOrDefaultAsync(s =>
+                     s.Title == model.Title &&
+                     s.Description == model.Description &&
+                     s.CountSeasons == model.CountSeasons &&
+                     s.CountParts == model.CountParts &&
+                     s.Actors == model.Actors &&
+                     s.Director == model.Director &&
+                     s.Rating == model.Rating &&
+                     s.TrailerUri == model.TrailerUri &&
+                     s.AgeRestriction == model.AgeRestriction &&
+                     s.Country == model.Country &&
+                     s.Quality == model.Quality
+                     );
                 if (series != null)
                 {
                     return "This series already exists!";
@@ -187,7 +209,7 @@ namespace BusinessLogicLayer.Services
                     Name = seriesPartRegisterModel.Name,
                     SeasonNumber = seriesPartRegisterModel.SeasonNumber,
                     PartNumber = seriesPartRegisterModel.PartNumber,
-                    Duration = seriesPartRegisterModel.Duration
+                    Duration = seriesPartRegisterModel.Duration,
                 };
 
                 var seriesPart = await _dbContext.SeriesParts

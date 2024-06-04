@@ -10,6 +10,7 @@ public static class MyServiceCollection
         serviceCollection.AddScoped<IUploadedSeriesPartService, UploadedSeriesPartService>();
         serviceCollection.AddScoped<ICommentService, CommentService>();
         serviceCollection.AddScoped<IRatingService, RatingService>();
+        serviceCollection.AddScoped<ISeriesService, SeriesService>();
 
         return serviceCollection;
     }

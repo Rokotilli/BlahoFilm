@@ -29,6 +29,7 @@ namespace SeriesServiceAPI.Controllers
                     Duration = sp.Duration,
                     FileName = sp.FileName,
                     FileUri = sp.FileUri,
+                    Name = sp.Name,
                     Series = sp.Series.Title,
                 })
                 .ToArray();
@@ -55,6 +56,7 @@ namespace SeriesServiceAPI.Controllers
                     Duration = sp.Duration,
                     FileName = sp.FileName,
                     FileUri = sp.FileUri,
+                    Name = sp.Name,
                     Series = sp.Series.Title,
                 })
                 .ToArray();
