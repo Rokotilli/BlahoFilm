@@ -15,24 +15,23 @@ namespace SeriesServiceAPI.Controllers
         {
             _dbContext = SeriesServiceDbContext;
         }
-        [HttpGet]
-        public async Task<IActionResult> GetPaggedSeriesParts([FromQuery] int pageNumber, [FromQuery] int pageSize)
+        [HttpGet("getbyseriesid")]
+        public async Task<IActionResult> GetSeriesPartsBySeriesId([FromQuery] int seriesId)
         {
-            var model = _dbContext.SeriesParts.Include(sp => sp.Series)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(sp => new
+            var model = _dbContext.SeriesParts.Include(sp => sp.Series).Where(sp => sp.SeriesId == seriesId)
+                .Select(s => new
                 {
-                    Id = sp.Id,
-                    SeriesId = sp.SeriesId,
-                    SeasonNumber = sp.SeasonNumber,
-                    PartNumber = sp.PartNumber,
-                    Duration = sp.Duration,
-                    FileName = sp.FileName,
-                    FileUri = sp.FileUri,
-                    Name = sp.Name,
-                    Series = sp.Series.Title,
-                })
+                    Id = s.Id,
+                    SeriesId = s.SeriesId,
+                    SeasonNumber = s.SeasonNumber,
+                    PartNumber = s.PartNumber,
+                    Duration = s.Duration,
+                    FileName = s.FileName,
+                    FileUri = s.FileUri,
+                    Name = s.Name,
+                    SeriesTitle = s.Series.Title,
+                }
+                )
                 .ToArray();
 
             if (!model.Any())
@@ -42,52 +41,11 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet("byseriesid")]
-        public async Task<IActionResult> GetPaggedSeriesPartsBySeriesId([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] int seriesId)
+        [HttpGet("getbyid")]
+        public async Task<IActionResult> GetSeriesPartById([FromQuery] int Id)
         {
-            var model = _dbContext.SeriesParts.Include(sp => sp.Series)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize).Where(sp => sp.SeriesId == seriesId)
-                .Select(sp => new
-                {
-                    Id = sp.Id,
-                    SeriesId = sp.SeriesId,
-                    SeasonNumber = sp.SeasonNumber,
-                    PartNumber = sp.PartNumber,
-                    Duration = sp.Duration,
-                    FileName = sp.FileName,
-                    FileUri = sp.FileUri,
-                    Name = sp.Name,
-                    Series = sp.Series.Title,
-                })
-                .ToArray();
-
-            if (!model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-        [HttpGet("countpages")]
-        public async Task<IActionResult> GetCountPagesSeriesParts([FromQuery] int pageSize)
-        {
-            var model = _dbContext.SeriesParts.Count();
-
-            if (model == 0)
-            {
-                return NotFound();
-            }
-
-            var countPages = Math.Ceiling((double)model / pageSize);
-
-            return Ok(countPages);
-        }
-
-        [HttpGet("byid")]
-        public async Task<IActionResult> GetSeriesPartById([FromQuery] int id)
-        {
-            var model = _dbContext.SeriesParts.Include(sp=>sp.Series).FirstOrDefault(s => s.Id == id);
+            var model = await _dbContext.SeriesParts.Include(ap => ap.Series)
+                .FirstOrDefaultAsync(ap => ap.Id == Id);
 
             if (model == null)
             {
@@ -107,5 +65,32 @@ namespace SeriesServiceAPI.Controllers
             };
             return Ok(result);
         }
+        [HttpGet("getbyseason")]
+        public async Task<IActionResult> GetSeriesPartsBySeason([FromQuery] int seriesId, [FromQuery] int season)
+        {
+            var model = _dbContext.SeriesParts.Include(sp => sp.Series).Where(sp => sp.SeriesId == seriesId && sp.SeasonNumber == season)
+                .Select(s => new
+                {
+                    Id = s.Id,
+                    SeriesId = s.SeriesId,
+                    SeasonNumber = s.SeasonNumber,
+                    PartNumber = s.PartNumber,
+                    Duration = s.Duration,
+                    FileName = s.FileName,
+                    FileUri = s.FileUri,
+                    Name = s.Name,
+                    Series = s.Series.Title,
+                }
+                )
+                .ToArray();
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+       
     }
 }
