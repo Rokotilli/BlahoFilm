@@ -7,11 +7,11 @@ namespace SeriesServiceAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SeriesPartController : ControllerBase
+    public class SeriesPartsController : ControllerBase
     {
         private readonly SeriesServiceDbContext _dbContext;
 
-        public SeriesPartController(SeriesServiceDbContext SeriesServiceDbContext)
+        public SeriesPartsController(SeriesServiceDbContext SeriesServiceDbContext)
         {
             _dbContext = SeriesServiceDbContext;
         }
