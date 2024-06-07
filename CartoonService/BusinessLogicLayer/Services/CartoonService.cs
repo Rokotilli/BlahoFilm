@@ -156,6 +156,7 @@ namespace BusinessLogicLayer.Services
                 DateOfPublish = c.DateOfPublish,
                 Director = c.Director,
                 Rating = c.Rating,
+                Country = c.Country,
                 TrailerUri = c.TrailerUri,
                 AgeRestriction = c.AgeRestriction,
                 Genres = c.GenresCartoons.Select(gc => new Genre { Id = gc.GenreId, Name = gc.Genre.Name }),

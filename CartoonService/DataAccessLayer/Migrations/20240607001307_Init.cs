@@ -95,9 +95,9 @@ namespace DataAccessLayer.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Poster = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PosterPartOne = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PosterPartTwo = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PosterPartThree = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PosterPartOne = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    PosterPartTwo = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    PosterPartThree = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CountSeasons = table.Column<int>(type: "int", nullable: true),
@@ -110,7 +110,8 @@ namespace DataAccessLayer.Migrations
                     TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AgeRestriction = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -135,8 +136,7 @@ namespace DataAccessLayer.Migrations
                     PartNumber = table.Column<int>(type: "int", nullable: true),
                     Duration = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -282,8 +282,6 @@ namespace DataAccessLayer.Migrations
                     CartoonId = table.Column<int>(type: "int", nullable: true),
                     CartoonPartId = table.Column<int>(type: "int", nullable: true),
                     ParentCommentId = table.Column<int>(type: "int", nullable: true),
-                    CountLikes = table.Column<int>(type: "int", nullable: false),
-                    CountDislikes = table.Column<int>(type: "int", nullable: false),
                     Text = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

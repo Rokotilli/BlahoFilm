@@ -6,9 +6,9 @@ namespace BusinessLogicLayer.Models
     public class CartoonRegisterModel
     {
         public IFormFile Poster { get; set; }
-        public IFormFile PosterPartOne { get; set; }
-        public IFormFile PosterPartTwo { get; set; }
-        public IFormFile PosterPartThree { get; set; }
+        public IFormFile? PosterPartOne { get; set; }
+        public IFormFile? PosterPartTwo { get; set; }
+        public IFormFile? PosterPartThree { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public int? CountSeasons { get; set; }
@@ -27,5 +27,6 @@ namespace BusinessLogicLayer.Models
         public string Studios { get; set; }
         public int AgeRestriction { get; set; }
         public string Quality { get; set; }
+        public string Country { get; set; }
     }
 }

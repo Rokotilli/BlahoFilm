@@ -43,7 +43,7 @@ namespace BusinessLogicLayer.Services
                 byte[] posterPartThreeBytes = await ReadBytesAsync(cartoonRegisterModel.PosterPartThree);
                 var genres = cartoonRegisterModel.Genres.Split(",");
                 var categories = cartoonRegisterModel.Categories.Split(",");
-                var studios = cartoonRegisterModel.Studios.Split(",");               
+                var studios = cartoonRegisterModel.Studios.Split(",");
                 var model = new Cartoon()
                 {
                     Poster = posterBytes,
@@ -51,7 +51,7 @@ namespace BusinessLogicLayer.Services
                     PosterPartTwo = posterPartTwoBytes,
                     PosterPartThree = posterPartThreeBytes,
                     Title = cartoonRegisterModel.Title,
-                    Quality= cartoonRegisterModel.Quality,
+                    Quality = cartoonRegisterModel.Quality,
                     Description = cartoonRegisterModel.Description,
                     Duration = cartoonRegisterModel.Duration,
                     CountSeasons = cartoonRegisterModel.CountSeasons,
@@ -60,7 +60,8 @@ namespace BusinessLogicLayer.Services
                     Director = cartoonRegisterModel.Director,
                     Rating = cartoonRegisterModel.Rating,
                     TrailerUri = cartoonRegisterModel.TrailerUri,
-                    AgeRestriction = cartoonRegisterModel.AgeRestriction
+                    AgeRestriction = cartoonRegisterModel.AgeRestriction,
+                    Country = cartoonRegisterModel.Country
                 };
 
                 var cartoon = await _dbContext.Cartoons
@@ -73,7 +74,7 @@ namespace BusinessLogicLayer.Services
                                      c.CountParts == model.CountParts &&
                                      c.DateOfPublish == model.DateOfPublish &&
                                      c.Director == model.Director &&
-                                     c.Rating == model.Rating &&
+                                       c.Country == model.Country &&
                                      c.AgeRestriction == model.AgeRestriction);
                 if (cartoon != null)
                 {
@@ -149,6 +150,7 @@ namespace BusinessLogicLayer.Services
                                      c.DateOfPublish == model.DateOfPublish &&
                                      c.Director == model.Director &&
                                      c.Rating == model.Rating &&
+                                       c.Country == model.Country &&
                                      c.AgeRestriction == model.AgeRestriction)
                     .Select(s => s.Id)
                     .First();
@@ -188,7 +190,6 @@ namespace BusinessLogicLayer.Services
                     SeasonNumber = cartoonPartRegisterModel.SeasonNumber,
                     PartNumber = cartoonPartRegisterModel.PartNumber,
                     Duration = cartoonPartRegisterModel.Duration,
-                    Quality = cartoonPartRegisterModel.Quality
                 };
 
                 var cartoonPart = await _dbContext.CartoonParts
@@ -196,8 +197,7 @@ namespace BusinessLogicLayer.Services
                        cp.CartoonId == model.CartoonId &&
                     cp.SeasonNumber == model.SeasonNumber &&
                     cp.PartNumber == model.PartNumber &&
-                    cp.Duration == model.Duration &&
-                    cp.Quality == model.Quality
+                    cp.Duration == model.Duration
                                     );
                 if (cartoonPart != null)
                 {
@@ -215,8 +215,7 @@ namespace BusinessLogicLayer.Services
                        cp.CartoonId == model.CartoonId &&
                     cp.SeasonNumber == model.SeasonNumber &&
                     cp.PartNumber == model.PartNumber &&
-                    cp.Duration == model.Duration &&
-                    cp.Quality == model.Quality
+                    cp.Duration == model.Duration
                                   )
                     .Select(cp => cp.Id)
                     .First();

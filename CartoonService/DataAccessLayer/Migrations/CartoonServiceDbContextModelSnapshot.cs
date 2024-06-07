@@ -59,6 +59,10 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("CountSeasons")
                         .HasColumnType("int");
 
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("DateOfPublish")
                         .HasColumnType("datetime2");
 
@@ -84,18 +88,16 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartOne")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartThree")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartTwo")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Quality")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Rating")
@@ -139,10 +141,6 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<int?>("PartNumber")
                         .HasColumnType("int");
-
-                    b.Property<string>("Quality")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("SeasonNumber")
                         .HasColumnType("int");
@@ -198,12 +196,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("CartoonPartId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CountDislikes")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CountLikes")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
@@ -447,7 +439,7 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.Comment", b =>
                 {
-                    b.HasOne("DataAccessLayer.Entities.Cartoon", null)
+                    b.HasOne("DataAccessLayer.Entities.Cartoon", "Cartoon")
                         .WithMany("Comments")
                         .HasForeignKey("CartoonId");
 
@@ -464,6 +456,8 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Cartoon");
 
                     b.Navigation("CartoonPart");
 

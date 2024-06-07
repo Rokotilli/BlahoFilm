@@ -9,7 +9,6 @@
         public string Duration { get; set; }
         public string? FileName { get; set; }
         public string? FileUri { get; set; }
-        public string Quality { get; set; }
         public Cartoon Cartoon { get; set; }
     }
 }

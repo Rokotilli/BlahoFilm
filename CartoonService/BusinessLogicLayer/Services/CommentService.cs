@@ -103,6 +103,13 @@ namespace BusinessLogicLayer.Services
                     return null;
                 }
 
+                var existingDislike = _dbContext.CommentDislikes.FirstOrDefault(cl => cl.CommentId == commentId && cl.UserId == userId);
+
+                if (existingDislike != null)
+                {
+                    _dbContext.CommentDislikes.Remove(existingDislike);
+                }
+
                 var newLike = new CommentLike()
                 {
                     CommentId = commentId,
@@ -113,9 +120,9 @@ namespace BusinessLogicLayer.Services
                 await _dbContext.SaveChangesAsync();
                 return null;
             }
-            catch (Exception ex)
+            catch
             {
-                return ex.ToString();
+                return "Adding or removing like failed!";
             }
         }
 
@@ -132,6 +139,13 @@ namespace BusinessLogicLayer.Services
                     return null;
                 }
 
+                var existingLike = _dbContext.CommentLikes.FirstOrDefault(cl => cl.CommentId == commentId && cl.UserId == userId);
+
+                if (existingLike != null)
+                {
+                    _dbContext.CommentLikes.Remove(existingLike);
+                }
+
                 var newDislike = new CommentDislike()
                 {
                     CommentId = commentId,
@@ -142,9 +156,9 @@ namespace BusinessLogicLayer.Services
                 await _dbContext.SaveChangesAsync();
                 return null;
             }
-            catch (Exception ex)
+            catch
             {
-                return ex.ToString();
+                return "Adding or removing dislike failed!";
             }
         }
     }

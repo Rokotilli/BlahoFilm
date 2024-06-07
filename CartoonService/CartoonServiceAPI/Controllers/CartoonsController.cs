@@ -14,8 +14,8 @@ namespace CartoonServiceAPI.Controllers
     {
         private readonly IGetSaSService _getSaSService;
         private readonly CartoonServiceDbContext _dbContext;
-        private readonly CartoonService _cartoonService;
-        public CartoonsController(CartoonServiceDbContext CartoonServiceDbContext, IGetSaSService getSaSService, CartoonService animeService)
+        private readonly ICartoonService _cartoonService;
+        public CartoonsController(CartoonServiceDbContext CartoonServiceDbContext, IGetSaSService getSaSService, ICartoonService animeService)
         {
             _dbContext = CartoonServiceDbContext;
             _getSaSService = getSaSService;
@@ -36,20 +36,19 @@ namespace CartoonServiceAPI.Controllers
         [HttpGet("byid")]
         public async Task<IActionResult> GetCartoonById([FromQuery] int id)
         {
-            var model = _dbContext.Cartoons
-            .Where(a => a.Id == id)
-            .Include(a => a.GenresCartoons).ThenInclude(ga => ga.Genre)
-            .Include(a => a.CategoriesCartoons).ThenInclude(ca => ca.Category)
-            .Include(a => a.StudiosCartoons).ThenInclude(sa => sa.Studio)
-            .Select(a => CartoonService.ToReturnCartoon(a))
-            .ToArray();
+            var model = await _dbContext.Cartoons
+            .Include(c => c.GenresCartoons).ThenInclude(ga => ga.Genre)
+            .Include(c => c.CategoriesCartoons).ThenInclude(ca => ca.Category)
+            .Include(c => c.StudiosCartoons).ThenInclude(sa => sa.Studio)
+            .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (!model.Any())
+
+            if (model == null)
             {
                 return NotFound();
             }
-
-            return Ok(model);
+            var result = CartoonService.ToReturnCartoon(model);
+            return Ok(result);
         }
 
         [HttpGet("byids")]
