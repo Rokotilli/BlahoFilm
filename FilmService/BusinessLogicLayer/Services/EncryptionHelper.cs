@@ -16,31 +16,9 @@ namespace BusinessLogicLayer.Services
             InitVector = Encoding.UTF8.GetBytes(configuration["Security:InitVectorKey"]);
         }
 
-        public string Encrypt(string plainText)
-        {
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = ProtectKey;
-                aesAlg.IV = InitVector;
-
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-                using (MemoryStream msEncrypt = new MemoryStream())
-                {
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                        {
-                            swEncrypt.Write(plainText);
-                        }
-                        return Convert.ToBase64String(msEncrypt.ToArray());
-                    }
-                }
-            }
-        }
-
         public string Decrypt(string cipherText)
         {
+            string base64CipherText = MakeUrlUnsafe(cipherText);
             using (Aes aesAlg = Aes.Create())
             {
                 aesAlg.Key = ProtectKey;
@@ -48,7 +26,7 @@ namespace BusinessLogicLayer.Services
 
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-                using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(cipherText)))
+                using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(base64CipherText)))
                 {
                     using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                     {
@@ -59,6 +37,17 @@ namespace BusinessLogicLayer.Services
                     }
                 }
             }
+        }
+
+        private string MakeUrlUnsafe(string input)
+        {
+            string output = input.Replace('-', '+').Replace('_', '/');
+            switch (output.Length % 4)
+            {
+                case 2: output += "=="; break;
+                case 3: output += "="; break;
+            }
+            return output;
         }
     }
 }

@@ -1,3 +1,4 @@
+using BusinessLogicLayer.Interfaces;
 using DataAccessLayer.Context;
 using FilmServiceAPI.Consumers;
 using FilmServiceAPI.Services;
