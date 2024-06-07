@@ -33,7 +33,9 @@ namespace BusinessLogicLayer.Services
                         {
                             swEncrypt.Write(plainText);
                         }
-                        return Convert.ToBase64String(msEncrypt.ToArray());
+                        byte[] encrypted = msEncrypt.ToArray();
+                        string base64Encrypted = Convert.ToBase64String(encrypted);
+                        return MakeUrlSafe(base64Encrypted);
                     }
                 }
             }
@@ -41,6 +43,7 @@ namespace BusinessLogicLayer.Services
 
         public string Decrypt(string cipherText)
         {
+            string base64CipherText = MakeUrlUnsafe(cipherText);
             using (Aes aesAlg = Aes.Create())
             {
                 aesAlg.Key = ProtectKey;
@@ -48,7 +51,7 @@ namespace BusinessLogicLayer.Services
 
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-                using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(cipherText)))
+                using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(base64CipherText)))
                 {
                     using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                     {
@@ -59,6 +62,22 @@ namespace BusinessLogicLayer.Services
                     }
                 }
             }
+        }
+
+        private string MakeUrlSafe(string input)
+        {
+            return input.Replace('+', '-').Replace('/', '_').Replace("=", "");
+        }
+
+        private string MakeUrlUnsafe(string input)
+        {
+            string output = input.Replace('-', '+').Replace('_', '/');
+            switch (output.Length % 4)
+            {
+                case 2: output += "=="; break;
+                case 3: output += "="; break;
+            }
+            return output;
         }
     }
 }
