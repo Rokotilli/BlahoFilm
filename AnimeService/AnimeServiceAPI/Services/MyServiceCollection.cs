@@ -11,6 +11,7 @@ public static class MyServiceCollection
         serviceCollection.AddScoped<IUploadedAnimeService, UploadedAnimeService>();
         serviceCollection.AddScoped<ICommentService, CommentService>();
         serviceCollection.AddScoped<IRatingService, RatingService>();
+        serviceCollection.AddScoped<IEncryptionHelper, EncryptionHelper>();
 
         return serviceCollection;
     }

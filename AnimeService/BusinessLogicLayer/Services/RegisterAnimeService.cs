@@ -131,8 +131,7 @@ namespace BusinessLogicLayer.Services
                 await _dbContext.SaveChangesAsync();
 
                 var animeid = _dbContext.Animes
-                    .Where(a =>
-                                                  a.Title == model.Title &&
+                    .First(a=>a.Title == model.Title &&
                     a.Description == model.Description &&
                     a.CountSeasons == model.CountSeasons &&
                     a.CountParts == model.CountParts &&
@@ -142,9 +141,7 @@ namespace BusinessLogicLayer.Services
                     a.Rating == model.Rating &&
                     a.TrailerUri == model.TrailerUri &&
                     a.AgeRestriction == model.AgeRestriction &&
-                    a.Quality == model.Quality)
-                    .Select(s => s.Id)
-                    .First();
+                    a.Quality == model.Quality).Id;
 
                 foreach (var item in genres)
                 {

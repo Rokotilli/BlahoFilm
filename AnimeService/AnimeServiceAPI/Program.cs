@@ -1,4 +1,5 @@
 using AnimeServiceAPI.Consumers;
+using BusinessLogicLayer.Interfaces;
 using DataAccessLayer.Context;
 using MassTransit;
 using MessageBus.Messages;
@@ -57,10 +58,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                        {
                            OnMessageReceived = context =>
                            {
-                             var token = context.Request.Cookies["accessToken"];
-                               if (!string.IsNullOrEmpty(token))
+                               var encryptionHelper = context.HttpContext.RequestServices.GetRequiredService<IEncryptionHelper>();
+                               var encryptedToken = context.Request.Cookies["accessToken"];
+
+                               if (!string.IsNullOrEmpty(encryptedToken))
                                {
-                                   context.Token = token;
+                                   try
+                                   {
+                                       var decryptedToken = encryptionHelper.Decrypt(encryptedToken);
+                                       context.Token = decryptedToken;
+                                   }
+                                   catch { };
                                }
                                return Task.CompletedTask;
                            }
