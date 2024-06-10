@@ -1,11 +1,14 @@
-using DataAccessLayer.Context;
-using Microsoft.EntityFrameworkCore;
+using BusinessLogicLayer.Interfaces;
 using CartoonServiceAPI.Consumers;
+using DataAccessLayer.Context;
 using MassTransit;
+using MessageBus.Messages;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using RabbitMQ.Client;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,11 +58,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                        {
                            OnMessageReceived = context =>
                            {
-                               var token = context.Request.Cookies["accessToken"];
+                               var encryptionHelper = context.HttpContext.RequestServices.GetRequiredService<IEncryptionHelper>();
+                               var encryptedToken = context.Request.Cookies["accessToken"];
 
-                               if (!string.IsNullOrEmpty(token))
+                               if (!string.IsNullOrEmpty(encryptedToken))
                                {
-                                   context.Token = token;
+                                   try
+                                   {
+                                       var decryptedToken = encryptionHelper.Decrypt(encryptedToken);
+                                       context.Token = decryptedToken;
+                                   }
+                                   catch { };
                                }
                                return Task.CompletedTask;
                            }
@@ -71,10 +80,19 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<UserReceivedConsumer>();
     x.UsingRabbitMq((cxt, cfg) =>
     {
-        cfg.Host(builder.Configuration.GetValue<string>("RabbitMqHost"), "/", h =>
+        cfg.Host(builder.Configuration["RabbitMqHost"], "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
+        });
+        cfg.ReceiveEndpoint("user-received-queue-cartoon-service", e =>
+        {
+            e.ConfigureConsumeTopology = false;
+            e.Bind<UserReceivedMessage>(b =>
+            {
+                b.ExchangeType = ExchangeType.Fanout;
+            });
+            e.ConfigureConsumer<UserReceivedConsumer>(cxt);
         });
         cfg.ConfigureEndpoints(cxt);
     });

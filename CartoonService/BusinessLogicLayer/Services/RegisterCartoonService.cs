@@ -72,9 +72,8 @@ namespace BusinessLogicLayer.Services
                                      c.CountSeasons == model.CountSeasons &&
                                      c.Quality == model.Quality &&
                                      c.CountParts == model.CountParts &&
-                                     c.DateOfPublish == model.DateOfPublish &&
                                      c.Director == model.Director &&
-                                       c.Country == model.Country &&
+                                     c.Country == model.Country &&
                                      c.AgeRestriction == model.AgeRestriction);
                 if (cartoon != null)
                 {
