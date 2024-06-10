@@ -11,6 +11,7 @@ public static class MyServiceCollection
         serviceCollection.AddScoped<ICommentService, CommentService>();
         serviceCollection.AddScoped<IRatingService, RatingService>();
         serviceCollection.AddScoped<ISeriesService, SeriesService>();
+        serviceCollection.AddScoped<IEncryptionHelper, EncryptionHelper>();
 
         return serviceCollection;
     }
