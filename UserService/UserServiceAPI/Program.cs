@@ -1,4 +1,5 @@
 using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Options;
 using DataAccessLayer.Context;
 using MassTransit;
 using MessageBus.Messages;
@@ -19,6 +20,8 @@ if (!builder.Environment.IsDevelopment())
         config.Connect(builder.Configuration["ConnectionStrings:AzureAppConfiguration"]);
     });
 }
+
+builder.Services.Configure<AppSettings>(builder.Configuration);
 
 builder.Services.AddControllers();
 

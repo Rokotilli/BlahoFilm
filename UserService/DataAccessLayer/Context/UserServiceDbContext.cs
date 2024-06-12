@@ -1,9 +1,11 @@
 ﻿using DataAccessLayer.Entities;
+using MessageBus.Outbox;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace DataAccessLayer.Context
 {
-    public class UserServiceDbContext : DbContext
+    public class UserServiceDbContext : BaseDbContext
     {
         public UserServiceDbContext(DbContextOptions<UserServiceDbContext> dbContextOptions) : base(dbContextOptions) { }
 
@@ -16,11 +18,6 @@ namespace DataAccessLayer.Context
         public DbSet<History> Histories { get; set; }
         public DbSet<BookMark> BookMarks { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
-
-            base.OnModelCreating(modelBuilder);
-        }
+        protected override Assembly ConfigurationAssembly => Assembly.GetExecutingAssembly();
     }
 }

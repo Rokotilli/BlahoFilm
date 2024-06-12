@@ -1,18 +1,19 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models.Enums;
+using BusinessLogicLayer.Options;
 using MailKit.Net.Smtp;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace BusinessLogicLayer.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _config;
+        private readonly AppSettings _appSettings;
 
-        public EmailService(IConfiguration config)
+        public EmailService(IOptions<AppSettings> options)
         {
-            _config = config;
+            _appSettings = options.Value;
         }
 
         public async Task SendEmailAsync(string email, string content, SendEmailActions action)
@@ -20,7 +21,7 @@ namespace BusinessLogicLayer.Services
             try
             {
                 var mimeMessage = new MimeMessage();
-                mimeMessage.From.Add(new MailboxAddress("BlahoFilm", _config["EmailConfirmation:EmailAddress"]));
+                mimeMessage.From.Add(new MailboxAddress("BlahoFilm", _appSettings.EmailConfirmation.EmailAddress));
                 mimeMessage.To.Add(new MailboxAddress(email, email));
                 mimeMessage.Subject = "Confirmation email";
                 var builder = new BodyBuilder();
@@ -40,8 +41,8 @@ namespace BusinessLogicLayer.Services
 
                 using (var smtp = new SmtpClient())
                 {
-                    smtp.Connect(_config["EmailConfirmation:SMTPServerHost"], int.Parse(_config["EmailConfirmation:SMTPServerPort"] ?? "0"), false);
-                    smtp.Authenticate(_config["EmailConfirmation:EmailAddress"], _config["EmailConfirmation:Password"]);
+                    smtp.Connect(_appSettings.EmailConfirmation.SMTPServerHost, int.Parse(_appSettings.EmailConfirmation.SMTPServerPort ?? "0"), false);
+                    smtp.Authenticate(_appSettings.EmailConfirmation.EmailAddress, _appSettings.EmailConfirmation.Password);
                     smtp.Send(mimeMessage);
                     smtp.Disconnect(true);
                 }

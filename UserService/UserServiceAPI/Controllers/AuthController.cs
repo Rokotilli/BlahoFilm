@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using BusinessLogicLayer.Models.Enums;
+using BusinessLogicLayer.Options;
+using Microsoft.Extensions.Options;
 
 namespace UserServiceAPI.Controllers
 {
@@ -16,7 +17,7 @@ namespace UserServiceAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IConfiguration _configuration;
+        private readonly AppSettings _appSettings;
         private readonly IJWTHelper _jWTHelper;
         private readonly IEmailService _emailService;
         private readonly IEncryptionHelper _encryptionHelper;
@@ -25,7 +26,7 @@ namespace UserServiceAPI.Controllers
 
         public AuthController(
             IAuthService authService,
-            IConfiguration configuration,
+            IOptions<AppSettings> options,
             UserServiceDbContext userServiceDbContext,
             IJWTHelper jwthelper,
             IEmailService emailService,
@@ -33,7 +34,7 @@ namespace UserServiceAPI.Controllers
             IEncryptionHelper encryptionHelper)
         {
             _authService = authService;
-            _configuration = configuration;
+            _appSettings = options.Value;
             _dbContext = userServiceDbContext;
             _jWTHelper = jwthelper;
             _emailService = emailService;
@@ -49,16 +50,7 @@ namespace UserServiceAPI.Controllers
             if (result.Exception != null)
             {
                 return BadRequest(result.Exception);
-            }
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Email, addUserModel.Email)
-            };
-
-            var token = await _jWTHelper.GenerateJwtToken(claims);
-            var encryptedToken = _encryptionHelper.Encrypt(token);
-            await _emailService.SendEmailAsync(addUserModel.Email, _configuration["RedirectUrlToConfirmEmail"] + "?token=" + encryptedToken, SendEmailActions.ConfirmEmail);
+            }                     
 
             return Ok();
         }
@@ -298,7 +290,7 @@ namespace UserServiceAPI.Controllers
                 HttpOnly = true,
                 SameSite = SameSiteMode.None,
                 Secure = true,
-                Expires = DateTime.UtcNow.AddDays(int.Parse(_configuration["Security:RefreshTokenTTL"]))
+                Expires = DateTime.UtcNow.AddDays(int.Parse(_appSettings.Security.RefreshTokenTTL))
             };
 
             var encryptedAccessToken = _encryptionHelper.Encrypt(tokens.JwtToken);

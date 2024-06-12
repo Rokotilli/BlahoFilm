@@ -1,12 +1,15 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
+using BusinessLogicLayer.Models.Enums;
+using BusinessLogicLayer.Options;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 using MassTransit;
 using MassTransit.Initializers;
 using MessageBus.Messages;
+using MessageBus.Outbox.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Data;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -30,19 +33,25 @@ namespace BusinessLogicLayer.Services
     {
         private readonly UserServiceDbContext _dbContext;
         private readonly IPublishEndpoint _publishEndpoint;
-        private readonly IConfiguration _configuration;
+        private readonly AppSettings _appSettings;
         private readonly IJWTHelper _jWTHelper;
+        private readonly IEmailService _emailService;
+        private readonly IEncryptionHelper _encryptionHelper;
 
         public AuthService(
             UserServiceDbContext userServiceDbContext,
             IPublishEndpoint publishEndpoint,
-            IConfiguration configuration,
-            IJWTHelper jWTHelper)
+            IOptions<AppSettings> options,
+            IJWTHelper jWTHelper,
+            IEmailService emailService,
+            IEncryptionHelper encryptionHelper)
         {
             _dbContext = userServiceDbContext;
             _publishEndpoint = publishEndpoint;
-            _configuration = configuration;
+            _appSettings = options.Value;
             _jWTHelper = jWTHelper;
+            _emailService = emailService;
+            _encryptionHelper = encryptionHelper;
         }
 
         public async Task<RegisterResponse> AddUser(UserModel userModel, string externalProvider = null, string externalId = null)
@@ -68,31 +77,35 @@ namespace BusinessLogicLayer.Services
                     PasswordHash = externalProvider == null ? passwordHash : null
                 });
 
-                await _dbContext.UserRoles.AddAsync(new UserRole() { UserId = addedUser.Entity.Id, RoleId = 1 });
-                await _dbContext.SaveChangesAsync();
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Email, userModel.Email)
+                };
 
-                await _publishEndpoint.Publish(new UserReceivedMessage() { Id = addedUser.Entity.Id });
+                var token = await _jWTHelper.GenerateJwtToken(claims);
+                var encryptedToken = _encryptionHelper.Encrypt(token);
+                await _emailService.SendEmailAsync(userModel.Email, _appSettings.RedirectUrlToConfirmEmail + "?token=" + encryptedToken, SendEmailActions.ConfirmEmail);
+
+                await _dbContext.UserRoles.AddAsync(new UserRole() { UserId = addedUser.Entity.Id, RoleId = 1 });
+
+                //var addedMessage = await _dbContext.OutboxMessages.AddAsync(new OutboxMessage(addedUser.Entity));
+
+                //try
+                //{
+                //    await _publishEndpoint.Publish(new UserReceivedMessage() { Id = addedUser.Entity.Id }, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+
+                //    addedMessage.Entity.IsPublished = true;
+                //}
+                //catch { }                
+
+                await _dbContext.SaveChangesAsync();
 
                 return new RegisterResponse { User = addedUser.Entity };
             }
             catch (Exception ex)
             {
                 return new RegisterResponse { Exception = "Adding user failed!" };
-            }
-
-            string getUniqueUserName()
-            {
-                var randomUserName = "User" + (Random.Shared.Next(0, 900000000) + 100000000);
-
-                var userNameIsUnique = !_dbContext.Users.Any(u => u.UserName == randomUserName);
-
-                if (!userNameIsUnique)
-                {
-                    return getUniqueUserName();
-                }                   
-
-                return randomUserName;
-            }
+            }            
         }
 
         public async Task<AuthResponse> Authenticate(User user)
@@ -203,6 +216,20 @@ namespace BusinessLogicLayer.Services
             return null;
         }
 
+        private string getUniqueUserName()
+        {
+            var randomUserName = "User" + (Random.Shared.Next(0, 900000000) + 100000000);
+
+            var userNameIsUnique = !_dbContext.Users.Any(u => u.UserName == randomUserName);
+
+            if (!userNameIsUnique)
+            {
+                return getUniqueUserName();
+            }
+
+            return randomUserName;
+        }
+
         private async Task<RefreshToken> GenerateRefreshToken(string userId)
         {
             var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
@@ -211,7 +238,7 @@ namespace BusinessLogicLayer.Services
             {
                 Token = token,
                 UserId = userId,
-                Expires = DateTime.UtcNow.AddDays(int.Parse(_configuration["Security:RefreshTokenTTL"])),
+                Expires = DateTime.UtcNow.AddDays(int.Parse(_appSettings.Security.RefreshTokenTTL)),
                 Created = DateTime.UtcNow                
             };
 

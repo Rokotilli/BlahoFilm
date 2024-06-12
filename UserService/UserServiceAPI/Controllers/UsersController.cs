@@ -2,14 +2,15 @@
 using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Models.AdditionalModels;
 using BusinessLogicLayer.Models.Enums;
+using BusinessLogicLayer.Options;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 using MassTransit.Initializers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -24,7 +25,7 @@ namespace UserServiceAPI.Controllers
         private readonly UserServiceDbContext _dbContext;
         private readonly IUsersService _usersService;
         private readonly IDistributedCache _distributedCache;
-        private readonly IConfiguration _configuration;
+        private readonly AppSettings _appSettings;
         private readonly IEmailService _emailService;
         private readonly IEncryptionHelper _encryptionHelper;
 
@@ -32,14 +33,14 @@ namespace UserServiceAPI.Controllers
             UserServiceDbContext userServiceDbContext,
             IUsersService usersService,
             IDistributedCache distributedCache,
-            IConfiguration configuration,
+            IOptions<AppSettings> options,
             IEmailService emailService,
             IEncryptionHelper encryptionHelper)
         {
             _dbContext = userServiceDbContext;
             _usersService = usersService;
             _distributedCache = distributedCache;
-            _configuration = configuration;
+            _appSettings = options.Value;
             _emailService = emailService;
             _encryptionHelper = encryptionHelper;
         }
@@ -68,11 +69,11 @@ namespace UserServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpPost("byids")]
-        public async Task<IActionResult> GetUsersByIds([FromBody] string[] ids)
+        [HttpGet("byids")]
+        public async Task<IActionResult> GetUsersByIds([FromQuery] string ids)
         {
             var model = _dbContext.Users
-                .Where(u => ids
+                .Where(u => ids.Split(",", StringSplitOptions.None)
                 .Contains(u.Id)).Select(u => new
                 {
                     Id = u.Id,
@@ -116,7 +117,7 @@ namespace UserServiceAPI.Controllers
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             });
 
-            await _emailService.SendEmailAsync(user.Email, _configuration["RedirectUrlToChangePassword"] + "?token=" + encryptedToken, SendEmailActions.ChangePassword);
+            await _emailService.SendEmailAsync(user.Email, _appSettings.RedirectUrlToChangePassword + "?token=" + encryptedToken, SendEmailActions.ChangePassword);
 
             return Ok();
         }
@@ -227,7 +228,7 @@ namespace UserServiceAPI.Controllers
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             });
 
-            await _emailService.SendEmailAsync(userModel.Email, _configuration["RedirectUrlToConfirmChangingEmail"] + "?token=" + encryptToken, SendEmailActions.ConfirmEmail);
+            await _emailService.SendEmailAsync(userModel.Email, _appSettings.RedirectUrlToConfirmChangingEmail + "?token=" + encryptToken, SendEmailActions.ConfirmEmail);
 
             return Ok();
         }
