@@ -8,6 +8,7 @@ using MassTransit.Initializers;
 using MassTransit.Testing;
 using MessageBus.Enums;
 using MessageBus.Messages;
+using MessageBus.Outbox.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -98,14 +99,22 @@ namespace BusinessLogicLayer.Services
                 await AddEntityForManyToMany<Genre, GenresFilm>(newFilm.Entity.Id, genres);
                 await AddEntityForManyToMany<Category, CategoriesFilm>(newFilm.Entity.Id, categories);
                 await AddEntityForManyToMany<Studio, StudiosFilm>(newFilm.Entity.Id, studios);
+
                 if (selections != null)
                 {
                     await AddEntityForManyToMany<Selection, SelectionsFilm>(newFilm.Entity.Id, selections);
-                }                
+                }
+
+                var addedMessage = await _dbContext.OutboxMessages.AddAsync(new OutboxMessage(newFilm.Entity));
+
+                try
+                {
+                    await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = newFilm.Entity.Id, MediaType = MediaTypes.Film }, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+                    addedMessage.Entity.IsPublished = true;
+                }
+                catch { }
 
                 await _dbContext.SaveChangesAsync();
-
-                await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = newFilm.Entity.Id, MediaType = MediaTypes.Film });
 
                 return null;
             }

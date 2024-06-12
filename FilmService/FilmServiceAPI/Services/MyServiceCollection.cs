@@ -13,6 +13,7 @@ namespace FilmServiceAPI.Services
             serviceCollection.AddScoped<ICommentService, CommentService>();
             serviceCollection.AddScoped<IRatingService, RatingService>();
             serviceCollection.AddScoped<IEncryptionHelper, EncryptionHelper>();
+            serviceCollection.AddHostedService<OutboxMessagesBackgroundService>();
 
             return serviceCollection;
         }

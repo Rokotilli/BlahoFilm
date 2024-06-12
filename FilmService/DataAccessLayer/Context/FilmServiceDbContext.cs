@@ -1,9 +1,11 @@
 ﻿using DataAccessLayer.Entities;
+using MessageBus.Outbox;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace DataAccessLayer.Context
 {
-    public class FilmServiceDbContext : DbContext
+    public class FilmServiceDbContext : BaseDbContext
     {
         public FilmServiceDbContext(DbContextOptions<FilmServiceDbContext> dbContextOptions) : base(dbContextOptions) { }
 
@@ -22,11 +24,6 @@ namespace DataAccessLayer.Context
         public DbSet<Studio> Studios { get; set; }
         public DbSet<StudiosFilm> StudiosFilms { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
-
-            base.OnModelCreating(modelBuilder);
-        }
+        protected override Assembly ConfigurationAssembly => Assembly.GetExecutingAssembly();
     }
 }

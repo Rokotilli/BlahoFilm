@@ -2,25 +2,27 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
 using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Options;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace BusinessLogicLayer.Services
 {
     public class GetSaSService : IGetSaSService
     {
-        private readonly IConfiguration _configuration;
+        private readonly AppSettings _appSettings;
 
-        public GetSaSService(IConfiguration configuration)
+        public GetSaSService(IOptions<AppSettings> options)
         {
-            _configuration = configuration;
+            _appSettings = options.Value;
         }
 
         public async Task<string> GetSaS(string blobName, BlobSasPermissions permission)
         {
-            var connectionString = _configuration["AzureStorageConnectionString"];
-            var containerName = _configuration["AzureStorageFilmsContainerName"];
-            var accountName = _configuration["AzureStorageAccountName"];
-            var accountKey = _configuration["AzureStorageAccountKey"];
+            var connectionString = _appSettings.AzureStorage.ConnectionString;
+            var containerName = _appSettings.AzureStorage.FilmsContainerName;
+            var accountName = _appSettings.AzureStorage.AccountName;
+            var accountKey = _appSettings.AzureStorage.AccountKey;
 
             BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
             BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);

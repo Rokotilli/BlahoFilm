@@ -1,4 +1,5 @@
 using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Options;
 using DataAccessLayer.Context;
 using FilmServiceAPI.Consumers;
 using FilmServiceAPI.Services;
@@ -19,6 +20,8 @@ if (!builder.Environment.IsDevelopment())
         config.Connect(builder.Configuration["ConnectionStrings:AzureAppConfiguration"]);
     });
 }
+
+builder.Services.Configure<AppSettings>(builder.Configuration);
 
 builder.Services.AddControllers();
 
@@ -106,6 +109,9 @@ if (!app.Environment.IsDevelopment())
 {
     app.Services.GetRequiredService<FilmServiceDbContext>().Database.Migrate();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
