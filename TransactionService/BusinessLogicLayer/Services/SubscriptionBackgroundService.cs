@@ -4,24 +4,26 @@ using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
 using System.Text.Json.Nodes;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using MassTransit;
 using MessageBus.Messages;
+using MessageBus.Outbox.Entities;
+using Microsoft.Extensions.Options;
+using BusinessLogicLayer.Options;
 
 namespace BusinessLogicLayer.Services
 {
     public class SubscriptionBackgroundService : BackgroundService
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly IConfiguration _configuration;
+        private readonly AppSettings _appSettings;
         private readonly HttpClient _httpClient;
 
-        public SubscriptionBackgroundService(IServiceScopeFactory serviceScopeFactory, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public SubscriptionBackgroundService(IServiceScopeFactory serviceScopeFactory, IHttpClientFactory httpClientFactory, IOptions<AppSettings> options)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _httpClient = httpClientFactory.CreateClient("paypal");
-            _configuration = configuration;
+            _appSettings = options.Value;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -55,7 +57,18 @@ namespace BusinessLogicLayer.Services
                         {
                             item.IsExpired = true;
                             item.IsActive = false;
-                            await publishEndpoint.Publish(new PremiumRemovedMessage { UserId = item.UserId});
+
+                            var addedMessage = await dbContext.OutboxMessages.AddAsync(new OutboxMessage(item));
+
+                            try
+                            {
+                                await publishEndpoint.Publish(new PremiumRemovedMessage { UserId = item.UserId }, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+
+                                addedMessage.Entity.IsPublished = true;
+                            }
+                            catch { }
+
+                            await dbContext.SaveChangesAsync();
                         }
                         else
                         {
@@ -72,8 +85,8 @@ namespace BusinessLogicLayer.Services
 
         private async Task<string> GetPayPalAccessToken()
         {
-            string clientId = _configuration["PayPalConfigs:ClientId"];
-            string secret = _configuration["PayPalConfigs:Secret"];
+            string clientId = _appSettings.PayPalConfigs.ClientId;
+            string secret = _appSettings.PayPalConfigs.Secret;
 
             string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientId}:{secret}"));
 

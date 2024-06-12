@@ -10,6 +10,7 @@ namespace TransactionServiceAPI.Services
             serviceCollection.AddScoped<IFundraisingService, FundraisingService>();
             serviceCollection.AddScoped<ISubscriptionService, SubscriptionService>();
             serviceCollection.AddHostedService<SubscriptionBackgroundService>();
+            serviceCollection.AddHostedService<OutboxMessagesBackgroundService>();
             serviceCollection.AddScoped<IEncryptionHelper, EncryptionHelper>();
 
             return serviceCollection;

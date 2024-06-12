@@ -1,11 +1,13 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
+using BusinessLogicLayer.Options;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 using MassTransit;
 using MessageBus.Messages;
+using MessageBus.Outbox.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.Net.Http.Headers;
@@ -17,16 +19,16 @@ namespace BusinessLogicLayer.Services
     public class SubscriptionService : ISubscriptionService
     {
         private readonly TransactionServiceDbContext _dbContext;
-        private readonly IConfiguration _configuration;
+        private readonly AppSettings _appSettings;
         private readonly HttpClient _httpClient;
         private readonly IPublishEndpoint _publishEndpoint;
 
-        public SubscriptionService(TransactionServiceDbContext transactionServiceDbContext, IConfiguration configuration, IHttpClientFactory httpClientFactory, IPublishEndpoint publishEndpoint)
+        public SubscriptionService(TransactionServiceDbContext transactionServiceDbContext, IHttpClientFactory httpClientFactory, IPublishEndpoint publishEndpoint, IOptions<AppSettings> options)
         {
             _dbContext = transactionServiceDbContext;
-            _configuration = configuration;
             _httpClient = httpClientFactory.CreateClient("paypal");
             _publishEndpoint = publishEndpoint;
+            _appSettings = options.Value;
         }
 
         public async Task<string> AddSubscription(SubscriptionModel subscriptionModel, string userId)
@@ -74,10 +76,19 @@ namespace BusinessLogicLayer.Services
                         IsActive = true
                     };
 
-                    await _dbContext.Subscriptions.AddAsync(model);
-                    await _dbContext.SaveChangesAsync();
+                    var addedSubscription = await _dbContext.Subscriptions.AddAsync(model);
 
-                    await _publishEndpoint.Publish(new PremiumReceivedMessage { UserId = model.UserId});
+                    var addedMessage = await _dbContext.OutboxMessages.AddAsync(new OutboxMessage(addedSubscription.Entity));
+
+                    try
+                    {
+                        await _publishEndpoint.Publish(new PremiumReceivedMessage { UserId = model.UserId }, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+
+                        addedMessage.Entity.IsPublished = true;
+                    }
+                    catch { }
+
+                    await _dbContext.SaveChangesAsync();
 
                     return null;
                 }
@@ -134,8 +145,8 @@ namespace BusinessLogicLayer.Services
 
         private async Task<string> GetPayPalAccessToken()
         {
-            string clientId = _configuration["PayPalConfigs:ClientId"];
-            string secret = _configuration["PayPalConfigs:Secret"];
+            string clientId = _appSettings.PayPalConfigs.ClientId;
+            string secret = _appSettings.PayPalConfigs.Secret;
 
             string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientId}:{secret}"));
 
