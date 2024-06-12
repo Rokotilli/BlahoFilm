@@ -88,6 +88,11 @@ builder.Services.AddMassTransit(x =>
             h.Username("guest");
             h.Password("guest");
         });
+        cfg.Publish<MediaRegisteredMessage>(publishTopology =>
+        {
+            publishTopology.ExchangeType = ExchangeType.Fanout;
+            publishTopology.Durable = true;
+        });
         cfg.ReceiveEndpoint("user-received-queue-film-service", e =>
         {
             e.ConfigureConsumeTopology = false;
