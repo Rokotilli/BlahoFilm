@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AnimeServiceDbContext))]
-    [Migration("20240602180316_Init")]
+    [Migration("20240612003902_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -75,15 +75,12 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartOne")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartThree")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartTwo")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Quality")

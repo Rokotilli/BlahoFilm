@@ -72,15 +72,12 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartOne")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartThree")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PosterPartTwo")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Quality")

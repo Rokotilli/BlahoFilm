@@ -18,9 +18,9 @@ namespace DataAccessLayer.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Poster = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PosterPartOne = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PosterPartTwo = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PosterPartThree = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PosterPartOne = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    PosterPartTwo = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    PosterPartThree = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CountSeasons = table.Column<int>(type: "int", nullable: true),

@@ -72,7 +72,6 @@ namespace BusinessLogicLayer.Services
                     a.Description == model.Description &&
                     a.CountSeasons == model.CountSeasons &&
                     a.CountParts == model.CountParts &&
-                    a.DateOfPublish == model.DateOfPublish &&
                     a.Director == model.Director &&
                     a.Country == model.Country &&
                     a.Rating == model.Rating &&

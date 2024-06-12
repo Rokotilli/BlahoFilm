@@ -13,8 +13,8 @@ namespace AnimeServiceAPI.Controllers
         {
             _dbContext = AnimeServiceDbContext;
         }
-        [HttpGet("getbyanimeid")]
-        public async Task<IActionResult> GetAnimePartsByAnimeId([FromQuery] int animeId)
+        [HttpPost("getbyanimeid")]
+        public async Task<IActionResult> GetAnimePartsByAnimeId([FromBody] int animeId)
         {
             var model = _dbContext.AnimeParts.Include(ap=>ap.Anime).Where(ap => ap.AnimeId == animeId)
                 .Select(a => new
@@ -37,8 +37,8 @@ namespace AnimeServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet("getbyid")]
-        public async Task<IActionResult> GetAnimePartById([FromQuery] int Id)
+        [HttpPost("getbyid")]
+        public async Task<IActionResult> GetAnimePartById([FromBody] int Id)
         {
             var model = await _dbContext.AnimeParts.Include(ap=>ap.Anime)
                 .FirstOrDefaultAsync(ap => ap.Id == Id);
