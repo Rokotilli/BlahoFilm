@@ -34,8 +34,8 @@ namespace SeriesServiceAPI.Controllers
 
             return BadRequest("Can't get a SaS");
         }
-        [HttpGet("byid")]
-        public async Task<IActionResult> GetSeriesById([FromQuery] int id)
+        [HttpPost("byid")]
+        public async Task<IActionResult> GetSeriesById([FromBody] int id)
         {
             var model = await _dbContext.Series
             .Include(a => a.GenresSeries).ThenInclude(ga => ga.Genre)
@@ -51,7 +51,7 @@ namespace SeriesServiceAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("byids")]
+        [HttpPost("byids")]
         public async Task<IActionResult> GetSeriesByIds([FromBody] int[] ids)
         {
             var model = _dbContext.Series

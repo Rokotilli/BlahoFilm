@@ -64,28 +64,7 @@ namespace BusinessLogicLayer.Services
                     AgeRestriction = seriesRegisterModel.AgeRestriction,
                     Country = seriesRegisterModel.Country,
                     Quality = seriesRegisterModel.Quality,
-                };
-                _ = _dbContext.Series;
-                foreach (Series s in _dbContext.Series)
-                {
-                    Console.WriteLine(s.Poster == model.Poster);
-                    Console.WriteLine(s.PosterPartOne == model.PosterPartOne);
-                    Console.WriteLine(s.PosterPartTwo == model.PosterPartTwo);
-                    Console.WriteLine(s.PosterPartThree == model.PosterPartThree);
-                    Console.WriteLine(s.Title == model.Title);
-                    Console.WriteLine(s.Description == model.Description);
-                    Console.WriteLine(s.CountSeasons == model.CountSeasons);
-                    Console.WriteLine(s.CountParts == model.CountParts);
-                    Console.WriteLine(s.DateOfPublish == model.DateOfPublish);
-                    Console.WriteLine(s.Actors == model.Actors);
-                    Console.WriteLine(s.Director == model.Director);
-                    Console.WriteLine(s.Rating == model.Rating);
-                    Console.WriteLine(s.TrailerUri == model.TrailerUri);
-                    Console.WriteLine(s.AgeRestriction == model.AgeRestriction);
-                    Console.WriteLine(s.Country == model.Country);
-                    Console.WriteLine(s.Quality == model.Quality);
-                    Console.WriteLine("asdasdasd");
-                }
+                };              
                 var series = await _dbContext.Series
                      .FirstOrDefaultAsync(s =>
                      s.Title == model.Title &&

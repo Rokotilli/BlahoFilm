@@ -15,8 +15,8 @@ namespace SeriesServiceAPI.Controllers
         {
             _dbContext = SeriesServiceDbContext;
         }
-        [HttpGet("getbyseriesid")]
-        public async Task<IActionResult> GetSeriesPartsBySeriesId([FromQuery] int seriesId)
+        [HttpPost("getbyseriesid")]
+        public async Task<IActionResult> GetSeriesPartsBySeriesId([FromBody] int seriesId)
         {
             var model = _dbContext.SeriesParts.Include(sp => sp.Series).Where(sp => sp.SeriesId == seriesId)
                 .Select(s => new
@@ -41,8 +41,8 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet("getbyid")]
-        public async Task<IActionResult> GetSeriesPartById([FromQuery] int Id)
+        [HttpPost("getbyid")]
+        public async Task<IActionResult> GetSeriesPartById([FromBody] int Id)
         {
             var model = await _dbContext.SeriesParts.Include(ap => ap.Series)
                 .FirstOrDefaultAsync(ap => ap.Id == Id);
