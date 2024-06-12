@@ -69,11 +69,11 @@ namespace UserServiceAPI.Controllers
             return Ok(model);
         }
 
-        [HttpGet("byids")]
-        public async Task<IActionResult> GetUsersByIds([FromQuery] string ids)
+        [HttpPost("byids")]
+        public async Task<IActionResult> GetUsersByIds([FromBody] string[] ids)
         {
             var model = _dbContext.Users
-                .Where(u => ids.Split(",", StringSplitOptions.None)
+                .Where(u => ids
                 .Contains(u.Id)).Select(u => new
                 {
                     Id = u.Id,

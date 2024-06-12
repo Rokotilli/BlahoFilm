@@ -7,11 +7,11 @@ using DataAccessLayer.Entities;
 
 namespace BusinessLogicLayer.Services
 {
-    public class MessagesBackgroundService : BackgroundService
+    public class OutboxMessagesBackgroundService : BackgroundService
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public MessagesBackgroundService(IServiceScopeFactory serviceScopeFactory)
+        public OutboxMessagesBackgroundService(IServiceScopeFactory serviceScopeFactory)
         {
             _serviceScopeFactory = serviceScopeFactory;
         }

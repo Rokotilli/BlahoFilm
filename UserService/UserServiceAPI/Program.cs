@@ -106,6 +106,33 @@ builder.Services.AddMassTransit(x =>
             publishTopology.ExchangeType = ExchangeType.Fanout;
             publishTopology.Durable = true;
         });
+        cfg.ReceiveEndpoint("media-registered-queue-user-service", e =>
+        {
+            e.ConfigureConsumeTopology = false;
+            e.Bind<MediaRegisteredMessage>(b =>
+            {
+                b.ExchangeType = ExchangeType.Fanout;
+            });
+            e.ConfigureConsumer<MediaRegisteredConsumer>(cxt);
+        });
+        cfg.ReceiveEndpoint("premium-removed-queue-user-service", e =>
+        {
+            e.ConfigureConsumeTopology = false;
+            e.Bind<PremiumRemovedMessage>(b =>
+            {
+                b.ExchangeType = ExchangeType.Fanout;
+            });
+            e.ConfigureConsumer<PremiumRemovedConsumer>(cxt);
+        });
+        cfg.ReceiveEndpoint("premium-received-queue-user-service", e =>
+        {
+            e.ConfigureConsumeTopology = false;
+            e.Bind<PremiumReceivedMessage>(b =>
+            {
+                b.ExchangeType = ExchangeType.Fanout;
+            });
+            e.ConfigureConsumer<PremiumReceivedConsumer>(cxt);
+        });
         cfg.ConfigureEndpoints(cxt);
     });
 });

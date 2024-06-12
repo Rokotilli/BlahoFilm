@@ -88,15 +88,15 @@ namespace BusinessLogicLayer.Services
 
                 await _dbContext.UserRoles.AddAsync(new UserRole() { UserId = addedUser.Entity.Id, RoleId = 1 });
 
-                //var addedMessage = await _dbContext.OutboxMessages.AddAsync(new OutboxMessage(addedUser.Entity));
+                var addedMessage = await _dbContext.OutboxMessages.AddAsync(new OutboxMessage(addedUser.Entity));
 
-                //try
-                //{
-                //    await _publishEndpoint.Publish(new UserReceivedMessage() { Id = addedUser.Entity.Id }, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+                try
+                {
+                    await _publishEndpoint.Publish(new UserReceivedMessage() { Id = addedUser.Entity.Id }, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
 
-                //    addedMessage.Entity.IsPublished = true;
-                //}
-                //catch { }                
+                    addedMessage.Entity.IsPublished = true;
+                }
+                catch { }
 
                 await _dbContext.SaveChangesAsync();
 

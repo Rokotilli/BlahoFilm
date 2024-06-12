@@ -14,7 +14,7 @@ namespace UserServiceAPI.Services
             serviceCollection.AddScoped<IEmailService, EmailService>();
             serviceCollection.AddScoped<IJWTHelper, JWTHelper>();
             serviceCollection.AddScoped<IEncryptionHelper, EncryptionHelper>();
-            serviceCollection.AddHostedService<MessagesBackgroundService>();
+            serviceCollection.AddHostedService<OutboxMessagesBackgroundService>();
 
             return serviceCollection;
         }
