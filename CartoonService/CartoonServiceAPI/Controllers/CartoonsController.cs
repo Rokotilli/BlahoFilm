@@ -33,8 +33,8 @@ namespace CartoonServiceAPI.Controllers
 
             return BadRequest("Can't get a SaS");
         }
-        [HttpGet("byid")]
-        public async Task<IActionResult> GetCartoonById([FromQuery] int id)
+        [HttpPost("byid")]
+        public async Task<IActionResult> GetCartoonById([FromBody] int id)
         {
             var model = await _dbContext.Cartoons
             .Include(c => c.GenresCartoons).ThenInclude(ga => ga.Genre)
@@ -51,7 +51,7 @@ namespace CartoonServiceAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("byids")]
+        [HttpPost("byids")]
         public async Task<IActionResult> GetCartoonsByIds([FromBody] int[] ids)
         {
             var model = _dbContext.Cartoons

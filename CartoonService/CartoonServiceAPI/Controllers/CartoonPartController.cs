@@ -16,8 +16,8 @@ namespace CartoonServiceAPI.Controllers
             _dbContext = CartoonServiceDbContext;
         }
        
-        [HttpGet("getbycartoonid")]
-        public async Task<IActionResult> GetSeriesPartsBySeriesId([FromQuery] int cartoonId)
+        [HttpPost("getbycartoonid")]
+        public async Task<IActionResult> GetSeriesPartsBySeriesId([FromBody] int cartoonId)
         {
             var model = _dbContext.CartoonParts.Include(sp => sp.Cartoon).Where(sp => sp.CartoonId == cartoonId)
                 .Select(cp => new
@@ -41,8 +41,8 @@ namespace CartoonServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpGet("getbyid")]
-        public async Task<IActionResult> GetSeriesPartById([FromQuery] int Id)
+        [HttpPost("getbyid")]
+        public async Task<IActionResult> GetSeriesPartById([FromBody] int Id)
         {
             var model = await _dbContext.CartoonParts.Include(ap => ap.Cartoon)
                 .FirstOrDefaultAsync(ap => ap.Id == Id);
