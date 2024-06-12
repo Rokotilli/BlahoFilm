@@ -1,9 +1,11 @@
 ﻿using DataAccessLayer.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+using MessageBus.Outbox;
 
 namespace DataAccessLayer.Context
 {
-    public class AnimeServiceDbContext : DbContext
+    public class AnimeServiceDbContext : BaseDbContext
     {
         public AnimeServiceDbContext(DbContextOptions<AnimeServiceDbContext> dbContextOptions) : base(dbContextOptions) { }
 
@@ -22,10 +24,6 @@ namespace DataAccessLayer.Context
         public DbSet<StudiosAnime> StudiosAnimes { get; set; }
         public DbSet<Selection> Selections { get; set; }
         public DbSet<SelectionAnime> SelectionAnimes { get; set; }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
-            base.OnModelCreating(modelBuilder);
-        }
+        protected override Assembly ConfigurationAssembly => Assembly.GetExecutingAssembly();
     }
 }

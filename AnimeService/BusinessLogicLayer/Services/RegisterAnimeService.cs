@@ -6,6 +6,7 @@ using MassTransit;
 using MassTransit.Initializers;
 using MessageBus.Enums;
 using MessageBus.Messages;
+using MessageBus.Outbox.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
@@ -22,7 +23,7 @@ namespace BusinessLogicLayer.Services
             _dbContext = animeServiceDbContext;
             _publishEndpoint = publishEndpoint;
         }
-        private async Task<byte[]> ReadBytesAsync(IFormFile file)
+        private async Task<byte[]> ReadBytesAsync(IFormFile? file)
         {
             if (file == null)
                 return null;
@@ -40,6 +41,18 @@ namespace BusinessLogicLayer.Services
                 var genres = animeRegisterModel.Genres.Split(",");
                 var categories = animeRegisterModel.Categories.Split(",");
                 var studios = animeRegisterModel.Studios.Split(",");
+                var selections = animeRegisterModel.Selections?.Split(",");
+                if (selections != null)
+                {
+                    foreach (var item in selections)
+                    {
+                        var existSelection = await _dbContext.Selections.FirstOrDefaultAsync(s => s.Name == item);
+                        if (existSelection == null)
+                        {
+                            return $"Selection {item} not found!";
+                        }
+                    }
+                }
                 byte[] posterBytes = await ReadBytesAsync(animeRegisterModel.Poster);
                 byte[] posterPartOneBytes = await ReadBytesAsync(animeRegisterModel.PosterPartOne);
                 byte[] posterPartTwoBytes = await ReadBytesAsync(animeRegisterModel.PosterPartTwo);
@@ -94,9 +107,6 @@ namespace BusinessLogicLayer.Services
                 var existingStudios = _dbContext.Studios
                    .Select(t => t.Name)
                    .ToArray();
-                var existingVoiceovers = _dbContext.Studios
-                  .Select(t => t.Name)
-                  .ToArray();
                 var missingGenres = genres
                     .Except(existingGenres)
                     .ToArray();
@@ -107,7 +117,6 @@ namespace BusinessLogicLayer.Services
                 var missingStudios = studios
                   .Except(existingStudios)
                   .ToArray();
-
                 foreach (var item in missingGenres)
                 {
                     var newGenre = new Genre { Name = item };
@@ -125,45 +134,47 @@ namespace BusinessLogicLayer.Services
                     _dbContext.Studios.Add(newStudio);
                 }
 
-                _dbContext.Animes.Add(model);
+                var newAnime =  _dbContext.Animes.Add(model);
 
-                await _dbContext.SaveChangesAsync();
-
-                var animeid = _dbContext.Animes
-                    .First(a=>a.Title == model.Title &&
-                    a.Description == model.Description &&
-                    a.CountSeasons == model.CountSeasons &&
-                    a.CountParts == model.CountParts &&
-                    a.DateOfPublish == model.DateOfPublish &&
-                    a.Director == model.Director &&
-                    a.Country == model.Country &&
-                    a.Rating == model.Rating &&
-                    a.TrailerUri == model.TrailerUri &&
-                    a.AgeRestriction == model.AgeRestriction &&
-                    a.Quality == model.Quality).Id;
+                await _dbContext.SaveChangesAsync();              
 
                 foreach (var item in genres)
                 {
                     var genre = await _dbContext.Genres.FirstOrDefaultAsync(g => g.Name == item);
 
-                    _dbContext.GenresAnimes.Add(new GenresAnime() { AnimeId = animeid, GenreId = genre.Id });
+                    _dbContext.GenresAnimes.Add(new GenresAnime() { AnimeId = newAnime.Entity.Id, GenreId = genre.Id });
                 }
 
                 foreach (var item in categories)
                 {
                     var category = await _dbContext.Categories.FirstOrDefaultAsync(t => t.Name == item);
-                    _dbContext.CategoriesAnimes.Add(new CategoriesAnime() { AnimeId = animeid, CategoryId = category.Id });
+                    _dbContext.CategoriesAnimes.Add(new CategoriesAnime() { AnimeId = newAnime.Entity.Id, CategoryId = category.Id });
                 }
                 foreach (var item in studios)
                 {
                     var studio = await _dbContext.Studios.FirstOrDefaultAsync(g => g.Name == item);
 
-                    _dbContext.StudiosAnimes.Add(new StudiosAnime() { AnimeId = animeid, StudioId = studio.Id });
+                    _dbContext.StudiosAnimes.Add(new StudiosAnime() { AnimeId = newAnime.Entity.Id, StudioId = studio.Id });
                 }
+                if (selections != null)
+                {
+                    foreach (var item in selections)
+                    {
+                        var selection = await _dbContext.Selections.FirstOrDefaultAsync(g => g.Name == item);
+
+                        _dbContext.SelectionAnimes.Add(new SelectionAnime() { AnimeId = newAnime.Entity.Id, SelectionId = selection.Id });
+                    }
+                }
+                var addedMessage = await _dbContext.OutboxMessages.AddAsync(new OutboxMessage(newAnime.Entity));
+
+                try
+                {
+                    await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = newAnime.Entity.Id, MediaType = MediaTypes.Anime }, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+                    addedMessage.Entity.IsPublished = true;
+                }
+                catch { }
 
                 await _dbContext.SaveChangesAsync();
-
-                await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = animeid, MediaType = MediaTypes.Anime });
 
                 return null;
             }
@@ -182,8 +193,7 @@ namespace BusinessLogicLayer.Services
                     AnimeId = animePartRegisterModel.AnimeId,
                     SeasonNumber = animePartRegisterModel.SeasonNumber,
                     PartNumber = animePartRegisterModel.PartNumber,
-                    Duration = animePartRegisterModel.Duration,
-                    Quality = animePartRegisterModel.Quality
+                    Duration = animePartRegisterModel.Duration
                 };
 
                 var animePart = await _dbContext.AnimeParts
@@ -191,8 +201,7 @@ namespace BusinessLogicLayer.Services
                        cp.AnimeId == model.AnimeId &&
                     cp.SeasonNumber == model.SeasonNumber &&
                     cp.PartNumber == model.PartNumber &&
-                    cp.Duration == model.Duration &&
-                    cp.Quality == model.Quality
+                    cp.Duration == model.Duration
                                     );
                 if (animePart != null)
                 {

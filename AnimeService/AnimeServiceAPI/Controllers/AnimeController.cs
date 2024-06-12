@@ -33,8 +33,8 @@ namespace AnimeServiceAPI.Controllers
 
             return BadRequest("Can't get a SaS");
         }       
-        [HttpPost("byid")]
-        public async Task<IActionResult> GetAnimeById([FromBody] int id)
+        [HttpGet("byid")]
+        public async Task<IActionResult> GetAnimeById([FromQuery] int id)
         {
             var model = await _dbContext.Animes.Include(a => a.GenresAnimes).ThenInclude(ga => ga.Genre)
             .Include(a => a.CategoriesAnimes).ThenInclude(ca => ca.Category)

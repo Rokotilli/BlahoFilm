@@ -1,6 +1,7 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
 using DataAccessLayer.Context;
+using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -21,33 +22,61 @@ namespace AnimeServiceAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetComments([FromQuery] int animeId)
+        public async Task<IActionResult> GetComments([FromQuery] int animeId, [FromQuery] int animePartId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var model = _dbContext.Comments.Where(c => c.AnimeId == animeId)
-                .GroupJoin(_dbContext.Comments,
-                parent => parent.Id,
-                reply => reply.ParentCommentId,
-                (parent, replies) => new
+            if (animeId == 0 && animePartId == 0)
+            {
+                return BadRequest();
+            }
+            if (animePartId == 0)
+            {
+                var model = _dbContext.Comments.Where(c => c.AnimeId == animeId)
+                       .GroupJoin(_dbContext.Comments,
+                       parent => parent.Id,
+                       reply => reply.ParentCommentId,
+                       (parent, replies) => new
+                       {
+                           Id = parent.Id,
+                           UserId = parent.UserId,
+                           Text = parent.Text,
+                           ParentCommentId = parent.ParentCommentId,
+                           Date = parent.Date,
+                           CountLikes = parent.CommentLikes.Count(),
+                           CountDislikes = parent.CommentDislikes.Count(),
+                           CountReplies = replies.Count(),
+                           IsLiked = parent.CommentLikes.Any(cl => cl.UserId == (userId ?? "")),
+                           IsDisliked = parent.CommentDislikes.Any(cl => cl.UserId == (userId ?? ""))
+                       }).ToArray();
+                if (!model.Any())
                 {
-                    Id = parent.Id,
-                    UserId = parent.UserId,
-                    Text = parent.Text,
-                    ParentCommentId = parent.ParentCommentId,
-                    Date = parent.Date,
-                    CountLikes = parent.CommentLikes.Count(),
-                    CountDislikes = parent.CommentDislikes.Count(),
-                    CountReplies = replies.Count(),
-                    IsLiked = parent.CommentLikes.Any(cl => cl.UserId == (userId ?? "")),
-                    IsDisliked = parent.CommentDislikes.Any(cl => cl.UserId == (userId ?? ""))
-                }).ToArray();
-
-            if (!model.Any())
+                    return NotFound();
+                }
+                return Ok(model);
+            }
+            var result = _dbContext.Comments.Where(c => c.AnimePartId == animePartId)
+               .GroupJoin(_dbContext.Comments,
+               parent => parent.Id,
+               reply => reply.ParentCommentId,
+               (parent, replies) => new
+               {
+                   Id = parent.Id,
+                   UserId = parent.UserId,
+                   Text = parent.Text,
+                   ParentCommentId = parent.ParentCommentId,
+                   Date = parent.Date,
+                   CountLikes = parent.CommentLikes.Count(),
+                   CountDislikes = parent.CommentDislikes.Count(),
+                   CountReplies = replies.Count(),
+                   IsLiked = parent.CommentLikes.Any(cl => cl.UserId == (userId ?? "")),
+                   IsDisliked = parent.CommentDislikes.Any(cl => cl.UserId == (userId ?? ""))
+               }).ToArray();
+            if (!result.Any())
             {
                 return NotFound();
             }
+            return Ok(result);
 
-            return Ok(model);
         }
 
         [Authorize]

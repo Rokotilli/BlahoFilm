@@ -1,5 +1,6 @@
 using AnimeServiceAPI.Consumers;
 using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Options;
 using DataAccessLayer.Context;
 using MassTransit;
 using MessageBus.Messages;
@@ -11,7 +12,7 @@ using RabbitMQ.Client;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.Configure<AppSettings>(builder.Configuration);
 if (!builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddAzureAppConfiguration(config =>

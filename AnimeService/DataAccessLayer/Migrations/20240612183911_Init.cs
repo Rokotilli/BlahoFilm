@@ -69,6 +69,22 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OutboxMessages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsPublished = table.Column<bool>(type: "bit", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SerializedData = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OutboxMessages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Selections",
                 columns: table => new
                 {
@@ -116,7 +132,6 @@ namespace DataAccessLayer.Migrations
                     SeasonNumber = table.Column<int>(type: "int", nullable: false),
                     PartNumber = table.Column<int>(type: "int", nullable: false),
                     Duration = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -417,6 +432,9 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "GenresAnimes");
+
+            migrationBuilder.DropTable(
+                name: "OutboxMessages");
 
             migrationBuilder.DropTable(
                 name: "SelectionAnimes");
