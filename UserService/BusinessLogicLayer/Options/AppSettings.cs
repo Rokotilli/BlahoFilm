@@ -1,10 +1,5 @@
 ﻿namespace BusinessLogicLayer.Options
 {
-    public class RabbitMqSettings
-    {
-        public string Host { get; set; }
-    }
-
     public class SecuritySettings
     {
         public string JwtIssuer { get; set; }
@@ -13,11 +8,6 @@
         public string InitVectorKey { get; set; }
         public string RefreshTokenTTL { get; set; }
         public string AllowedOrigins { get; set; }
-    }
-
-    public class OAuthGoogleApiSettings
-    {
-        public string ApiUrl { get; set; }
     }
 
     public class RedisSettings
@@ -43,9 +33,9 @@
     public class AppSettings
     {
         public string AllowedHosts { get; set; }
-        public RabbitMqSettings RabbitMqHost { get; set; }
+        public string RabbitMqHost { get; set; }
         public SecuritySettings Security { get; set; }
-        public OAuthGoogleApiSettings OAuthGoogleApi { get; set; }
+        public string OAuthGoogleApi { get; set; }
         public RedisSettings Redis { get; set; }
         public EmailConfirmationSettings EmailConfirmation { get; set; }
         public string RedirectUrlToConfirmEmail { get; set; }
