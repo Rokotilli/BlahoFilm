@@ -1,11 +1,13 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
+using DataAccessLayer.Configurations;
 using DataAccessLayer.Context;
 using DataAccessLayer.Entities;
 using MassTransit;
 using MassTransit.Initializers;
 using MessageBus.Enums;
 using MessageBus.Messages;
+using MessageBus.Outbox.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
@@ -37,13 +39,27 @@ namespace BusinessLogicLayer.Services
         {
             try
             {
+
+                var genres = cartoonRegisterModel.Genres.Split(",");
+                var categories = cartoonRegisterModel.Categories.Split(",");
+                var studios = cartoonRegisterModel.Studios.Split(",");
+                var animationTypes = cartoonRegisterModel.AnimationType.Split(",");
+                var selections = cartoonRegisterModel.Selections?.Split(",");
+                if (selections != null)
+                {
+                    foreach (var item in selections)
+                    {
+                        var existSelection = await _dbContext.Selections.FirstOrDefaultAsync(s => s.Name == item);
+                        if (existSelection == null)
+                        {
+                            return $"Selection {item} not found!";
+                        }
+                    }
+                }
                 byte[] posterBytes = await ReadBytesAsync(cartoonRegisterModel.Poster);
                 byte[] posterPartOneBytes = await ReadBytesAsync(cartoonRegisterModel.PosterPartOne);
                 byte[] posterPartTwoBytes = await ReadBytesAsync(cartoonRegisterModel.PosterPartTwo);
                 byte[] posterPartThreeBytes = await ReadBytesAsync(cartoonRegisterModel.PosterPartThree);
-                var genres = cartoonRegisterModel.Genres.Split(",");
-                var categories = cartoonRegisterModel.Categories.Split(",");
-                var studios = cartoonRegisterModel.Studios.Split(",");
                 var model = new Cartoon()
                 {
                     Poster = posterBytes,
@@ -80,21 +96,6 @@ namespace BusinessLogicLayer.Services
                     return "This cartoon already exists!";
                 }
 
-                var existingAnimationType = await _dbContext.AnimationTypes
-                    .FirstOrDefaultAsync(g => g.Name == cartoonRegisterModel.AnimationType);
-
-                if (existingAnimationType == null)
-                {
-                    existingAnimationType = new AnimationType()
-                    {
-                        Name = cartoonRegisterModel.AnimationType,
-                    };
-                    _dbContext.AnimationTypes.Add(existingAnimationType);
-                    _dbContext.SaveChanges();
-                }
-                existingAnimationType = await
-                    _dbContext.AnimationTypes.FirstAsync(g => g.Name == cartoonRegisterModel.AnimationType);
-                model.AnimationType = existingAnimationType;
                 var existingGenres = _dbContext.Genres
                     .Select(g => g.Name)
                     .ToArray();
@@ -102,9 +103,14 @@ namespace BusinessLogicLayer.Services
                 var existingCategories = _dbContext.Categories
                     .Select(t => t.Name)
                     .ToArray();
+
                 var existingStudios = _dbContext.Studios
                   .Select(g => g.Name)
                   .ToArray();
+
+                var existingAnimationTypes = _dbContext.AnimationTypes
+                 .Select(at => at.Name)
+                 .ToArray();
 
                 var missingGenres = genres
                     .Except(existingGenres)
@@ -113,9 +119,14 @@ namespace BusinessLogicLayer.Services
                 var missingCategories = categories
                     .Except(existingCategories)
                     .ToArray();
+
                 var missingStudios = studios
                     .Except(existingStudios)
                     .ToArray();
+
+                var missingAnimationTypes = animationTypes
+                .Except(existingAnimationTypes)
+                .ToArray();
 
                 foreach (var item in missingGenres)
                 {
@@ -133,7 +144,12 @@ namespace BusinessLogicLayer.Services
                     var newStudio = new Studio { Name = item };
                     _dbContext.Studios.Add(newStudio);
                 }
-                _dbContext.Cartoons.Add(model);
+                foreach (var item in missingAnimationTypes)
+                {
+                    var newAnimationType = new AnimationType { Name = item };
+                    _dbContext.AnimationTypes.Add(newAnimationType);
+                }
+                var newCartoon = _dbContext.Cartoons.Add(model);
 
                 await _dbContext.SaveChangesAsync();
 
@@ -145,7 +161,6 @@ namespace BusinessLogicLayer.Services
                                      c.Duration == model.Duration &&
                                      c.CountSeasons == model.CountSeasons &&
                                      c.CountParts == model.CountParts &&
-                                     c.AnimationTypeId == model.AnimationTypeId &&
                                      c.DateOfPublish == model.DateOfPublish &&
                                      c.Director == model.Director &&
                                      c.Rating == model.Rating &&
@@ -167,10 +182,26 @@ namespace BusinessLogicLayer.Services
                     _dbContext.CategoriesCartoons.Add(new CategoriesCartoon() { CartoonId = cartoonid, CategoryId = category.Id });
                 }
 
+
+                if (selections != null)
+                {
+                    foreach (var item in selections)
+                    {
+                        var selection = await _dbContext.Selections.FirstOrDefaultAsync(g => g.Name == item);
+
+                        _dbContext.SelectionCartoons.Add(new SelectionCartoon() { CartoonId = newCartoon.Entity.Id, SelectionId = selection.Id });
+                    }
+                }
+                var addedMessage = await _dbContext.OutboxMessages.AddAsync(new OutboxMessage(newCartoon.Entity));
+
+                try
+                {
+                    await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = newCartoon.Entity.Id, MediaType = MediaTypes.Cartoon }, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+                    addedMessage.Entity.IsPublished = true;
+                }
+                catch { }
+
                 await _dbContext.SaveChangesAsync();
-
-                await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = cartoonid, MediaType = MediaTypes.Cartoon });
-
                 return null;
             }
             catch (Exception ex)

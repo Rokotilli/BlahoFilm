@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(CartoonServiceDbContext))]
-    [Migration("20240607001307_Init")]
+    [Migration("20240613141652_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace DataAccessLayer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -42,6 +42,21 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("AnimationTypes");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Entities.AnimationTypesCartoon", b =>
+                {
+                    b.Property<int>("CartoonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AnimationTypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CartoonId", "AnimationTypeId");
+
+                    b.HasIndex("AnimationTypeId");
+
+                    b.ToTable("AnimationTypesCartoons");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Entities.Cartoon", b =>
                 {
                     b.Property<int>("Id")
@@ -51,9 +66,6 @@ namespace DataAccessLayer.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AgeRestriction")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AnimationTypeId")
                         .HasColumnType("int");
 
                     b.Property<int?>("CountParts")
@@ -115,8 +127,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AnimationTypeId");
 
                     b.ToTable("Cartoons");
                 });
@@ -399,15 +409,50 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.Cartoon", b =>
+            modelBuilder.Entity("MessageBus.Outbox.Entities.OutboxMessage", b =>
                 {
-                    b.HasOne("DataAccessLayer.Entities.AnimationType", "AnimationType")
-                        .WithMany("Cartoons")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SerializedData")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OutboxMessages");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Entities.AnimationTypesCartoon", b =>
+                {
+                    b.HasOne("DataAccessLayer.Entities.AnimationType", "AnimationTypes")
+                        .WithMany("AnimationTypesCartoons")
                         .HasForeignKey("AnimationTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AnimationType");
+                    b.HasOne("DataAccessLayer.Entities.Cartoon", "Cartoon")
+                        .WithMany("AnimationTypeCartoons")
+                        .HasForeignKey("CartoonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AnimationTypes");
+
+                    b.Navigation("Cartoon");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.CartoonPart", b =>
@@ -585,11 +630,13 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Entities.AnimationType", b =>
                 {
-                    b.Navigation("Cartoons");
+                    b.Navigation("AnimationTypesCartoons");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.Cartoon", b =>
                 {
+                    b.Navigation("AnimationTypeCartoons");
+
                     b.Navigation("CartoonParts");
 
                     b.Navigation("CartoonRatings");

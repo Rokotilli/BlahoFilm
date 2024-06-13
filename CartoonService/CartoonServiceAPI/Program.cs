@@ -1,10 +1,10 @@
 using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Options;
 using CartoonServiceAPI.Consumers;
 using DataAccessLayer.Context;
 using MassTransit;
 using MessageBus.Messages;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RabbitMQ.Client;
@@ -12,6 +12,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<AppSettings>(builder.Configuration);
 if (!builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddAzureAppConfiguration(config =>

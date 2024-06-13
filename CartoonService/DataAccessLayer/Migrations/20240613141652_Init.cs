@@ -25,6 +25,36 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Cartoons",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Poster = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PosterPartOne = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    PosterPartTwo = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    PosterPartThree = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CountSeasons = table.Column<int>(type: "int", nullable: true),
+                    CountParts = table.Column<int>(type: "int", nullable: true),
+                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateOfPublish = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rating = table.Column<double>(type: "float", nullable: false),
+                    TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AgeRestriction = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cartoons", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
@@ -48,6 +78,22 @@ namespace DataAccessLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Genres", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OutboxMessages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsPublished = table.Column<bool>(type: "bit", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SerializedData = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OutboxMessages", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,38 +135,25 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cartoons",
+                name: "AnimationTypesCartoons",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Poster = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PosterPartOne = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    PosterPartTwo = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    PosterPartThree = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CountSeasons = table.Column<int>(type: "int", nullable: true),
-                    CountParts = table.Column<int>(type: "int", nullable: true),
-                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AnimationTypeId = table.Column<int>(type: "int", nullable: false),
-                    DateOfPublish = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rating = table.Column<double>(type: "float", nullable: false),
-                    TrailerUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FileUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Quality = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AgeRestriction = table.Column<int>(type: "int", nullable: false)
+                    CartoonId = table.Column<int>(type: "int", nullable: false),
+                    AnimationTypeId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cartoons", x => x.Id);
+                    table.PrimaryKey("PK_AnimationTypesCartoons", x => new { x.CartoonId, x.AnimationTypeId });
                     table.ForeignKey(
-                        name: "FK_Cartoons_AnimationTypes_AnimationTypeId",
+                        name: "FK_AnimationTypesCartoons_AnimationTypes_AnimationTypeId",
                         column: x => x.AnimationTypeId,
                         principalTable: "AnimationTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AnimationTypesCartoons_Cartoons_CartoonId",
+                        column: x => x.CartoonId,
+                        principalTable: "Cartoons",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -146,33 +179,6 @@ namespace DataAccessLayer.Migrations
                         column: x => x.CartoonId,
                         principalTable: "Cartoons",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CartoonRating",
-                columns: table => new
-                {
-                    CartoonId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    Rate = table.Column<double>(type: "float", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CartoonRating", x => new { x.UserId, x.CartoonId });
-                    table.CheckConstraint("CK_Rating_Rate_Range", "[Rate] >= 1 AND [Rate] <= 10");
-                    table.ForeignKey(
-                        name: "FK_CartoonRating_Cartoons_CartoonId",
-                        column: x => x.CartoonId,
-                        principalTable: "Cartoons",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CartoonRating_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -273,6 +279,33 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CartoonRating",
+                columns: table => new
+                {
+                    CartoonId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    Rate = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CartoonRating", x => new { x.UserId, x.CartoonId });
+                    table.CheckConstraint("CK_Rating_Rate_Range", "[Rate] >= 1 AND [Rate] <= 10");
+                    table.ForeignKey(
+                        name: "FK_CartoonRating_Cartoons_CartoonId",
+                        column: x => x.CartoonId,
+                        principalTable: "Cartoons",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CartoonRating_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Comments",
                 columns: table => new
                 {
@@ -358,6 +391,11 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AnimationTypesCartoons_AnimationTypeId",
+                table: "AnimationTypesCartoons",
+                column: "AnimationTypeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CartoonParts_CartoonId",
                 table: "CartoonParts",
                 column: "CartoonId");
@@ -366,11 +404,6 @@ namespace DataAccessLayer.Migrations
                 name: "IX_CartoonRating_CartoonId",
                 table: "CartoonRating",
                 column: "CartoonId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Cartoons_AnimationTypeId",
-                table: "Cartoons",
-                column: "AnimationTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CategoriesCartoons_CategoryId",
@@ -427,6 +460,9 @@ namespace DataAccessLayer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AnimationTypesCartoons");
+
+            migrationBuilder.DropTable(
                 name: "CartoonRating");
 
             migrationBuilder.DropTable(
@@ -442,10 +478,16 @@ namespace DataAccessLayer.Migrations
                 name: "GenresCartoons");
 
             migrationBuilder.DropTable(
+                name: "OutboxMessages");
+
+            migrationBuilder.DropTable(
                 name: "SelectionCartoons");
 
             migrationBuilder.DropTable(
                 name: "StudiosCartoons");
+
+            migrationBuilder.DropTable(
+                name: "AnimationTypes");
 
             migrationBuilder.DropTable(
                 name: "Categories");
@@ -470,9 +512,6 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Cartoons");
-
-            migrationBuilder.DropTable(
-                name: "AnimationTypes");
         }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using DataAccessLayer.Entities;
+using MessageBus.Outbox;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace DataAccessLayer.Context
 {
-    public class CartoonServiceDbContext : DbContext
+    public class CartoonServiceDbContext : BaseDbContext
     {
         public CartoonServiceDbContext(DbContextOptions<CartoonServiceDbContext> dbContextOptions) : base(dbContextOptions) { }
 
@@ -16,6 +18,7 @@ namespace DataAccessLayer.Context
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategoriesCartoon> CategoriesCartoons { get; set; }
         public DbSet<AnimationType> AnimationTypes { get; set; }
+        public DbSet<AnimationTypesCartoon> AnimationTypesCartoons { get; set; }
         public DbSet<Rating> CartoonRating { get; set; }
         public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<CommentDislike> CommentDislikes { get; set; }
@@ -23,12 +26,6 @@ namespace DataAccessLayer.Context
         public DbSet<StudiosCartoon> StudiosCartoons { get; set; }
         public DbSet<Selection> Selections { get; set; }
         public DbSet<SelectionCartoon> SelectionCartoons { get; set; }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
-
-            base.OnModelCreating(modelBuilder);
-
-        }
+        protected override Assembly ConfigurationAssembly => Assembly.GetExecutingAssembly();
     }
 }

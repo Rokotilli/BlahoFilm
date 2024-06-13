@@ -19,12 +19,17 @@ namespace CartoonServiceAPI.Controllers
             _dbContext = cartoonServiceDbContext;
             _commentService = commentService;
         }
-
-        [HttpGet("getbycartoonid")]
-        public async Task<IActionResult> GetCommentsForCartoon([FromQuery] int cartoonId)
+        [HttpGet]
+        public async Task<IActionResult> GetComments([FromQuery] int cartoonId, [FromQuery] int cartoonPartId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var model = _dbContext.Comments.Where(c => c.CartoonId == cartoonId)
+            if (cartoonId == 0 && cartoonPartId == 0)
+            {
+                return BadRequest();
+            }
+            if (cartoonPartId == 0)
+            {
+                var model = _dbContext.Comments.Where(c => c.CartoonId == cartoonId)
                 .GroupJoin(_dbContext.Comments,
                 parent => parent.Id,
                 reply => reply.ParentCommentId,
@@ -42,42 +47,36 @@ namespace CartoonServiceAPI.Controllers
                     IsDisliked = parent.CommentDislikes.Any(cl => cl.UserId == (userId ?? ""))
                 }).ToArray();
 
-            if (!model.Any())
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-        [HttpGet("getbycartoonpartid")]
-        public async Task<IActionResult> GetCommentsForCartoonPart([FromQuery] int cartoonPartId)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var model = _dbContext.Comments.Where(c => c.CartoonPartId == cartoonPartId)
-                .GroupJoin(_dbContext.Comments,
-                parent => parent.Id,
-                reply => reply.ParentCommentId,
-                (parent, replies) => new
+                if (!model.Any())
                 {
-                    Id = parent.Id,
-                    UserId = parent.UserId,
-                    Text = parent.Text,
-                    ParentCommentId = parent.ParentCommentId,
-                    Date = parent.Date,
-                    CountLikes = parent.CommentLikes.Count(),
-                    CountDislikes = parent.CommentDislikes.Count(),
-                    CountReplies = replies.Count(),
-                    IsLiked = parent.CommentLikes.Any(cl => cl.UserId == (userId ?? "")),
-                    IsDisliked = parent.CommentDislikes.Any(cl => cl.UserId == (userId ?? ""))
-                }).ToArray();
+                    return NotFound();
+                }
 
-            if (!model.Any())
+                return Ok(model);
+            }
+            var result = _dbContext.Comments.Where(c => c.CartoonPartId == cartoonPartId)
+               .GroupJoin(_dbContext.Comments,
+               parent => parent.Id,
+               reply => reply.ParentCommentId,
+               (parent, replies) => new
+               {
+                   Id = parent.Id,
+                   UserId = parent.UserId,
+                   Text = parent.Text,
+                   ParentCommentId = parent.ParentCommentId,
+                   Date = parent.Date,
+                   CountLikes = parent.CommentLikes.Count(),
+                   CountDislikes = parent.CommentDislikes.Count(),
+                   CountReplies = replies.Count(),
+                   IsLiked = parent.CommentLikes.Any(cl => cl.UserId == (userId ?? "")),
+                   IsDisliked = parent.CommentDislikes.Any(cl => cl.UserId == (userId ?? ""))
+               }).ToArray();
+            if (!result.Any())
             {
                 return NotFound();
             }
-
-            return Ok(model);
-        }
+            return Ok(result);
+        }       
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddCommentForCartoon(CommentAddModel commentAddModel)

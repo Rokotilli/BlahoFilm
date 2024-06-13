@@ -33,8 +33,8 @@ namespace CartoonServiceAPI.Controllers
 
             return BadRequest("Can't get a SaS");
         }
-        [HttpPost("byid")]
-        public async Task<IActionResult> GetCartoonById([FromBody] int id)
+        [HttpGet("byid")]
+        public async Task<IActionResult> GetCartoonById([FromQuery] int id)
         {
             var model = await _dbContext.Cartoons
             .Include(c => c.GenresCartoons).ThenInclude(ga => ga.Genre)
@@ -132,6 +132,18 @@ namespace CartoonServiceAPI.Controllers
         public async Task<IActionResult> GetAllSelections()
         {
             var model = await _dbContext.Selections.ToArrayAsync();
+
+            if (!model.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+        [HttpGet("animationtypes")]
+        public async Task<IActionResult> GetAllAnimationTypes()
+        {
+            var model = await _dbContext.AnimationTypes.ToArrayAsync();
 
             if (!model.Any())
             {
