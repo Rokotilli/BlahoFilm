@@ -1,9 +1,11 @@
 ﻿using DataAccessLayer.Entities;
+using MessageBus.Outbox;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace DataAccessLayer.Context
 {
-    public class SeriesServiceDbContext : DbContext
+    public class SeriesServiceDbContext : BaseDbContext
     {
         public SeriesServiceDbContext(DbContextOptions<SeriesServiceDbContext> dbContextOptions) : base(dbContextOptions) { }
         public DbSet<Series> Series { get; set; }
@@ -21,11 +23,6 @@ namespace DataAccessLayer.Context
         public DbSet<StudiosSeries> StudiosSeries { get; set; }
         public DbSet<Selection> Selections { get; set; }
         public DbSet<SelectionSeries> SelectionSeries { get; set; }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
-
-            base.OnModelCreating(modelBuilder);
-        }
+        protected override Assembly ConfigurationAssembly => Assembly.GetExecutingAssembly();
     }
 }

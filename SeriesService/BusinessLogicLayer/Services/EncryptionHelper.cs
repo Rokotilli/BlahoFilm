@@ -1,5 +1,7 @@
 ﻿using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Options;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -10,10 +12,10 @@ namespace BusinessLogicLayer.Services
         private readonly byte[] ProtectKey;
         private readonly byte[] InitVector;
 
-        public EncryptionHelper(IConfiguration configuration)
+        public EncryptionHelper(IOptions<AppSettings> options)
         {
-            ProtectKey = Encoding.UTF8.GetBytes(configuration["Security:CookieProtectKey"]);
-            InitVector = Encoding.UTF8.GetBytes(configuration["Security:InitVectorKey"]);
+            ProtectKey = Encoding.UTF8.GetBytes(options.Value.Security.CookieProtectKey);
+            InitVector = Encoding.UTF8.GetBytes(options.Value.Security.InitVectorKey);
         }
 
         public string Decrypt(string cipherText)

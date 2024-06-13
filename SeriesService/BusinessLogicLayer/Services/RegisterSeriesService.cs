@@ -6,10 +6,9 @@ using MassTransit;
 using MassTransit.Initializers;
 using MessageBus.Enums;
 using MessageBus.Messages;
+using MessageBus.Outbox.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.IO;
-using System.Reflection;
 
 namespace BusinessLogicLayer.Services
 {
@@ -46,6 +45,18 @@ namespace BusinessLogicLayer.Services
                 var genres = seriesRegisterModel.Genres.Split(",");
                 var categories = seriesRegisterModel.Categories.Split(",");
                 var studios = seriesRegisterModel.Studios.Split(",");
+                var selections = seriesRegisterModel.Selections?.Split(",");
+                if (selections != null)
+                {
+                    foreach (var item in selections)
+                    {
+                        var existSelection = await _dbContext.Selections.FirstOrDefaultAsync(s => s.Name == item);
+                        if (existSelection == null)
+                        {
+                            return $"Selection {item} not found!";
+                        }
+                    }
+                }
                 var model = new Series()
                 {
                     Poster = posterBytes,
@@ -64,7 +75,7 @@ namespace BusinessLogicLayer.Services
                     AgeRestriction = seriesRegisterModel.AgeRestriction,
                     Country = seriesRegisterModel.Country,
                     Quality = seriesRegisterModel.Quality,
-                };              
+                };
                 var series = await _dbContext.Series
                      .FirstOrDefaultAsync(s =>
                      s.Title == model.Title &&
@@ -124,31 +135,16 @@ namespace BusinessLogicLayer.Services
                     var newStudio = new Studio { Name = item };
                     _dbContext.Studios.Add(newStudio);
                 }
-                _dbContext.Series.Add(model);
+                var newSeries = _dbContext.Series.Add(model);
 
                 await _dbContext.SaveChangesAsync();
 
-                var seriesid = _dbContext.Series
-                    .Where(s =>
-                                      s.Poster == model.Poster &&
-                       s.Title == model.Title &&
-                      s.Description == model.Description &&
-                        s.CountSeasons == s.CountSeasons &&
-                       s.CountParts == s.CountParts &&
-                       s.DateOfPublish == model.DateOfPublish &&
-                          s.Director == model.Director &&
-                       s.Rating == model.Rating &&
-                          s.Actors == model.Actors &&
-                          s.TrailerUri == model.TrailerUri &&
-                          s.AgeRestriction == model.AgeRestriction)
-                    .Select(s => s.Id)
-                    .First();
 
                 foreach (var item in genres)
                 {
                     var genre = await _dbContext.Genres.FirstOrDefaultAsync(g => g.Name == item);
 
-                    _dbContext.GenresSeries.Add(new GenresSeries() { SeriesId = seriesid, GenreId = genre.Id });
+                    _dbContext.GenresSeries.Add(new GenresSeries() { SeriesId = newSeries.Entity.Id, GenreId = genre.Id });
                 }
 
                 foreach (var item in categories)
@@ -156,19 +152,35 @@ namespace BusinessLogicLayer.Services
 
                     var category = await _dbContext.Categories.FirstOrDefaultAsync(t => t.Name == item);
 
-                    _dbContext.CategoriesSeries.Add(new CategoriesSeries() { SeriesId = seriesid, CategoryId = category.Id });
+                    _dbContext.CategoriesSeries.Add(new CategoriesSeries() { SeriesId = newSeries.Entity.Id, CategoryId = category.Id });
                 }
                 foreach (var item in studios)
                 {
                     var studio = await _dbContext.Studios.FirstOrDefaultAsync(g => g.Name == item);
 
-                    _dbContext.StudiosSeries.Add(new StudiosSeries() { SeriesId = seriesid, StudioId = studio.Id });
+                    _dbContext.StudiosSeries.Add(new StudiosSeries() { SeriesId = newSeries.Entity.Id, StudioId = studio.Id });
+                }
+                if (selections != null)
+                {
+                    foreach (var item in selections)
+                    {
+                        var selection = await _dbContext.Selections.FirstOrDefaultAsync(g => g.Name == item);
+
+                        _dbContext.SelectionSeries.Add(new SelectionSeries() { SeriesId = newSeries.Entity.Id, SelectionId = selection.Id });
+                    }
                 }
 
 
-                await _dbContext.SaveChangesAsync();
+                var addedMessage = await _dbContext.OutboxMessages.AddAsync(new OutboxMessage(newSeries.Entity));
 
-                await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = seriesid, MediaType = MediaTypes.Series });
+                try
+                {
+                    await _publishEndpoint.Publish(new MediaRegisteredMessage() { Id = newSeries.Entity.Id, MediaType = MediaTypes.Series }, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+                    addedMessage.Entity.IsPublished = true;
+                }
+                catch { }
+
+                await _dbContext.SaveChangesAsync();
 
                 return null;
             }

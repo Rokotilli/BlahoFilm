@@ -1,4 +1,5 @@
 using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Options;
 using DataAccessLayer.Context;
 using MassTransit;
 using MessageBus.Messages;
@@ -11,6 +12,7 @@ using SeriesServiceAPI.Consumers;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.Configure<AppSettings>(builder.Configuration);
 
 if (!builder.Environment.IsDevelopment())
 {
