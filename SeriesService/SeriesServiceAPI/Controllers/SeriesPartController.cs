@@ -7,16 +7,16 @@ namespace SeriesServiceAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SeriesPartsController : ControllerBase
+    public class SeriesPartController : ControllerBase
     {
         private readonly SeriesServiceDbContext _dbContext;
 
-        public SeriesPartsController(SeriesServiceDbContext SeriesServiceDbContext)
+        public SeriesPartController(SeriesServiceDbContext SeriesServiceDbContext)
         {
             _dbContext = SeriesServiceDbContext;
         }
-        [HttpPost("getbyseriesid")]
-        public async Task<IActionResult> GetSeriesPartsBySeriesId([FromBody] int seriesId)
+        [HttpGet("getbyseriesid")]
+        public async Task<IActionResult> GetSeriesPartsBySeriesId([FromQuery] int seriesId)
         {
             var model = _dbContext.SeriesParts.Include(sp => sp.Series).Where(sp => sp.SeriesId == seriesId)
                 .Select(s => new
@@ -41,8 +41,8 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok(model);
         }
-        [HttpPost("getbyid")]
-        public async Task<IActionResult> GetSeriesPartById([FromBody] int Id)
+        [HttpGet("getbyid")]
+        public async Task<IActionResult> GetSeriesPartById([FromQuery] int Id)
         {
             var model = await _dbContext.SeriesParts.Include(ap => ap.Series)
                 .FirstOrDefaultAsync(ap => ap.Id == Id);
@@ -91,6 +91,6 @@ namespace SeriesServiceAPI.Controllers
 
             return Ok(model);
         }
-       
+
     }
 }

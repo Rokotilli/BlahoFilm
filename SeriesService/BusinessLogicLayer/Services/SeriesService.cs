@@ -18,6 +18,7 @@ namespace BusinessLogicLayer.Services
         public IEnumerable<Genre> Genres { get; set; }
         public IEnumerable<Category> Categories { get; set; }
         public IEnumerable<Studio> Studios { get; set; }
+        public IEnumerable<Selection> Selections { get; set; }
     }
     public class SeriesService : ISeriesService
     {
@@ -165,6 +166,7 @@ namespace BusinessLogicLayer.Services
                 Genres = a.GenresSeries.Select(ga => new Genre { Id = ga.GenreId, Name = ga.Genre.Name }),
                 Categories = a.CategoriesSeries.Select(ta => new Category { Id = ta.CategoryId, Name = ta.Category.Name }),
                 Studios = a.StudiosSeries.Select(sa => new Studio { Id = sa.StudioId, Name = sa.Studio.Name }),
+                Selections = a.SelectionSeries?.Select(sa => new Selection { Id = sa.SelectionId, Name = sa.Selection.Name }),
             };
         }
     }
