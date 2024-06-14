@@ -99,7 +99,7 @@ namespace AnimeServiceAPI.Controllers
 
             return Ok(model);
         }
-
+      
         [HttpGet("categories")]
         public async Task<IActionResult> GetAllTags()
         {

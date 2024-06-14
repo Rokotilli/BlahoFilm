@@ -5,7 +5,6 @@ using DataAccessLayer.Context;
 using MassTransit;
 using MessageBus.Messages;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RabbitMQ.Client;
