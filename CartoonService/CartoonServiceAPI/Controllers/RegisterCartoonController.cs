@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CartoonServiceAPI.Controllers
 {
-    [Authorize(Roles = "ADMIN")]
+    //[Authorize(Roles = "ADMIN")]
     [Route("api/[controller]")]
     [ApiController]
     public class RegisterCartoonController : ControllerBase
