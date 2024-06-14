@@ -181,7 +181,11 @@ namespace BusinessLogicLayer.Services
                     var category = await _dbContext.Categories.FirstOrDefaultAsync(t => t.Name == item);
                     _dbContext.CategoriesCartoons.Add(new CategoriesCartoon() { CartoonId = cartoonid, CategoryId = category.Id });
                 }
-
+                foreach (var item in studios)
+                {
+                    var studio = await _dbContext.Studios.FirstOrDefaultAsync(t => t.Name == item);
+                    _dbContext.StudiosCartoons.Add(new StudiosCartoon() { CartoonId = cartoonid, StudioId = studio.Id });
+                }
 
                 if (selections != null)
                 {

@@ -18,6 +18,7 @@ namespace BusinessLogicLayer.Services
         public IEnumerable<Genre> Genres { get; set; }
         public IEnumerable<Category> Categories { get; set; }
         public IEnumerable<Studio> Studios { get; set; }
+        public IEnumerable<Selection>? Selections { get; set; }
     }
     public class CartoonService : ICartoonService
     {
@@ -143,6 +144,7 @@ namespace BusinessLogicLayer.Services
         {
             return new ReturnCartoon
             {
+                Id = c.Id,
                 Poster = c.Poster,
                 PosterPartOne = c.PosterPartOne,
                 PosterPartTwo = c.PosterPartTwo,
@@ -162,6 +164,7 @@ namespace BusinessLogicLayer.Services
                 Genres = c.GenresCartoons.Select(gc => new Genre { Id = gc.GenreId, Name = gc.Genre.Name }),
                 Categories = c.CategoriesCartoons.Select(tc => new Category { Id = tc.CategoryId, Name = tc.Category.Name }),
                 Studios = c.StudiosCartoons.Select(sc => new Studio { Id = sc.StudioId, Name = sc.Studio.Name }),
+                Selections = c.SelectionCartoons?.Select(sc => new Selection { Id = sc.SelectionId, Name = sc.Selection.Name }),
             };
         }
     }
