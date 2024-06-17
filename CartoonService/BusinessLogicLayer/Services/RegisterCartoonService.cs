@@ -77,7 +77,8 @@ namespace BusinessLogicLayer.Services
                     Rating = cartoonRegisterModel.Rating,
                     TrailerUri = cartoonRegisterModel.TrailerUri,
                     AgeRestriction = cartoonRegisterModel.AgeRestriction,
-                    Country = cartoonRegisterModel.Country
+                    Country = cartoonRegisterModel.Country,
+                    Actors = cartoonRegisterModel.Actors
                 };
 
                 var cartoon = await _dbContext.Cartoons
