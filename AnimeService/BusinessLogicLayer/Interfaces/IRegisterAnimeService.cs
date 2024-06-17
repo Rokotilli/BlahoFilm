@@ -6,5 +6,6 @@ namespace BusinessLogicLayer.Interfaces
     {
         Task<string> RegisterAnime(AnimeRegisterModel animeRegisterModel);
         Task<string> RegisterAnimePart(AnimePartRegisterModel animePartRegisterModel);
+        Task<string> CreateSelection(SelectionAddModel selectionAddModel);
     }
 }
