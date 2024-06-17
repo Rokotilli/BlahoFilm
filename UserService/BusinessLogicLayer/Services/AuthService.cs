@@ -82,9 +82,12 @@ namespace BusinessLogicLayer.Services
                     new Claim(ClaimTypes.Email, userModel.Email)
                 };
 
-                var token = await _jWTHelper.GenerateJwtToken(claims);
-                var encryptedToken = _encryptionHelper.Encrypt(token);
-                await _emailService.SendEmailAsync(userModel.Email, _appSettings.RedirectUrlToConfirmEmail + "?token=" + encryptedToken, SendEmailActions.ConfirmEmail);
+                if (externalProvider == null)
+                {
+                    var token = await _jWTHelper.GenerateJwtToken(claims);
+                    var encryptedToken = _encryptionHelper.Encrypt(token);
+                    await _emailService.SendEmailAsync(userModel.Email, _appSettings.RedirectUrlToConfirmEmail + "?token=" + encryptedToken, SendEmailActions.ConfirmEmail);
+                }
 
                 await _dbContext.UserRoles.AddAsync(new UserRole() { UserId = addedUser.Entity.Id, RoleId = 1 });
 
