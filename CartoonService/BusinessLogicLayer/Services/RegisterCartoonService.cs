@@ -264,5 +264,34 @@ namespace BusinessLogicLayer.Services
                 return ex.ToString();
             }
         }
+        public async Task<string> CreateSelection(SelectionAddModel selectionAddModel)
+        {
+            try
+            {
+                var existSelection = await _dbContext.Selections.FirstOrDefaultAsync(s => s.Name == selectionAddModel.Name);
+
+                if (existSelection != null)
+                {
+                    return "This selection already exists!";
+                }
+
+                byte[] imageBytes = await ReadBytesAsync(selectionAddModel.Image);
+
+                var model = new Selection
+                {
+                    Name = selectionAddModel.Name,
+                    Image = imageBytes
+                };
+
+                await _dbContext.Selections.AddAsync(model);
+                await _dbContext.SaveChangesAsync();
+
+                return null;
+            }
+            catch
+            {
+                return "Adding selection failed!";
+            }
+        }
     }
 }

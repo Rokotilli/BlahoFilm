@@ -91,5 +91,17 @@ namespace CartoonServiceAPI.Controllers
 
             return BadRequest(result);
         }
+        [HttpPost("createselection")]
+        public async Task<IActionResult> CreateSelection(SelectionAddModel selectionAddModel)
+        {
+            var result = await _registerCartoonService.CreateSelection(selectionAddModel);
+
+            if (result != null)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok();
+        }
     }
 }

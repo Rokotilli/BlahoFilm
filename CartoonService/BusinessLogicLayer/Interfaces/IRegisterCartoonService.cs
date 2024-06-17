@@ -6,5 +6,6 @@ namespace BusinessLogicLayer.Interfaces
     {
         Task<string> RegisterCartoon(CartoonRegisterModel cartoonRegisterModel);
         Task<string> RegisterCartoonPart(CartoonPartRegisterModel cartoonPartRegisterModel);
+        Task<string> CreateSelection(SelectionAddModel selectionAddModel);
     }
 }
