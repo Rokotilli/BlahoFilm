@@ -63,7 +63,7 @@ namespace BusinessLogicLayer.Services
                     var resultplan = await responseplan.Content.ReadAsStringAsync();
                     var jsonplan = JsonConvert.DeserializeObject<dynamic>(resultplan);
 
-                    DateTime startDate = DateTime.ParseExact(Convert.ToString(json.start_time), "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                    DateTime startDate = DateTime.ParseExact(Convert.ToString(json.start_time), "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
 
                     var model = new Subscription()
                     {

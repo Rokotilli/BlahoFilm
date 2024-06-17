@@ -35,6 +35,21 @@ namespace TransactionServiceAPI.Controllers
             return Ok(model);
         }
 
+        [HttpGet("countpages")]
+        public async Task<IActionResult> GetCountPaggesFundraisings([FromQuery] int pageSize)
+        {
+            var count = _dbContext.Fundraisings.Count();
+
+            if (count == 0)
+            {
+                return NotFound();
+            }
+
+            var pages = Math.Ceiling((double)count / pageSize);
+
+            return Ok(pages);
+        }
+
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
         public async Task<IActionResult> CreateFundraising(FundraisingModel fundraisingModel)
