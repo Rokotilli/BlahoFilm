@@ -76,5 +76,17 @@ namespace SeriesServiceAPI.Controllers
 
             return BadRequest(result);
         }
+        [HttpPost("createselection")]
+        public async Task<IActionResult> CreateSelection(SelectionAddModel selectionAddModel)
+        {
+            var result = await _registerSeriesService.CreateSelection(selectionAddModel);
+
+            if (result != null)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok();
+        }
     }
 }

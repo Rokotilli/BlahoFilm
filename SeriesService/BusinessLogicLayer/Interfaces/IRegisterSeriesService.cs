@@ -6,5 +6,6 @@ namespace BusinessLogicLayer.Interfaces
     {
         Task<string> RegisterSeries(SeriesRegisterModel seriesRegisterModel);
         Task<string> RegisterSeriesPart(SeriesPartRegisterModel seriesPartRegisterModel);
+        Task<string> CreateSelection(SelectionAddModel selectionAddModel);
     }
 }
