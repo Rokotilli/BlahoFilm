@@ -179,6 +179,11 @@ namespace UserServiceAPI.Controllers
 
             if (resultToken != null)
             {
+                if (resultToken == "You must to confirm your account!")
+                {
+                    return BadRequest(resultToken);
+                }
+
                 var encryptedToken = _encryptionHelper.Encrypt(resultToken);
                 return Conflict(encryptedToken);
             }
