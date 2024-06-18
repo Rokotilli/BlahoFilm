@@ -20,7 +20,6 @@
         public string? FileUri { get; set; }
         public string Quality { get; set; }
         public string Country { get; set; }
-        public string Actors { get; set; }
         public int AgeRestriction { get; set; }
         public ICollection<CartoonPart> CartoonParts { get; set; }
         public ICollection<CategoriesCartoon> CategoriesCartoons { get; set; }

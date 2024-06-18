@@ -160,7 +160,6 @@ namespace BusinessLogicLayer.Services
                 Rating = c.Rating,
                 Country = c.Country,
                 TrailerUri = c.TrailerUri,
-                Actors = c.Actors,
                 AgeRestriction = c.AgeRestriction,
                 Genres = c.GenresCartoons.Select(gc => new Genre { Id = gc.GenreId, Name = gc.Genre.Name }),
                 Categories = c.CategoriesCartoons.Select(tc => new Category { Id = tc.CategoryId, Name = tc.Category.Name }),
