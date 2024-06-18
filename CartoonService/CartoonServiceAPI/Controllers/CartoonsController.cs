@@ -37,9 +37,11 @@ namespace CartoonServiceAPI.Controllers
         public async Task<IActionResult> GetCartoonById([FromQuery] int id)
         {
             var model = await _dbContext.Cartoons
-            .Include(c => c.GenresCartoons).ThenInclude(ga => ga.Genre)
-            .Include(c => c.CategoriesCartoons).ThenInclude(ca => ca.Category)
-            .Include(c => c.StudiosCartoons).ThenInclude(sa => sa.Studio)
+                .Include(a => a.GenresCartoons).ThenInclude(ga => ga.Genre)
+                .Include(a => a.CategoriesCartoons).ThenInclude(cf => cf.Category)
+                .Include(a => a.StudiosCartoons).ThenInclude(sa => sa.Studio)
+                .Include(a => a.SelectionCartoons).ThenInclude(sa => sa.Selection)
+                .Include(a => a.AnimationTypeCartoons).ThenInclude(aa => aa.AnimationTypes)
             .FirstOrDefaultAsync(c => c.Id == id);
 
 
@@ -57,8 +59,10 @@ namespace CartoonServiceAPI.Controllers
             var model = _dbContext.Cartoons
               .Where(a => ids.Contains(a.Id))
               .Include(a => a.GenresCartoons).ThenInclude(ga => ga.Genre)
-              .Include(a => a.CategoriesCartoons).ThenInclude(ca => ca.Category)
-              .Include(a => a.StudiosCartoons).ThenInclude(sa => sa.Studio)
+                .Include(a => a.CategoriesCartoons).ThenInclude(cf => cf.Category)
+                .Include(a => a.StudiosCartoons).ThenInclude(sa => sa.Studio)
+                .Include(a => a.SelectionCartoons).ThenInclude(sa => sa.Selection)
+                .Include(a => a.AnimationTypeCartoons).ThenInclude(aa => aa.AnimationTypes)
               .Select(a => CartoonService.ToReturnCartoon(a))
               .ToArray();
 
@@ -76,8 +80,10 @@ namespace CartoonServiceAPI.Controllers
             var model = _dbContext.Cartoons
                 .Where(a => a.Title.Contains(title))
                 .Include(a => a.GenresCartoons).ThenInclude(ga => ga.Genre)
-                .Include(a => a.CategoriesCartoons).ThenInclude(ca => ca.Category)
+                .Include(a => a.CategoriesCartoons).ThenInclude(cf => cf.Category)
                 .Include(a => a.StudiosCartoons).ThenInclude(sa => sa.Studio)
+                .Include(a => a.SelectionCartoons).ThenInclude(sa => sa.Selection)
+                .Include(a => a.AnimationTypeCartoons).ThenInclude(aa => aa.AnimationTypes)
                 .Select(a => CartoonService.ToReturnCartoon(a))
                 .ToArray();
 

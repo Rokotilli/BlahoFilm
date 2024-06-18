@@ -102,6 +102,9 @@ namespace BusinessLogicLayer.Services
                         case "Selections":
                             query = query.Where(a => filter.Value.All(s => a.SelectionCartoons.Any(sa => sa.Selection.Name == s)));
                             break;
+                        case "AnimationType":
+                            query = query.Where(a => filter.Value.All(s => a.AnimationTypeCartoons.Any(sa => sa.AnimationTypes.Name == s)));
+                            break;
                     }
                 }
             }
@@ -124,7 +127,8 @@ namespace BusinessLogicLayer.Services
                 .Include(a => a.GenresCartoons).ThenInclude(ga => ga.Genre)
                 .Include(a => a.CategoriesCartoons).ThenInclude(cf => cf.Category)
                 .Include(a => a.StudiosCartoons).ThenInclude(sa => sa.Studio)
-                .Include(a => a.SelectionCartoons).ThenInclude(sa => sa.Selection);
+                .Include(a => a.SelectionCartoons).ThenInclude(sa => sa.Selection)
+                .Include(a => a.AnimationTypeCartoons).ThenInclude(aa => aa.AnimationTypes);
         }
 
         public double GetCountPagesCartoonsByFilter(Dictionary<string, string[]> filters, int pageSize, string sortByDate, string sortByPopularity)
@@ -160,6 +164,8 @@ namespace BusinessLogicLayer.Services
                 Rating = c.Rating,
                 Country = c.Country,
                 TrailerUri = c.TrailerUri,
+                FileUri = c.FileUri,
+                FileName = c.FileName,
                 AgeRestriction = c.AgeRestriction,
                 Genres = c.GenresCartoons.Select(gc => new Genre { Id = gc.GenreId, Name = gc.Genre.Name }),
                 Categories = c.CategoriesCartoons.Select(tc => new Category { Id = tc.CategoryId, Name = tc.Category.Name }),
