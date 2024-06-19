@@ -175,15 +175,15 @@ namespace UserServiceAPI.Controllers
                 user = _authService.AddUser(new UserModel { Email = externalUserEmail }, "Google", externalUserId).Result.User;
             }
 
+            if (!user.EmailConfirmed)
+            {
+                return StatusCode(403, "This email has already taken and not confirmed!");
+            }
+
             var resultToken = await _authService.CheckUserEmailForMigrate(user, externalUserEmail, externalUserId, "Google");
 
             if (resultToken != null)
             {
-                if (resultToken == "You must to confirm your account!")
-                {
-                    return BadRequest(resultToken);
-                }
-
                 var encryptedToken = _encryptionHelper.Encrypt(resultToken);
                 return Conflict(encryptedToken);
             }

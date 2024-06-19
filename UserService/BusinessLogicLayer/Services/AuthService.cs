@@ -198,11 +198,6 @@ namespace BusinessLogicLayer.Services
         {          
             if (user.ExternalId == null && user.Email == externalEmail)
             {
-                if (user.EmailConfirmed != true)
-                {
-                    return "You must to confirm your account!";
-                }
-
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, externalId),
