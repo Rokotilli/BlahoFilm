@@ -177,7 +177,7 @@ namespace UserServiceAPI.Controllers
 
             if (!user.EmailConfirmed)
             {
-                return StatusCode(403, "This email has already taken and not confirmed!");
+                return BadRequest("This email has already taken and not confirmed!");
             }
 
             var resultToken = await _authService.CheckUserEmailForMigrate(user, externalUserEmail, externalUserId, "Google");
